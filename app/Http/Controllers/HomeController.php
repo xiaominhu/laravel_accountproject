@@ -542,7 +542,24 @@ class HomeController extends Controller
 		return view('admin/feedsmanagement', compact('fees', 'subscripttionfees'));
 	}
 
-	
+	function getusers(Request $request){
+		if($request->type !== null){
+			if($request->type == "user")
+			{
+				$users = User::where('usertype', '0')->select("no", 'name')->get();
+			}elseif($request->type == "seller")
+			{
+				$users = User::where('usertype', '1')->select("no", 'name')->get();
+			}
+			else
+				return response()->json(['status' => 0,   'msg'=> "wrong_request"]); 
+			return response()->json(['status' => 1, 'data' => $users]); 
+		}
+		else{
+			return response()->json(['status' => 0,   'msg'=> "wrong_request"]); 	
+		}
+	}
+
 	// setting management
 	public function adminsetting(Request $request){
 		
@@ -762,4 +779,11 @@ class HomeController extends Controller
 
 	}
 
+	public function addsubscription(Request $request){
+
+		$this->validate($request, Subscriptionfee::rules());
+
+		$validtor = 
+
+	}
 }

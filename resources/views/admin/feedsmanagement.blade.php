@@ -116,8 +116,7 @@
 								
 
 
-								<div class = "col-md-12 text-center">
-									 
+								<div class = "col-md-12 text-right">
 									 <button style = "margin-bottom: 15px" type="button" class="btn btn-outline-primary  btn-lg" data-toggle="modal" data-keyboard="false" data-target="#keyboard">
 										{{trans('app.add_new')}}  
 									</button>
@@ -147,14 +146,14 @@
 													</div>
 
 													<div class = "hidden name_subscription_hidden">
-														<option value="" >   {{trans('app.select')}}  </option>
+														<option value="0" >   {{trans('app.all')}}  </option>
 													</div>
 
 													<div class="form-group col-sm-12">
 														<label for="name_subscription" class="col-sm-4 control-label"> {{trans('app.name')}}  </label>
 														<div class="col-sm-8">
 															<select id="name_subscription" class = "form-control" name ="name" >
-																	<option value="" >   {{trans('app.select')}}  </option>
+																	<option value="0" >   {{trans('app.all')}}  </option>
 															</select>
 														</div>
 													</div>

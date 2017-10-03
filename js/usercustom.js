@@ -174,15 +174,14 @@ $("#createvehicle_coutry").change(function(){
 		}
 	});
 	
- 
- 
 	// add subscription
 
 	function addSubscriptionName($type){
+
 		$.ajax({
 			url: "/admin/getallusers",
 			type: "POST",
-			data: {type: "user"},
+			data: {type: $type},
 			dataType: "json",
 			beforeSend: function () {
 				$("#name_subscription").html( $(".name_subscription_hidden").html());
@@ -191,23 +190,26 @@ $("#createvehicle_coutry").change(function(){
 				if(data.status){
 					var result = data. data, html= $(".name_subscription_hidden").html();
 					for(var i = 0; i < result.length; i++){
-						result += '<option value="'+ result.no +'">'+  result.name  +'</option>';
+						html += '<option value="'+ result[i].no +'">'+  result[i].name  +'</option>';
 					}
-					$("#name_subscription").html(result);
+					$("#name_subscription").html(html);
+				 
 				}
 			},
 			complete: function () {
-				window.location.reload(true);		
+			 
 			}
 		});
 	}
 
 	$(document).on("change", "#type_subscription", function(event){
+	 
 		 if($(this).val() == "0"){
 			 $(".userform").removeClass("hidden");
 			 addSubscriptionName('user');
 		 }
-		 else{
+
+		 if($(this).val() == "1"){
 			 $(".userform").addClass("hidden");
 			 addSubscriptionName('seller');
 		 }

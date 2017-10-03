@@ -45,7 +45,6 @@
 		Route::get('vehicles/create', 'VehicleController@api_create');
 		Route::post('vehicles/create', 'VehicleController@api_create');
 		
-		
 		Route::get('countries', 'VehicleController@api_countries');
 		Route::post('countries', 'VehicleController@api_countries');
 		
@@ -137,6 +136,9 @@
 		
 		Route::get('/feesmanagement', 'HomeController@feedsmanagement')->name('feedsmanagement');
 		Route::post('/feesmanagement', 'HomeController@feedsmanagement');
+		Route::post('/getallusers', 'HomeController@getusers');
+		Route::post('/subscription/add', 'HomeController@addsubscription');
+		
 		
 		// operation Deposit
 		Route::get('/depositmanagement', 'OperationController@depositmanagement')->name('depositmanagement');
