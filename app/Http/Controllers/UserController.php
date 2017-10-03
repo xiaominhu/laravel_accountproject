@@ -723,8 +723,6 @@ class UserController extends Controller{
 				}
 			}
 
-
-
 		/*	$operations = Operation::where('operation.sender_id', Auth::user()->id)
 						  ->select('operation.no', 'operation.amount', 'operation.created_at', 'vehicles.name', 'operation.vehicle', 'operation.service_type', 'vehicles.city', 'oc_zone.name as state', 'operation.type', 'operation.service_type')
 						  ->where('operation.status', 1)
