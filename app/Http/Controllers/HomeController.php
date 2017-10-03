@@ -26,6 +26,7 @@ Use App\Operation;
 use App\Transactions;
 Use Nexmo;
 Use Excel;
+Use App\Subscriptionfee;
 
 use Illuminate\Support\Facades\Storage;
 use App\Mail\Notification;
@@ -537,7 +538,8 @@ class HomeController extends Controller
 				$fee->save();
 			}
 		}
-		return view('admin/feedsmanagement', compact('fees'));
+		$subscripttionfees = Subscriptionfee::all();
+		return view('admin/feedsmanagement', compact('fees', 'subscripttionfees'));
 	}
 
 	

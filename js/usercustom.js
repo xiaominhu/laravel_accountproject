@@ -176,6 +176,44 @@ $("#createvehicle_coutry").change(function(){
 	
  
  
+	// add subscription
+
+	function addSubscriptionName($type){
+		$.ajax({
+			url: "/admin/getallusers",
+			type: "POST",
+			data: {type: "user"},
+			dataType: "json",
+			beforeSend: function () {
+				$("#name_subscription").html( $(".name_subscription_hidden").html());
+			},
+			success: function (data) {
+				if(data.status){
+					var result = data. data, html= $(".name_subscription_hidden").html();
+					for(var i = 0; i < result.length; i++){
+						result += '<option value="'+ result.no +'">'+  result.name  +'</option>';
+					}
+					$("#name_subscription").html(result);
+				}
+			},
+			complete: function () {
+				window.location.reload(true);		
+			}
+		});
+	}
+
+	$(document).on("change", "#type_subscription", function(event){
+		 if($(this).val() == "0"){
+			 $(".userform").removeClass("hidden");
+			 addSubscriptionName('user');
+		 }
+		 else{
+			 $(".userform").addClass("hidden");
+			 addSubscriptionName('seller');
+		 }
+	});
+
+	 
  
  
  

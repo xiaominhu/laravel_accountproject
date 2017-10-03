@@ -48,7 +48,7 @@ return [
     'main_page' => 'Main Page',
     'user_management' => 'Users Management',
     'payment_manager_methods' => 'Payment Manager Methods',
-    'feeds_management' => 'Feeds Management',
+    'feeds_management' => 'Fees Management',
     'operation_manager_deposit' => 'Operation Manager Deposit',
     'operation_manager_withdrawl' => 'Operation Manager Withdrawl',
     'manager_notifications' => 'Manager Notifications',
@@ -363,5 +363,9 @@ return [
 	'qrcode' => 'QR code',
 
 	//export
-	'export_to_excel'=> 'Expert to Excel'
+	'export_to_excel'=> 'Expert to Excel',
+
+	// fee management
+	'free_if_exceed' => 'Free if exceed #cars',
+	'add_new' => 'Add New',
 ];

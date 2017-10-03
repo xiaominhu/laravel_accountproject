@@ -25,11 +25,11 @@
 				{{csrf_field()}}
 			
 				<div class="form-group col-sm-12">
-                  <label for="createvehicle_oil" class="col-sm-2 control-label"> Code </label>
-                  <div class="col-sm-10">
-                    <input type="text" class="form-control" readonly id="code" name = "code" placeholder="" value = "<?php if($flag) echo $coupon->code;  ?>">
-                  </div>
-                </div>
+					<label for="createvehicle_oil" class="col-sm-2 control-label"> Code </label>
+					<div class="col-sm-10">
+						<input type="text" class="form-control" readonly id="code" name = "code" placeholder="" value = "<?php if($flag) echo $coupon->code;  ?>">
+					</div>
+				</div>
 				
 				
 				<div class="form-group col-sm-12">

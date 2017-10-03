@@ -675,29 +675,40 @@ class UserController extends Controller{
 		if($sql == "") $sql = "1=1";
 
 		if($request->key !== null){
-			$setting['key'] = $request->key;		
-			$operations = Operation::where('operation.sender_id', Auth::user()->id)
-						  ->select('operation.no', 'operation.amount', 'operation.created_at', 'vehicles.name', 'operation.vehicle', 'operation.service_type', 'vehicles.city', 'oc_zone.name as state', 'operation.type', 'operation.service_type')
-						  ->where('operation.status', 1)
-						  ->whereRaw($sql)
-						  ->leftJoin('vehicles', 'vehicles.id', '=', 'operation.vehicle')
-						 ->leftJoin('oc_zone', 'oc_zone.zone_id', '=', 'vehicles.state')
-						  ->where(function ($query) use ($request) {
-								 $query->where('vehicles.name',  'like',  '%'. $request->key . '%')
-									->orWhere('oc_zone.name', 'like','%'. $request->key . '%')
-									->orWhere('vehicles.city', 'like','%'. $request->key . '%'); 
-							})
-						  ->paginate($page_size);
+			$setting['key'] = $request->key;
+			
+			$transactions = Transactions::orderBy('transactions.created_at')
+			->select('transactions.created_at','transactions.no', 'transactions.type', 'transactions.reference_id', 'users.usertype', 'transactions.amount', 'transactions.created_at as regdate')
+			->where('transactions.operator_id', Auth::user()->id)
+			->whereRaw($sql)
+			->where(function ($query) use ($request) {
+				$query->where('transactions.no',  'like',  '%'. $request->key . '%');
+				 //  ->orWhere('oc_zone.name', 'like','%'. $request->key . '%')
+				 //  ->orWhere('vehicles.city', 'like','%'. $request->key . '%'); 
+		     })->paginate($page_size);
+				/* $operations = Operation::where('operation.sender_id', Auth::user()->id)
+					->select('operation.no', 'operation.amount', 'operation.created_at', 'vehicles.name', 'operation.vehicle', 'operation.service_type', 'vehicles.city', 'oc_zone.name as state', 'operation.type', 'operation.service_type')
+					->where('operation.status', 1)
+					->whereRaw($sql)
+					->leftJoin('vehicles', 'vehicles.id', '=', 'operation.vehicle')
+					->leftJoin('oc_zone', 'oc_zone.zone_id', '=', 'vehicles.state')
+					->where(function ($query) use ($request) {
+							$query->where('vehicles.name',  'like',  '%'. $request->key . '%')
+							->orWhere('oc_zone.name', 'like','%'. $request->key . '%')
+							->orWhere('vehicles.city', 'like','%'. $request->key . '%'); 
+					})
+			->paginate($page_size);*/
+		
 		}
 		else{
 			$setting['key'] = "";
-
 			$transactions = Transactions::orderBy('transactions.created_at')
 							->select('users.name', 'transactions.created_at','users.first_name', 'users.last_name', 'transactions.no', 'transactions.type', 'transactions.reference_id', 'users.usertype', 'transactions.amount', 'transactions.created_at as regdate')
 							->leftJoin( 'users' ,'transactions.operator_id', '=', 'users.id')
 							->where('transactions.operator_id', Auth::user()->id)
 							->whereRaw($sql)
 							->paginate($page_size);
+			}
 			foreach ($transactions as $key => $value) {
 				switch ($value->type) { 
 					case '0':
@@ -722,17 +733,6 @@ class UserController extends Controller{
 						break;
 				}
 			}
-
-		/*	$operations = Operation::where('operation.sender_id', Auth::user()->id)
-						  ->select('operation.no', 'operation.amount', 'operation.created_at', 'vehicles.name', 'operation.vehicle', 'operation.service_type', 'vehicles.city', 'oc_zone.name as state', 'operation.type', 'operation.service_type')
-						  ->where('operation.status', 1)
-						  ->whereRaw($sql)
-						  ->leftJoin('vehicles', 'vehicles.id', '=', 'operation.vehicle')
-						  ->leftJoin('oc_zone', 'oc_zone.zone_id', '=', 'vehicles.state')
-						   ->paginate($page_size);
-			*/
-		}
-
 
 		$vehicles   = Vehicle::where("user_id", Auth::user()->id)->get();
 		$states     = Vehicle::where("user_id", Auth::user()->id)
