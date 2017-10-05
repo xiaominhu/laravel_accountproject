@@ -783,7 +783,33 @@ class HomeController extends Controller
 
 		$this->validate($request, Subscriptionfee::rules());
 
-		$validtor = 
+		$usertype = $request->usertype;
+		$name = $request->name;
+
+		$subscriptionfee = Subscriptionfee::where("name", $name)
+										  ->where("usertype", $usertype)
+										  ->first();
+		if($subscriptionfee !== null)
+			$subscriptionfee = $subscriptionfee;
+		else{
+			$subscriptionfee = new Subscriptionfee;
+			$subscriptionfee->no = Subscriptionfee::generatevalue();
+			$subscriptionfee->usertype = $usertype;
+			$subscriptionfee->name   = $name;
+			$subscriptionfee->amount = $request->amount; 
+		}
+
+		if($usertype == 0){
+
+		}
+		else{
+				//$name = $request->name;
+		}
+		
+		
+		
+		//$freeamount = $request->freeamount;
+		
 
 	}
 }

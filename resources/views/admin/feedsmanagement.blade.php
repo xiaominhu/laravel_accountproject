@@ -137,7 +137,7 @@
 													<div class="form-group col-sm-12">
 														<label for="type_subscription" class="col-sm-4 control-label"> {{trans('app.type')}}    </label>
 														<div class="col-sm-8">
-																<select id="type_subscription" class = "form-control" name ="type" >
+																<select id="type_subscription" class = "form-control" name ="usertype" >
 																	    <option value="" >    {{trans('app.select')}}  </option>
 																		<option value="0">    {{trans('app.user')}}    </option>
 																		<option value="1">    {{trans('app.seller')}}  </option>

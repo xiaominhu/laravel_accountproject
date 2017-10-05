@@ -17,4 +17,11 @@ class Subscriptionfee extends Model
 			}
 			return $result;
 	}
+	
+	public static function rules()
+    {
+        return [
+            'usertype'         =>    'required',
+        ];
+    }
 }
