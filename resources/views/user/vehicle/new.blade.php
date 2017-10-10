@@ -8,9 +8,9 @@
 					$flag = isset($vehicle) ? 1 : 0;
 				?>
 			@if($flag)
-			    <form class="form-horizontal" method = "post" action="/user/vehicles/update/{{$vehicle->id}}"  enctype="multipart/form-data">
+			    <form class="form-horizontal" method = "post" action="/user/vehicles/update/{{$vehicle->id}}"  enctype="multipart/form-data"  autocomplete="off">
 			@else
-				<form class="form-horizontal" method = "post" action="/user/vehicles/create"  enctype="multipart/form-data">
+				<form class="form-horizontal" method = "post" action="/user/vehicles/create"  enctype="multipart/form-data"  autocomplete="off">
 			@endif
 			
 				{{csrf_field()}}
@@ -35,11 +35,11 @@
 				
 				
 				<div class="form-group col-sm-12">
-					<label for="emailtemplate_config_subject" class="col-sm-2 control-label">  {{trans('app.name')}} </label>
+					<label for="createvehicle_name1" class="col-sm-2 control-label">  {{trans('app.name')}} </label>
 					<div class="col-sm-10">
-						<input type="text" class="form-control" id="createvehicle_name" name = "createvehicle_name" placeholder="" value = "<?php if($flag) echo $vehicle->name; ?>">
+						<input type="text" class="form-control" id="createvehicle_name1" name = "createvehicle_name" placeholder="" value = "<?php if($flag) echo $vehicle->name; ?>">
 
-							 @if ($errors->has('createvehicle_name'))
+							@if ($errors->has('createvehicle_name'))
 									<span class="help-block">
 										<strong>{{ $errors->first('createvehicle_name')}}</strong>
 									</span>
@@ -62,65 +62,67 @@
                 </div>
 				
 				<div class="form-group col-sm-12">
-                  <label for="createvehicle_model" class="col-sm-2 control-label">   {{trans('app.model')}} </label>
+                  <label for="createvehicle_mode" class="col-sm-2 control-label">   {{trans('app.model')}} </label>
                   <div class="col-sm-10">
-                    <input type="text" class="form-control" id="createvehicle_model" name = "createvehicle_model" placeholder="" value = "<?php if($flag) echo $vehicle->model; ?>">
-										    @if ($errors->has('createvehicle_model'))
-														<span class="help-block">
-															<strong>{{ $errors->first('createvehicle_model')}}</strong>
-														</span>
-												@endif
-									</div>
+                    <input type="text" class="form-control" id="createvehicle_model" name = "createvehicle_model" placeholder="" value = "<?php if($flag) echo $vehicle->model; ?>" autocomplete="createvehicle_model">
+						     	@if ($errors->has('createvehicle_model'))
+										<span class="help-block">
+											<strong>{{ $errors->first('createvehicle_model')}}</strong>
+										</span>
+								@endif
+					</div>
                 </div>
 				
 				<div class="form-group col-sm-12">
                   <label for="createvehicle_fuel" class="col-sm-2 control-label">     {{trans('app.fuel')}}  </label>
                   <div class="col-sm-10">
-										<select id = "createvehicle_fuel" class = "form-control" name ="createvehicle_fuel" >
-											<option value="0" <?php if($flag) if($vehicle->fuel == "0") echo "selected" ?>>   {{trans('app.all')}}  </option>	
-											<option value="1" <?php if($flag) if($vehicle->fuel == "1") echo "selected" ?>>  {{trans('app.green_fuel')}}  </option>	
-											<option value="2" <?php if($flag) if($vehicle->fuel == "2") echo "selected" ?>>  {{trans('app.red_fuel')}}  </option>	
-											<option value="3" <?php if($flag) if($vehicle->fuel == "3") echo "selected" ?>>   {{trans('app.diesel')}}  </option>	
-										</select>
+							<select id = "createvehicle_fuel" class = "form-control" name ="createvehicle_fuel" >
+								<option value="0" <?php if($flag) if($vehicle->fuel == "0") echo "selected" ?>>   {{trans('app.all')}}  </option>	
+								<option value="1" <?php if($flag) if($vehicle->fuel == "1") echo "selected" ?>>  {{trans('app.green_fuel')}}  </option>	
+								<option value="2" <?php if($flag) if($vehicle->fuel == "2") echo "selected" ?>>  {{trans('app.red_fuel')}}  </option>	
+								<option value="3" <?php if($flag) if($vehicle->fuel == "3") echo "selected" ?>>   {{trans('app.diesel')}}  </option>	
+							</select>
 
-											 @if ($errors->has('createvehicle_fuel'))
-														<span class="help-block">
-															<strong>{{ $errors->first('createvehicle_fuel')}}</strong>
-														</span>
-												@endif
+							@if ($errors->has('createvehicle_fuel'))
+								<span class="help-block">
+									<strong>{{ $errors->first('createvehicle_fuel')}}</strong>
+								</span>
+							@endif
 
 
                   </div>
                 </div>
 								
-								<div class="form-group col-sm-12" style = "display:none;">
+				 <div class="form-group col-sm-12" style = "display:none;">
                   <label for="createvehicle_oil" class="col-sm-2 control-label">  {{trans('app.oil')}}   </label>
                   <div class="col-sm-10">
                     <input type="hidden" class="form-control" id="createvehicle_oil" name = "createvehicle_oil" placeholder="" value = "<?php if($flag) echo $vehicle->oil; ?>">
-												@if ($errors->has('createvehicle_oil'))
-														<span class="help-block">
-															<strong>{{ $errors->first('createvehicle_oil')}}</strong>
-														</span>
-												@endif
-									</div>
+								@if ($errors->has('createvehicle_oil'))
+										<span class="help-block">
+											<strong>{{ $errors->first('createvehicle_oil')}}</strong>
+										</span>
+								@endif
+					</div>
                 </div>
 
-								<div class="form-group col-sm-12">
+				<input style="display:none" type="text" name="fakeusernameremembered"/>
+
+				<div class="form-group col-sm-12">
                   <label for="createvehicle_oil" class="col-sm-2 control-label">    {{trans('app.password')}}  </label>
                   <div class="col-sm-10">
                     <input type="password" class="form-control" id="createvehicle_password" name = "createvehicle_password" placeholder="" value = "">
-										  	@if ($errors->has('createvehicle_password'))
-														<span class="help-block">
-															<strong>{{ $errors->first('createvehicle_password')}}</strong>
-														</span>
-												@endif
-									</div>
+						@if ($errors->has('createvehicle_password'))
+								<span class="help-block">
+									<strong>{{ $errors->first('createvehicle_password')}}</strong>
+								</span>
+						@endif
+					</div>
                 </div>
 
 				
-								<div class="form-group col-sm-12">
-                  <label for="createvehicle_oil" class="col-sm-2 control-label">    {{trans('app.city')}}  </label>
-                  <div class="col-sm-10">
+				<div class="form-group col-sm-12">
+                    <label for="createvehicle_oil" class="col-sm-2 control-label">    {{trans('app.city')}}  </label>
+                    <div class="col-sm-10">
                     <input type="text" class="form-control" id="createvehicle_city" name = "createvehicle_city" placeholder="" value = "<?php if($flag) echo $vehicle->city; ?>">
 											@if ($errors->has('createvehicle_city'))
 														<span class="help-block">

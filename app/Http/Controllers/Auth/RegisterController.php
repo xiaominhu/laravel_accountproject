@@ -3,6 +3,8 @@
 namespace App\Http\Controllers\Auth;
 
 use App\User;
+use App\Setting;
+use App\Transactions;
 use App\Http\Controllers\Controller;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Foundation\Auth\RegistersUsers;
@@ -49,9 +51,7 @@ class RegisterController extends Controller
      */
     protected function validator(array $data)
     {
-       
         Session::flash('login', 'no');
- 
 		if($data['usertyper'] == "0"){
 
                 Session::flash('user', 'user');
@@ -95,7 +95,7 @@ class RegisterController extends Controller
      */
 	 
 	public function generatevalue(){
-		$digits = 28;
+		$digits = 10;
 		while(1){
 			$result = '';
 			for($i = 0; $i < $digits; $i++) {
@@ -127,14 +127,38 @@ class RegisterController extends Controller
             if($data['invite'] != "never"){
                 $receiver = User::where('no', $data['invite'])->first();
                 if(isset($receiver)){
+
                     $reward = new Reward;
                     $reward->receiver_id = $receiver->id;
                     $reward->sender_id   = $data['email'];
                     $reward->no          = Reward::generatevalue();
                     $reward->save();  
+
+                    $transaction = new Transactions;
+                    $transaction->operator_id =  $receiver->id;
+                    $transaction->reference_id = $reward->id;
+                    $transaction->type = 3;
+
+                    $item = Setting::where('name', 'reward')->first();
+                    if(isset($item)){
+                        $transaction->amount = $item['value'];
+                        $transaction->final_amount =  $item['value'];
+                    }
+                    else{
+                        $transaction->amount = 10;
+                        $transaction->final_amount =  10;
+                    }
+                    $transaction->fee_amount   =  0;
+                    $transaction->transtype = 0; //in 
+                    $transaction->no = Transactions::generatevalue();
+                    $transaction->save();
                 }
             }
-			$data['usertype'] = 0;
+            $data['usertype'] = 0;
+            
+            // send welocme meesage
+            User::sendMessage($data['phone'], trans('app.welcome_sms', ['no'=> $data['no']])); 
+            Session::flush();
             return User::create([
                 'name'     => $data['name'],
                 'no'       => $data['no'],

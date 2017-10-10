@@ -90,37 +90,29 @@
   </script>
   
   <body data-open="click" data-menu="vertical-menu" data-col="2-columns" class="vertical-layout vertical-menu 2-columns  fixed-navbar">
-
     <!-- navbar-fixed-top-->
     <nav class="header-navbar navbar navbar-with-menu navbar-fixed-top navbar-semi-dark navbar-shadow">
       <div class="navbar-wrapper">
         <div class="navbar-header">
-		
           <ul class="nav navbar-nav">
             <li class="nav-item mobile-menu hidden-md-up float-xs-left"><a class="nav-link nav-menu-main menu-toggle hidden-xs"><i class="icon-menu5 font-large-1"></i></a></li>
             <li class="nav-item"><a href="{{Url::to('/')}}" class="navbar-brand nav-link"><img alt="branding logo" src="{{URL::asset('app-assets/images/logo/robust-logo-light.png')}}" data-expand="{{URL::asset('app-assets/images/logo/robust-logo-light.png')}}" data-collapse="{{URL::asset('app-assets/images/logo/robust-logo-small.png')}}" class="brand-logo"></a></li>
             <li class="nav-item hidden-md-up float-xs-right"><a data-toggle="collapse" data-target="#navbar-mobile" class="nav-link open-navbar-container"><i class="icon-ellipsis pe-2x icon-icon-rotate-right-right"></i></a></li>
           </ul>
-		  
         </div>
         <div class="navbar-container content container-fluid">
           <div id="navbar-mobile" class="collapse navbar-toggleable-sm">
             <ul class="nav navbar-nav">
               <li class="nav-item hidden-sm-down"><a class="nav-link nav-menu-main menu-toggle hidden-xs"><i class="icon-menu5">         </i></a></li>
               <li class="nav-item hidden-sm-down"><a href="#" class="nav-link nav-link-expand"><i class="ficon icon-expand2"></i></a></li>
-             
             </ul>
             <ul class="nav navbar-nav float-xs-right">
-              
-			@if(App::getLocale() == "sa")
-				 <li class="dropdown dropdown-language nav-item"><a id="dropdown-flag" href="#" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" class="dropdown-toggle nav-link"><i class="flag-icon flag-icon-sa"></i><span class="selected-language">العربية</span></a>
-			@else
-				<li class="dropdown dropdown-language nav-item"><a id="dropdown-flag" href="#" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" class="dropdown-toggle nav-link"><i class="flag-icon flag-icon-gb"></i><span class="selected-language">English</span></a>
-			@endif
-			 
-			  
-			  
-                <div aria-labelledby="dropdown-flag" class="dropdown-menu">
+							@if(App::getLocale() == "sa")
+								<li class="dropdown dropdown-language nav-item"><a id="dropdown-flag" href="#" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" class="dropdown-toggle nav-link"><i class="flag-icon flag-icon-sa"></i><span class="selected-language">العربية</span></a>
+							@else
+								<li class="dropdown dropdown-language nav-item"><a id="dropdown-flag" href="#" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" class="dropdown-toggle nav-link"><i class="flag-icon flag-icon-gb"></i><span class="selected-language">English</span></a>
+							@endif
+      <div aria-labelledby="dropdown-flag" class="dropdown-menu">
 					<a href="#" class="dropdown-item language" data-lang = "en"><i class="flag-icon flag-icon-gb"></i> English</a>
 					<a href="#" class="dropdown-item language" data-lang = "sa"><i class="flag-icon flag-icon-sa"></i> العربية </a>
                 </li>
@@ -189,31 +181,61 @@
         <ul id="main-menu-navigation" data-menu="menu-navigation" class="navigation navigation-main">
           
 		  
-		 <li class=" nav-item"><a href="{{URL::to('/home')}}"><i class="icon-home3"></i><span data-i18n="nav.dash.main" class="menu-title"> {{trans('app.main_page')}} </span></a></li>
+		  <li class=" nav-item"><a href="{{URL::to('/home')}}"><i class="icon-home3"></i><span data-i18n="nav.dash.main" class="menu-title"> {{trans('app.main_page')}} </span></a></li>
 		  
-		
-		 <li class=" nav-item"><a href="{{URL::to('/admin/users')}}"><i class="icon-users3"></i><span data-i18n="nav.dash.main" class="menu-title"> {{trans('app.user_management')}} </span></a></li>
-		  
-		 <li class=" nav-item"><a href="{{route('paymentmanager')}}"><i class="icon-money"></i><span data-i18n="nav.dash.main" class="menu-title"> {{trans('app.payment_manager_methods')}} </span></a></li>
-		  
-		 <li class=" nav-item"><a href="{{route('feedsmanagement')}}"><i class="icon-paper"></i><span data-i18n="nav.dash.main" class="menu-title">{{trans('app.feeds_management')}} </span></a></li>
-		 
-		 <li class=" nav-item"><a href="{{route('depositmanagement')}}"><i class="icon-compass3"></i><span data-i18n="nav.dash.main" class="menu-title"> {{trans('app.operation_manager_deposit')}} </span></a></li>
-		 
-		 <li class=" nav-item"><a href="{{route('withdrawmanagement')}}"><i class="icon-compass3"></i><span data-i18n="nav.dash.main" class="menu-title"> {{trans('app.operation_manager_withdrawl')}}  </span></a></li>
-		 
-		 <li class=" nav-item"><a href="{{route('adminnotification')}}"><i class="icon-envelope"></i><span data-i18n="nav.dash.main" class="menu-title">{{trans('app.manager_notifications')}} </span></a></li>
-		 
-		 <li class=" nav-item"><a href="{{route('adminreport')}}"><i class="icon-book2"></i><span data-i18n="nav.dash.main" class="menu-title"> {{trans('app.reports')}} </span></a></li>
-		
-		 <li class=" nav-item"><a href="{{route('attendances')}}"><i class="icon-pencil3"></i><span data-i18n="nav.dash.main" class="menu-title"> {{trans('app.attendances')}} </span></a></li>
-		
+		 @if(Selfuser::hasPermissionadmin(Auth::user()->id, 1))
+		 	<li class=" nav-item"><a href="{{URL::to('/admin/users')}}"><i class="icon-users3"></i><span data-i18n="nav.dash.main" class="menu-title"> {{trans('app.user_management')}} </span></a></li>
+		 @endif
+
+		  @if(Selfuser::hasPermissionadmin(Auth::user()->id, 2))
+		  	<li class=" nav-item"><a href="{{route('paymentmanager')}}"><i class="icon-money"></i><span data-i18n="nav.dash.main" class="menu-title"> {{trans('app.payment_manager_methods')}} </span></a></li>
+		  @endif
+
+			@if(Selfuser::hasPermissionadmin(Auth::user()->id, 3))	 
+				<li class=" nav-item"><a href="#"><i class="icon-ios-albums-outline"></i><span data-i18n="nav.cards.main" class="menu-title"> {{trans('app.feeds_management')}}  </span></a>
+					<ul class="menu-content">
+						<li><a href="{{route('feedsmanagement')}}" data-i18n="nav.cards.card_bootstrap" class="menu-item"> {{trans('app.fees_operation')}}  </a>
+						</li>
+						<li><a href="{{route('subscriptionfees')}}" data-i18n="nav.cards.card_actions" class="menu-item"> {{trans('app.subscription_fees')}}  </a>
+						</li>
+					</ul>
+				</li>
+			@endif
+
+			@if(Selfuser::hasPermissionadmin(Auth::user()->id, 4))
+		 		<li class=" nav-item"><a href="{{route('depositmanagement')}}"><i class="icon-compass3"></i><span data-i18n="nav.dash.main" class="menu-title"> {{trans('app.operation_manager_deposit')}} </span></a></li>
+		  @endif
+
+		 @if(Selfuser::hasPermissionadmin(Auth::user()->id, 6))
+		 	<li class=" nav-item"><a href="{{route('withdrawmanagement')}}"><i class="icon-compass3"></i><span data-i18n="nav.dash.main" class="menu-title"> {{trans('app.operation_manager_withdrawl')}}  </span></a></li>
+		 @endif
+
+	@if(0)
+			@if(Selfuser::hasPermissionadmin(Auth::user()->id, 7))
+		 	<li class=" nav-item"><a href="{{route('adminnotification')}}"><i class="icon-envelope"></i><span data-i18n="nav.dash.main" class="menu-title">{{trans('app.manager_notifications')}} </span></a></li>
+		  @endif
+  @endif
+	
+			@if(Auth::user()->usertype == '2')
+			  <li class=" nav-item"><a href="{{route('adminreport')}}"><i class="icon-book2"></i><span data-i18n="nav.dash.main" class="menu-title"> {{trans('app.reports')}} </span></a></li>
+		  	<li class=" nav-item"><a href="{{route('attendances')}}"><i class="icon-pencil3"></i><span data-i18n="nav.dash.main" class="menu-title"> {{trans('app.attendances')}} </span></a></li>
+			@endif 
+
 		 <li class=" nav-item"><a href="{{route('adminmap')}}"><i class="icon-map22"></i><span data-i18n="nav.dash.main" class="menu-title"> {{trans('app.maps')}}  </span></a></li>
 		
-		 <li class=" nav-item"><a href="{{route('couponsmanagement')}}"><i class="icon-eye6"></i><span data-i18n="nav.dash.main" class="menu-title"> {{trans('app.coupons')}} </span></a></li>
-		
-		 <li class=" nav-item"><a href="{{route('messages')}}"><i class="icon-paper-plane-o"></i><span data-i18n="nav.dash.main" class="menu-title"> {{trans('app.messages')}} </span></a></li>
-		
+		 @if(Selfuser::hasPermissionadmin(Auth::user()->id, 5))
+		  <li class=" nav-item"><a href="{{route('couponsmanagement')}}"><i class="icon-eye6"></i><span data-i18n="nav.dash.main" class="menu-title"> {{trans('app.coupons')}} </span></a></li>
+			@endif 
+
+			@if(Selfuser::hasPermissionadmin(Auth::user()->id, 8))
+		  <li class=" nav-item"><a href="{{route('messages')}}"><i class="icon-paper-plane-o"></i><span data-i18n="nav.dash.main" class="menu-title"> {{trans('app.messages')}} </span></a></li>
+			@endif 
+
+		  @if(Selfuser::hasPermissionadmin(Auth::user()->id, 9))
+			<li class=" nav-item"><a href="{{route('admingetintouch')}}"><i class="icon-phone"></i><span data-i18n="nav.dash.main" class="menu-title"> {{trans('app.get_in_touch')}}   </span></a></li>
+			@endif 
+
+
 	 	 <li class=" nav-item"><a href="{{route('adminusersettings')}}"><i class="icon-user4"></i><span data-i18n="nav.dash.main" class="menu-title"> {{trans('app.user_settings')}} </span></a></li>
 		 
         </ul>
@@ -295,7 +317,7 @@
 				if(reports){
 					$('#from_date').datetimepicker({
 						  format: 'YYYY-MM-DD',
-						defaultDate: default_from
+							defaultDate: default_from
 					});
 					$('#to_date').datetimepicker({
 						  format: 'YYYY-MM-DD',

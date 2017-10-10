@@ -48,8 +48,7 @@
 					</div>
 				</div>
 			</div>
-								
-								
+							
 			
 			<div class="form-group col-sm-12">
 			    <div class="col-sm-4">
@@ -63,11 +62,11 @@
 						<i class="icon-paper-plane-o"></i>   {{trans('app.send_by_sms')}} 
 					</button>
 					 							
-					<button type="button" data-src = "{{URL::to('/images/qr')}}/{{$vehicle->qrcode}}" class="btn btn-primary  qrcodeprint"   data-type = "qrcode"  data-content = "{{$vehicle->no}}">
+					<button type="button" data-src = "{{URL::to('/images/qr')}}/{{$vehicle->qrcode}}" class="btn btn-primary  qrcodeprint"  data-name ="{{$vehicle->name}}" data-fuelname = "{{$fuelname}}"    data-type = "qrcode"  data-content = "{{$vehicle->no}}">
 						<i class="icon-print"></i>   {{trans('app.print_qr')}} 
 					</button>
 					
-					<a href = "{{URL::to('/user/vehicles')}}" type="button" class="btn btn-primary"   data-type = "qrcode"  data-content = "{{$vehicle->no}}">
+					<a href = "{{URL::to('/user/vehicles')}}" type="button" class="btn btn-primary"  data-type = "qrcode"  data-content = "{{$vehicle->no}}">
 						<i class="icon-undo"></i> {{trans('app.cancel')}} 
 					</a>
 					

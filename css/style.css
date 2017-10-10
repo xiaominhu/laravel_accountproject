@@ -469,7 +469,8 @@ hr.bold {
 --- Intro
 ============================ */
 
-.hero { background: url(../img/hero-bg.jpg) no-repeat center center; -webkit-background-size: cover; -moz-background-size: cover; -o-background-size: cover; background-size: cover; padding: 200px 0 200px 0; height: auto; }
+.hero { background: url(../img/hero-bg.jpg) no-repeat center center; -webkit-background-size: cover; -moz-background-size: cover; -o-background-size: cover; background-size: cover; padding: 200px 0 200px 0; height: auto; 
+	background-attachment: fixed;}
 .hero h1 { font-size: 40px; margin: 40px 0 10px; font-weight: 900; color: #fff;}
 .hero h1 span { color: #a1a9b0; display: inline-block; }
 .hero p { font-size: 24px; font-weight: 400; color: #fefefe; }
@@ -681,7 +682,7 @@ hr.bold {
 
 .validation {
     color: red;
-    display:none;
+   /* display:none; */
     margin: 0 0 20px;
     font-weight:400;
     font-size:13px;
@@ -690,7 +691,7 @@ hr.bold {
 #sendmessage {
     color: green;
     border:1px solid green;
-    display:none;
+   /* display:none; */
     text-align:center;
     padding:15px;
     font-weight:600;
@@ -699,7 +700,7 @@ hr.bold {
 
 #errormessage {
     color: red;
-    display:none;
+   /* display:none; */
     border:1px solid red;
     text-align:center;
     padding:15px;

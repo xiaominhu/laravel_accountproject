@@ -14,8 +14,14 @@ class SellerMiddleware
      * @return mixed
      */
     public function handle($request, Closure $next, $guard = null){
-		if(Auth::check() && Auth::user()->usertype == 1){
-            return $next($request);
+		if(Auth::check()){
+            if(Auth::user()->usertype == 1)
+                return $next($request);
+                
+            if(Auth::user()->usertype == 5){
+                return $next($request);  
+            }
+            
         }
         return redirect('home');
     }

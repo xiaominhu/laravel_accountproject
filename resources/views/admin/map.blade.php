@@ -13,7 +13,7 @@
 						   @foreach ($errors->all() as $error)
 							  <li>{{ $error }}</li>
 						  @endforeach
-					  </ul>
+					  </ul> 
 			  </div>
 			@endif
 			<form class="form-horizontal" method = "get" action="/admin/map">
@@ -66,10 +66,10 @@
 				<div class="form-group col-sm-12">
                   <label for="createvehicle_coutry" class="col-sm-2 control-label">  {{trans('app.country')}}  </label>
                   <div class="col-sm-10">
-				    	<select id = "createvehicle_coutry" class = "form-control" name ="country" onchange="this.form.submit()">
+				    	<select id = "createvehicle_coutry" class = "form-control" name ="country" onchange="this.form.submit()" disabled ="disabled">
 							<option value="">  {{trans('app.all_countries')}} </option>	
 							@foreach($countries as $country)
-									@if($country->country_id == $setting_val['country'])
+									@if($country->country_id == '184')
 										<option value="{{$country->country_id}}" selected>{{$country->name}}</option>
 									@else
 										<option value="{{$country->country_id}}">{{$country->name}}</option>

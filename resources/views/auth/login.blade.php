@@ -1,3 +1,5 @@
+
+
 <html lang="en"><!--<![endif]--><!-- BEGIN HEAD --><head>
         <meta charset="utf-8">
         <title> {{trans('app.self_station_login')}}  </title>
@@ -34,6 +36,21 @@
         <!-- BEGIN THEME LAYOUT STYLES -->
         <!-- END THEME LAYOUT STYLES -->
         <link rel="shortcut icon" href="favicon.ico"> </head>
+
+	 
+
+<?php
+
+	 if(Auth::check()) {
+?>
+
+	<script> 
+		window.location.href = '{{Url::to("/seller/home")}}'; //using a named route
+	</script>
+<?php
+    }
+?>
+
     <!-- END HEAD -->
 	@if(App::getLocale() == "sa")
     <body class="sa login">
@@ -43,7 +60,7 @@
 	 
         <!-- BEGIN LOGO -->
         <div class="logo">
-            <a href="{{Url::to('/')}}"> <img src="images/logo.png"  height = "100" alt=""> </a>
+            <a href="{{Url::to('/')}}"> <img src="{{URL::asset('/images/logo.png')}}"  height = "100" alt=""> </a>
         </div>
         <!-- END LOGO -->
         <!-- BEGIN LOGIN -->
@@ -51,6 +68,22 @@
             <!-- BEGIN LOGIN FORM -->
             <form class="login-form" action="{{ route('login') }}" method="post" novalidate="novalidate">
 				{{ csrf_field() }}
+					 
+				@if(Session::has('signup')) 
+					<div class="alert alert-success fade in">
+						<a href="#" class="close" data-dismiss="alert" aria-label="close">&times;</a>
+						<strong>  {{trans('success')}} </strong> 
+					</div>
+				@endif
+
+				<input type = "hidden" name = "usertype" value = "<?php
+					$currentURL = URL::current();
+					if (strpos($currentURL, 'seller') !== false) 
+						echo 'seller';
+					else
+						echo 'user';
+				?>">
+			  
             <!--Please check the login action tap-->
                 <h3 class="form-title font-green">{{trans('app.sign_in')}} </h3>
                 <div class="alert alert-danger display-hide">
@@ -103,9 +136,7 @@
                     ?>">
 				</div>
 					
-
                 <div class="form-actions">
-				 
 						<button type="submit" class="btn btn-green uppercase"> {{trans('app.sign_in')}} </button>
 						<label class="rememberme check mt-checkbox mt-checkbox-outline">
 							<input name="remember" value="1" type="checkbox">  {{trans('app.remember')}}
@@ -115,18 +146,22 @@
 					
                 </div>
               
-                <div class="create-account">
-                    <p>
-                        <a href="javascript:;" id="register-btn" class="uppercase">  {{trans('app.create_a_client_account')}}  </a>
-                    </p>
-                </div>
-                <div class="create-account">
-                    <p>
-                        <a href="#" id="register-vendor-btn" class="uppercase">{{trans('app.create_a_seller_account')}} </a>
-                    </p>
-                </div>
+			    @if(!Session::has('seller'))
+					<div class="create-account">
+						<p>
+							<a href="javascript:;" id="register-btn" class="uppercase">  {{trans('app.create_a_client_account')}}  </a>
+						</p>
+					</div>
+				@else
+					<div class="create-account">
+						<p>
+							<a href="#" id="register-vendor-btn" class="uppercase">{{trans('app.create_a_seller_account')}} </a>
+						</p>
+					</div>
+				@endif
             </form>
             <!-- END LOGIN FORM -->
+ 
             <!-- BEGIN FORGOT PASSWORD FORM -->
             <form class="forget-form" action="" method="post" novalidate="novalidate">
                 <h3 class="font-green"> {{trans('app.forgot_password')}} </h3>
@@ -144,6 +179,7 @@
                 </div>
             </form>
             <!-- END FORGOT PASSWORD FORM -->
+			@if(!Session::has('seller'))
             <!-- BEGIN REGISTRATION FORM - CLIENTS -->
             <form class="register-form" action="{{ route('register') }}" method="post" novalidate="novalidate">
 				
@@ -159,7 +195,12 @@
                 <p class="hint"> {{trans('app.enter_your_personal_details')}}:  </p>
                 <div class="form-group">
                     <label class="control-label visible-ie8 visible-ie9"> {{trans('app.full_name')}}   </label>
-                    <input class="form-control placeholder-no-fix" placeholder="{{trans('app.full_name')}}" name="name" type="text"> 
+                    <input class="form-control placeholder-no-fix" placeholder="{{trans('app.full_name')}}" name="name" type="text"  value = "<?php
+							if(Session::has('name_user')){
+								echo Session::get('name_user');
+							}
+					 ?>"> 
+					
 					
 					 @if ($errors->has('name'))
 					 	 @if(Session::has('user'))
@@ -173,7 +214,11 @@
                 <div class="form-group">
                     <!--ie8, ie9 does not support html5 placeholder, so we just show field title for that-->
                     <label class="control-label visible-ie8 visible-ie9"> {{trans('app.email')}}</label>
-                    <input class="form-control placeholder-no-fix" placeholder=" {{trans('app.email')}}" name="email" type="text">
+                    <input class="form-control placeholder-no-fix" placeholder=" {{trans('app.email')}}" name="email" type="text" value = "<?php
+							if(Session::has('name_email')){
+								echo Session::get('name_email');
+							}
+					 ?>">
 					
 					 @if ($errors->has('email'))
 					 	 @if(Session::has('user'))
@@ -188,7 +233,13 @@
 				<input type = "hidden" name = "usertyper" value = "0">
                 <div class="form-group">
                     <label class="control-label visible-ie8 visible-ie9">  {{trans('app.phone_number')}}</label>
-                    <input class="form-control placeholder-no-fix" placeholder="{{trans('app.phone_number')}}" name="phone" type="text"> 
+                    <input class="form-control placeholder-no-fix" placeholder="{{trans('app.phone_number')}}" name="phone" type="text" value = "<?php
+							if(Session::has('name_phone')){
+								echo Session::get('name_phone');
+							}
+							else 
+								echo '966';
+					 ?>">
 					
 					 @if ($errors->has('phone'))
 					 	 @if(Session::has('user'))
@@ -241,6 +292,7 @@
                 </div>
             </form>
             <!-- END REGISTRATION FORM - CLIENTS -->
+			@else
             <!-- BEGIN REGISTRATION FORM - VENDORS -->
             <form class="register-vendor-form" action="{{ route('register') }}" method="post" style="display: none;">
 				 {{ csrf_field() }}
@@ -273,7 +325,6 @@
 								echo Session::get('license_seller');
 							}
 					 ?>"> 
-					
 					 @if ($errors->has('license'))
 					 	 @if(Session::has('vendor'))
                           <span class="help-block">
@@ -309,6 +360,8 @@
 							if(Session::has('phone_seller')){
 								echo Session::get('phone_seller');
 							}
+							else 
+								echo '966';
 					 ?>"> 
 					 @if ($errors->has('phone'))
 					 	 @if(Session::has('vendor'))
@@ -322,7 +375,7 @@
 				
 				<div class="form-group">
                     <label class="control-label visible-ie8 visible-ie9"> {{trans('app.password')}}</label>
-                    <input class="form-control placeholder-no-fix" placeholder=" {{trans('app.password')}}" name="password" type="text"> 
+                    <input class="form-control placeholder-no-fix" placeholder=" {{trans('app.password')}}" name="password" type="password"> 
 					 @if ($errors->has('password'))
 					 	 @if(Session::has('vendor'))
 						<span class="help-block">
@@ -331,15 +384,14 @@
 						 @endif
 					 @endif
 				</div>
-				
+				 
 				
 				<div class="form-group">
                     <label class="control-label visible-ie8 visible-ie9">  {{trans('app.confirm_password')}}</label>
                     <input class="form-control placeholder-no-fix" placeholder="{{trans('app.confirm_password')}}" name="password_confirmation" type="password">
 				</div>
-				
-				
-				
+				 
+
 				<input type = "hidden" name = "usertyper" value = "1">
 				
 				
@@ -362,10 +414,11 @@
                 </div>
             </form>
             <!-- END REGISTRATION FORM - VENDORS -->
+			@endif
         </div>
         <div class="copyright"> 2017 © {{trans('app.selfstation')}}  </div>
 		
-		
+		@if(Session::has('seller'))
 		<!-- Modal -->
 		<div id="verifymodal" class="modal fade " role="dialog">
 		  <div class="modal-dialog">
@@ -400,7 +453,7 @@
 
 		  </div>
 		</div>
-		
+		@endif
         <!--[if lt IE 9]>
 		<script src="assets/plugins/respond.min.js"></script>
 		<script src="assets/plugins/excanvas.min.js"></script> 

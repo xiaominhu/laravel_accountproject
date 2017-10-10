@@ -6,22 +6,22 @@
         <div class="content-body"><!-- stats -->
 			<div class = "row">
 				<div class = "col-xs-4">
-				<a href = "/admin/coupons/create" class="btn btn-warning"> Add New Coupon </a>
+				<a href = "{{URL::to('/admin/coupons/create')}}" class="btn btn-warning">    {{trans('app.add_new_coupon')}}    </a>
 				</div>
 			</div>
 			
 			<br>
 			
 			<div class = "row">
-				
 				<div class = "col-xs-4">
-					
-					<fieldset class="form-group position-relative">
-						<input type="text" class="form-control form-control-lg input-lg" id="iconLeft" placeholder="Explore Robust ...">
-						<div class="form-control-position">
-							<i class="icon-ios-search-strong font-medium-4"></i>
-						</div>
-					</fieldset>
+					<form class="form-horizontal" method = "get" action="{{URL::to('/admin/coupons')}}">	
+						<fieldset class="form-group position-relative">
+							<input type="text" name = "key" value = "{{$setting['key']}}" class="form-control form-control-lg input-lg" id="iconLeft" placeholder=" {{trans('app.search')}} ">
+							<div class="form-control-position">
+								<i class="icon-ios-search-strong font-medium-4"></i>
+							</div>
+						</fieldset>
+					</form>
 				</div>
 
 				<div class = "col-xs-4 float-xs-right">
@@ -42,18 +42,20 @@
 			<div class="row">
 				<div class="col-xs-12">
 					<div class="card">
+					
 							<div class="table-responsive">
+						
 								<table class="table table-bordered table-striped">
 									<thead>
 										<tr>
-											<th>No</th>
-											<th>Code</th>
-											<th> Type </th>
-											<th> Amount </th>
-											<th>Limited Users </th>
-											<th>Limited Date</th>
-											<th>Fuel Station Name</th>
-											<th>Reg Date</th>
+											<th> {{trans('app.no')}}</th>
+											<th> {{trans('app.code')}}</th>
+											<th> {{trans('app.type')}} </th>
+											<th> {{trans('app.amount')}}  </th>
+											<th> {{trans('app.limit_number_users')}}</th>
+											<th> {{trans('app.limit_date')}}  </th>
+											<th> {{trans('app.reg_date')}} </th>
+												<th> {{trans('app.action')}} </th>
 										</tr>
 									</thead>
 									<tbody>
@@ -77,13 +79,6 @@
 											<td> {{$coupon->amount}} </td>
 											<td> {{$coupon->limit_users}} </td>
 											<td> {{$coupon->limit_date}} </td>
-											<td>
-												@if($coupon->fuelstation_id)
-													{{$coupon->name}} 
-												@else
-													All
-												@endif
-											</td>
 											<td>{{$coupon->created_at}}</td>
 											<td> 
 												<div class="btn-group" role="group" aria-label="Basic example">
@@ -100,9 +95,9 @@
 								</table>
 							</div>
 						
-						    	<div class = "col-xs-12" style = "text-align:center;">
-									{{$coupons->links()}}
-								</div>
+							<div class = "col-xs-12" style = "text-align:center;">
+								{{$coupons->links()}}
+							</div>
 						
 						
 					</div>

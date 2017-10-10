@@ -10,7 +10,7 @@
 					<a  href = "{{URL::to('/seller/fuelstation/export')}}"  class="btn btn-primary">
 						 <i class="icon-file-excel"></i> {{trans('app.export_to_excel')}}  
 					</a>
-				</div>	
+				</div>
 			</div>
 			<br>
 			
@@ -26,10 +26,12 @@
 					</form>	
 				</div>
 				
+				@if(Auth::user()->usertype == '1')
 				<div class = "col-xs-4">
 					<a  href = "{{URL::to('/seller/fuelstation/create')}}" class="btn btn-warning">   {{trans('app.add_fuelstation')}}  </a>
+					<a  href = "{{URL::route('sellerworkers')}}" class="btn btn-warning">   {{trans('app.add_new_employee')}}  </a>
 				</div>
-				
+				@endif
 				
 				<div class = "col-xs-4 float-xs-right">
 					<form id="w0" class="form-inline float-xs-right" action="/seller/fuelstation" method="get">
@@ -92,8 +94,8 @@
 											
 											<td> 
 												<div class="btn-group" role="group" aria-label="Basic example">
-													<a href = "/seller/fuelstation/update/{{$fuelstation->id}}"  type="button" class="btn btn-primary">{{trans('app.edit')}}    </a>
-													<a href = "/seller/fuelstation/delete/{{$fuelstation->id}}"  type="button" class="btn btn-danger"> {{trans('app.delete')}}  </a>
+													<a href = "/seller/fuelstation/update/{{$fuelstation->no}}"  type="button" class="btn btn-primary">{{trans('app.edit')}}    </a>
+													<a href = "/seller/fuelstation/delete/{{$fuelstation->no}}"  type="button" class="btn btn-danger"> {{trans('app.delete')}}  </a>
 												</div>
 											</td>
 										</tr>

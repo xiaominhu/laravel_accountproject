@@ -12,11 +12,9 @@
 			</div>
 			<br>
 
-
 			<div class = "row">
 				<form class="form-horizontal" method = "post" action="{{URL::to('/admin/setting')}}">
 					{{csrf_field()}}
-					 	
 					<label for="emailtemplate_config_subject" class="col-sm-4 control-label">  {{trans('app.withdrawl_time_limit_setting')}} </label>
 					<div class="col-sm-2 form-group">
 							<div class='input-group date' id='limit_to'>
@@ -26,8 +24,7 @@
 								</span>
 							</div>
 					</div>
-					 
-				</form>	
+				</form>	 
 			</div>
 			
 			<div class = "row">

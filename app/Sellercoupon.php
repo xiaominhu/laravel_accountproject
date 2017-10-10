@@ -16,7 +16,8 @@ class Sellercoupon extends Model
             'startdate'      =>    'required|date',
             'enddate'        =>    'date',
             'amount'        =>     'required|numeric',
-            'type'          =>     'required|integer'
+            'type'          =>     'required|integer',
+			'code'          =>     'required|unique:sellercoupon'   
         ];
     }
 	static public function generatevalue(){

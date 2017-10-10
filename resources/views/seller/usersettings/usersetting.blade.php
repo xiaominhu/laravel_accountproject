@@ -100,10 +100,10 @@
 					<div class="form-group col-sm-12">
 					  <label for="createvehicle_coutry" class="col-sm-2 control-label">   {{trans('app.country')}} </label>
 					  <div class="col-sm-10">
-							<select id = "createvehicle_coutry" class = "form-control" name ="country" >
+							<select id = "createvehicle_coutry" class = "form-control" name ="country" disabled = "disabled">
 								<option value=""> --{{trans('app.choose_country')}} -- </option>	
 								@foreach($countries as $country)
-									@if($user->country == $country->country_id)
+									@if($country->country_id == '184')
 										<option  selected value="{{$country->country_id}}">{{$country->name}}</option>
 									@else
 										<option value="{{$country->country_id}}">{{$country->name}}</option>

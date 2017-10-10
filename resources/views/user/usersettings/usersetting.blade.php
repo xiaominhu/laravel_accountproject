@@ -20,7 +20,8 @@
 				   </div>
 				@endif
 				
-			<br/>
+			<br/>  
+
 			<br/>
 			<form  action="/user/usersettings" method="post" enctype="multipart/form-data">	
 				{{csrf_field()}}
@@ -63,7 +64,7 @@
 						<div class="form-group col-sm-12">
 						  <label for="createvehicle_oil" class="col-sm-2 control-label">   {{trans('app.no')}}  </label>
 						  <div class="col-sm-10">
-							<input type="text" class="form-control" readonly id="id" name = "id" placeholder="" value = "{{$user->id}}">
+							<input type="text" class="form-control" readonly id="no" name = "no" placeholder="" value = "{{$user->no}}">
 						  </div>
 						</div>
 						
@@ -87,9 +88,7 @@
 										@else
 											<option value="{{$state->zone_id}}">{{$state->name}}</option>
 										@endif
-										
 									@endforeach
-									
 								</select>
 						  </div>
 						</div>
@@ -98,22 +97,18 @@
 						  <label for="createvehicle_coutry" class="col-sm-2 control-label"> Country </label>
 						  <div class="col-sm-10">
 								<select id = "createvehicle_coutry" class = "form-control" disabled = "disabled" name ="country" >
-									<option value=""> -- {{trans('app.choose_country')}}-- </option>	
-									@foreach($countries as $country)
-										@if($user->country == '184')
-											<option  selected value="{{$country->country_id}}">{{$country->name}}</option>
-										@else
-											<option value="{{$country->country_id}}">{{$country->name}}</option>
-										@endif
-									@endforeach
+									  <option value=""> -- {{trans('app.choose_country')}}-- </option>	
+												@foreach($countries as $country)
+													@if($country->country_id == '184')
+														<option  selected value="{{$country->country_id}}">{{$country->name}}</option>
+													@else
+														<option value="{{$country->country_id}}">{{$country->name}}</option>
+													@endif
+												@endforeach
 								</select>
 						  </div>
 						</div>
-					
-						
-					
 				</div>	
-				
 				<div class = "row">
 					<div class = "col-xs-12">
 						<button type="submit" class="btn btn-primary  float-xs-right" style = "margin-right:50px;">
@@ -124,9 +119,5 @@
 				</div>
 	 	 </form>	
 				
-				
-			
-		
-		
 		</div>
 @endsection

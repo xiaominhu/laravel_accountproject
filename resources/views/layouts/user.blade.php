@@ -73,6 +73,7 @@
 	<script>
 		var map_search = 0;
 		var reports   = 0;
+		var deposit = 0;
 	</script>
   
   
@@ -132,7 +133,7 @@
 				@endif
 				</span></a>
                  <div class="dropdown-menu dropdown-menu-right">
-				<a href="{{route('adminusersettings')}}" class="dropdown-item"><i class="icon-head"></i>   {{trans('app.edit_profile')}} </a>
+				<a href="{{route('userusersettings')}}" class="dropdown-item"><i class="icon-head"></i>   {{trans('app.edit_profile')}} </a>
 			 
 				<div class="dropdown-divider"></div>
 				  
@@ -163,18 +164,11 @@
       <!-- / main menu header-->
       <!-- main menu content-->
       <div class="main-menu-content">
-        <ul id="main-menu-navigation" data-menu="menu-navigation" class="navigation navigation-main">
-          
-		  
-		 <li class=" nav-item"><a href="{{URL::to('/home')}}"><i class="icon-home3"></i><span data-i18n="nav.dash.main" class="menu-title">{{trans('app.main_page')}}</span></a></li>
-		  
-		
-		
-		  
-		 <li class=" nav-item"><a href="{{URL::to('/user/vehicles')}}"><i class="icon-money"></i><span data-i18n="nav.dash.main" class="menu-title">  {{trans('app.manager_vehicle')}}   </span></a></li>
-		  
-		
-		 <li class=" nav-item"><a href="#"><i class="icon-ios-albums-outline"></i><span data-i18n="nav.cards.main" class="menu-title"> {{trans('app.manager_operation')}}  </span></a>
+        <ul id="main-menu-navigation" data-menu="menu-navigation" class="navigation navigation-main"> 
+		<li class=" nav-item"><a href="{{URL::to('/home')}}"><i class="icon-home3"></i><span data-i18n="nav.dash.main" class="menu-title">{{trans('app.main_page')}}</span></a></li>
+		<li class=" nav-item"><a href="{{URL::to('/user/vehicles')}}"><i class="icon-money"></i><span data-i18n="nav.dash.main" class="menu-title">  {{trans('app.manager_vehicle')}}   </span></a></li>
+		 
+		<li class=" nav-item"><a href="#"><i class="icon-ios-albums-outline"></i><span data-i18n="nav.cards.main" class="menu-title"> {{trans('app.manager_operation')}}  </span></a>
 			<ul class="menu-content">
 			  <!--li><a href="{{route('userwidthraw')}}" data-i18n="nav.cards.card_bootstrap" class="menu-item">  {{trans('app.withdraw_request')}}  </a>
 			  </li -->
@@ -182,18 +176,18 @@
 			  </li>
 			</ul>
 		 </li>
-
-		 
+ 
 		 <li class=" nav-item"><a href="{{route('userreports')}}"><i class="icon-book2"></i><span data-i18n="nav.dash.main" class="menu-title">  {{trans('app.reports')}}  </span></a></li>
-		
+		@if(0)
 		 <li class=" nav-item"><a href="{{route('usernotification')}}"><i class="icon-envelope"></i><span data-i18n="nav.dash.main" class="menu-title"> {{trans('app.manager_notifications')}}  </span></a></li>
+		@endif
 		 		
 		 <li class=" nav-item"><a href="{{route('fillingup')}}"><i class="icon-pencil3"></i><span data-i18n="nav.dash.main" class="menu-title">  {{trans('app.free_feeling_up')}}   </span></a></li>
 		
 		 <li class=" nav-item"><a href="{{route('usermap')}}"><i class="icon-map22"></i><span data-i18n="nav.dash.main" class="menu-title"> {{trans('app.maps')}}   </span></a></li>
 		
-		
-		
+		 <li class=" nav-item"><a href="{{route('usersendmoney')}}"><i class="icon-coin-dollar"></i><span data-i18n="nav.dash.main" class="menu-title"> {{trans('app.send_money')}}   </span></a></li>
+
 		 <li class=" nav-item"><a href="{{route('contactus')}}"><i class="icon-paper-plane-o"></i><span data-i18n="nav.dash.main" class="menu-title">  {{trans('app.contact_us')}} </span></a></li>
 
 	 	 <li class=" nav-item"><a href="{{route('userusersettings')}}"><i class="icon-user4"></i><span data-i18n="nav.dash.main" class="menu-title">  {{trans('app.user_settings')}} </span></a></li>
@@ -283,9 +277,15 @@
 				if(directtion == "rtl")
 		   		toastr.options.rtl = true;
 				
+				if(deposit){
+					$('#date').datetimepicker({
+						  format: 'YYYY-MM-DD',
+					});
+					$('#time').datetimepicker({
+						 	format: 'HH:mm',
+					});
+				}
 				
-				
-
 				if(map_search){
 					$('#fuelstation_fuel').multiselect('select', fuel_selection);
 				}
@@ -301,14 +301,12 @@
 						  defaultDate: default_to
 					});
 					$("#from_date").on("dp.change", function (e) {
-							$('#to_date').data("DateTimePicker").minDate(e.date);
+						$('#to_date').data("DateTimePicker").minDate(e.date);
 					});
 					$("#to_date").on("dp.change", function (e) {
 						$('#from_date').data("DateTimePicker").maxDate(e.date);
 					});
 				}
-
-
 			});
 		</script>
 		

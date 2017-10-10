@@ -368,4 +368,27 @@ return [
 	// fee management
 	'free_if_exceed' => 'Free if exceed #cars',
 	'add_new' => 'Add New',
+
+	//fron tend
+	'your_message_has_not_been_sent' =>'Your message has not been sent.',
+	'signup_login_seller' =>'SignUP/Login For Provider',
+	'limit_date' => 'Limit Date',
+	
+	'limit_number_users' =>'Limite Number Of Users ',
+
+	//user
+	'coupon' => 'Coupon',
+	'expired' => 'Expired',
+	'send_money' =>'Send Money',
+	'invalid_user' =>'Invalid User',
+	'insufficient_deposit' =>'Insufficient Deposit',
+	
+	// new worker
+	'success'  => 'Success',
+	'get_in_touch'  => 'Get In touch',
+	'welcome_sms'  =>'Welcome to selfstation.  Your id is :no',
+	'reward'    => 'Reward',
+	'accept_money' => 'Accept Money',
+
+	'latest_deposit_operations' => 'Latest Deposit operations'
 ];

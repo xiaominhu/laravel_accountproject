@@ -22,6 +22,7 @@ use Excel;
 use Carbon\Carbon;
 use JWTAuth;
 use App\Transactions;
+use App\Subfeemanagement;
 
 use Tymon\JWTAuth\Exceptions\JWTException;
 
@@ -66,7 +67,7 @@ class OperationController extends Controller
 				$transaction->amount =  $request->amount;
 				$transaction->no = Transactions::generatevalue();
 				$transaction->save();
-			
+
 
 				return redirect('/user/operations/widthrawls');
 		}
@@ -195,7 +196,7 @@ class OperationController extends Controller
 			}
 			
 			$deposit  = new Deposit;
-			
+			 
 			
 			if ($request->hasFile('picture')){
 				$deposit->paymentid = 0;
@@ -497,6 +498,34 @@ class OperationController extends Controller
 				// check first
 				$this->validate($request, Bank::rules());
 				
+				$deposit  = new Deposit;
+				$deposit->amount         =   $request->amount;
+				$deposit->real_amount    =   $request->amount;
+
+				if($request->coupon){
+					$validator =  Validator::make($request->all(), [
+						'coupon'         =>    'exists:coupon,code'
+					])->validate(); 
+					
+					$coupon = Coupon::where('code', $request->coupon)
+								->whereDate('limit_date', '>=', Carbon::today()->toDateString())
+								->where('status', 1)
+								->first();
+
+					if(!isset($coupon)){
+						return Redirect::back()->withErrors(['coupon'=> trans('app.expired')]); 	
+					}
+					$coupon->current_amount = $coupon->current_amount + 1;
+					if($coupon->current_amount >= $coupon->limit_users){
+						$coupon->status = 0;
+						$coupon->save();
+					}
+					$deposit->real_amount = Coupon::calculatorcoupon($coupon->code, $deposit->real_amount);
+					$deposit->reward   = $deposit->amount - $deposit->real_amount;
+				}
+					
+				
+
 				$bank = Bank::where('full_name',  '=', $request->full_name)
 							->where('bank_name', '=', $request->bank_name)
 							->where('time', '=', $request->time)
@@ -509,16 +538,27 @@ class OperationController extends Controller
 					$bank->bank_name = $request->bank_name;
 					$bank->time 	 = $request->time;
 					$bank->date 	 = $request->date;
-					
 					$bank->user_id  = Auth::user()->id;
 					$bank->save();
 				}
-				$deposit  = new Deposit;
-				$deposit->type     = 0;
-				$deposit->user_id  = Auth::user()->id;
-				$deposit->no       = Deposit::generatevalue();
-				$deposit->amount   = $request->amount;
-				$deposit->paymentid = $bank->id;
+
+				if ($request->hasFile('attachment')){
+					$image=$request->file('attachment');
+					$imageName=$image->getClientOriginalName();
+					$imageName = time() . $imageName;
+					$image->move('images/bankdeposit_123',$imageName);
+					$deposit->notes = $imageName;
+				}
+				
+				$deposit->type      = 0;
+				$deposit->user_id   = Auth::user()->id;
+				$deposit->no        = Deposit::generatevalue();
+				
+				$deposit->paymentid =   $bank->id;
+
+				$deposit->coupon    =   $request->coupon;
+
+				
 				$deposit->save();
 
 			}else if($setting['type'] == "card"){
@@ -554,9 +594,7 @@ class OperationController extends Controller
 				$deposit->amount   = $request->amount;
 				$deposit->paymentid = $card->id;
 				$deposit->save();
-				
 			}else if($setting['type'] == "exist"){
-				
 				$card = Card::where('id',      '=', $request->existing_card)
 							->where('user_id',  '=',  Auth::user()->id)
 							->first();
@@ -571,7 +609,6 @@ class OperationController extends Controller
 				$deposit->amount   = $request->amount;
 				$deposit->paymentid = $card->id;
 				$deposit->save();
-				
 			}else{
 				return Redirect::back()->with(['Please choose the card']); 
 			}
@@ -620,34 +657,58 @@ class OperationController extends Controller
 				if($request->{'status_' .    $deposit->no}){
 					$deposit->status    =  $request->{'status_' .    $deposit->no};
 					if($deposit->status){
+						 
+						$transaction = 	Transactions::where('type', 1)
+								->where('reference_id', $deposit->id)
+								->where('operator_id',  $deposit->user_id)
+								->first();
+						if(isset($transaction))
+							continue;
+					
 						//calculatefee
 						$fee_data =  Fees::calculatefee($deposit->amount, 'deposit');
-						 
 						if($fee_data['status'] == 1){
 							$transaction = new Transactions;
 							$transaction->operator_id = $deposit->user_id;
 							$transaction->reference_id = $deposit->id;
 							$transaction->type = 1;
-							
+
 							$transaction->amount 	   =  $deposit->amount;
 							$transaction->fee_amount   =  $fee_data['fee'];
 							$transaction->final_amount =  $fee_data['amount'];
-							
 							$transaction->no = Transactions::generatevalue();
 							$transaction->save();
+							Subfeemanagement::collectingFee($deposit->user_id);
+
+							$user = User::find($deposit->user_id);
+							if(isset($user))
+								User::sendMessage($user->phone, 'Hi. Your Depsit is approved.  The Deposit number is ' . $deposit->no);
 						}
 						else
 							return Redirect::back()->withErrors(['Low value']);
+								/**/
 						// Transactions
-						
-						
 					}
 					$deposit->save();
+			}
+			else{
+				if(Auth::user()->usertype == '2'){
+					$transaction = 	Transactions::where('type', 1)
+						->where('reference_id', $deposit->id)
+						->where('operator_id',  $deposit->user_id)
+						->first();
+
+					if(isset($transaction)){
+						$deposit->status = 0;
+						$deposit->save();
+						$transaction->delete();
+					}
 				}
-				
+			   }
 			}
 		}
 		
+	 
 		$setting['pagesize'] = $page_size;
 	    return view('admin/deposit', ['deposits' => $deposits->appends(Input::except('page')), 'setting' => $setting]);
 	}
@@ -733,6 +794,18 @@ class OperationController extends Controller
 				if($request->{'status_' .    $withdraw->no}){
 					if($withdraw->status == 0){
 						
+						$transaction = new Transactions;
+						$transaction->operator_id = $withdraw->user_id;
+						$transaction->reference_id = $withdraw->id;
+						$transaction->type = 2; //pos
+						$transaction->transtype = 1; //out 
+						$transaction->amount 	   =  $withdraw->amount;
+						$transaction->fee_amount   =  $withdraw->fee_amount;
+						$transaction->final_amount =  $withdraw->final_amount;
+						$transaction->no = Transactions::generatevalue();
+						$transaction->status = 0;
+						$transaction->save();
+					
 						// withdraw
 						$transactions_inte = Transactions::where('transactions.status', '2')
 														->where('transactions.operator_id', $withdraw->user_id)
@@ -742,8 +815,10 @@ class OperationController extends Controller
 							$transactionitem->status = 0; // pending
 							$transactionitem->save();
 						}
+						
 						User::sendMessage(Auth::user()->phone, 'Hi. Your withdrawal is approved.  The withdrawal number is ' . $withdraw->no);
-
+						
+						
 
 					}
 					$withdraw->status  =  $request->{'status_' .    $withdraw->no};
@@ -798,19 +873,37 @@ class OperationController extends Controller
 		$page_size = 10;
 		if($request->pagesize !== null)
 			$page_size = $request->pagesize;
-		$coupons = Coupon::select('coupon.*', 'fuelstation.name')
-				   ->leftJoin('fuelstation','fuelstation.id' , '=' ,'coupon.fuelstation_id')
-				   ->paginate($page_size);
+	
+			
+		if($request->key !== null){
+			$setting['key'] = $request->key;
+			$coupons = Coupon::select('coupon.*')
+					->where(function ($query) use ($request){
+						$query->where('coupon.code', 'like','%'. $request->key . '%')
+						->orWhere('coupon.amount', 'like','%'. $request->key . '%')
+						->orWhere('coupon.id', 'like','%'. $request->key . '%'); 
+					})
+				->paginate($page_size);
+ 
+		}
+		else{
+			$setting['key'] = "";
+			$coupons = Coupon::select('coupon.*')
+				->paginate($page_size);
+		}
+		
 		$setting['pagesize'] = $page_size;
 		return view('admin/coupons/coupons', ['coupons' => $coupons->appends(Input::except('page')), 'setting' => $setting]);
+
 	}
 	
 	public function couponscreate(Request $request){
 		$fuelstations = Fuelstation::all();
+		$code = Coupon::generatevalue();
+
 		if($request->isMethod('post')){
 			$this->validate($request, Coupon::rules());
 			$coupon = new Coupon;
-			$coupon->fuelstation_id = $request->fuelstation_id;
 			$coupon->type 			= $request->type;
 			
 			if($request->limit_date){
@@ -823,29 +916,39 @@ class OperationController extends Controller
 			$result 				=  $coupon->save();
 			return redirect('/admin/coupons');
 		}
-		return view('admin/coupons/newcoupon', compact('fuelstations'));
+		return view('admin/coupons/newcoupon', compact('fuelstations', 'code'));
 	}
 	
 	public function couponsupdate(Request $request, $id){
 		$coupon =  Coupon::find($id);
 		if(!isset($coupon)) return vaiew("errors/404");
 		if($request->isMethod('post')){
-			$this->validate($request, Coupon::rules());
-			$coupon->fuelstation_id = $request->fuelstation_id;
+
+			$validator =  Validator::make($request->all(), [
+				'amount'                 =>    'required|integer',
+				'limit_users'            =>    'integer|integer'
+			])->validate(); 
 			$coupon->type 			= $request->type;
 			
+			if($coupon->code != $request->code){
+				$validator =  Validator::make($request->all(), [
+					'code'                   =>    'required|unique:coupon',
+				])->validate(); 
+				$coupon->code = $request->code;
+			}
+
+
 			if($request->limit_date){
 				$coupon->limit_date  	= Coupon::convert_time($request->limit_date);
 			}
 			
 			$coupon->limit_users 	=  $request->limit_users;
 			$coupon->amount      	=  $request->amount;
-			$coupon->code 			=  Coupon::generatevalue();
+			 
 			$result 				=  $coupon->save();
 			return redirect('/admin/coupons');
 		}
-		$fuelstations = Fuelstation::all();
-		return view('admin/coupons/newcoupon', compact('fuelstations', 'coupon'));
+		return view('admin/coupons/newcoupon', compact('coupon'));
 	}
 	public function couponsdelete($id){
 		$coupon =  Coupon::find($id);
@@ -870,9 +973,7 @@ class OperationController extends Controller
 		}
 		
 		$user = JWTAuth::parseToken()->authenticate();
-		
-		
-		
+		 
 		//receiver_id
 		$selleremployee =   Selleremployee::where('user_id', $user->id)
 								  ->first();
@@ -888,7 +989,6 @@ class OperationController extends Controller
 				return response()->json(['error' => 1 ,   'msg' => 'wrong_user' ]); 
 			
 			
-			
 			if (!Hash::check($request->password, $vehicle->password))
 				return response()->json(['error' => 1 ,   'msg' => 'wrong_password']);
 			
@@ -899,27 +999,26 @@ class OperationController extends Controller
 				return response()->json(['error' => 1 ,  'msg' => 'low_balance', 'balance' => $balance]); 
 			
 			$operation = new Operation();
-			$operation->sender_id   =  $vehicle->user_id;
-			$operation->receiver_id =  $user->id;
-			$operation->amount      =  $request->amount;
-			$operation->fuelstation =  $fuelstation->no;
-			$operation->vehicle     =  $vehicle->id;
-			$operation->owner_id     = $owner_id;
-			$operation->no          =  Operation::generatevalue();
+			$operation->sender_id    =  $vehicle->user_id;
+			$operation->receiver_id  =  $user->id;
+			$operation->amount       =  $request->amount;
+			$operation->final_amount =  Fuelstation::getfinalamount($request->amount, $selleremployee->fuelstation_id);
+			$operation->fuelstation  =  $fuelstation->no;
+			$operation->vehicle      =  $vehicle->id;
+			$operation->owner_id     =  $owner_id;
+			$operation->no           =  Operation::generatevalue();
 			$operation->save();
 
 			
-			$fee_data =  Fees::calculatefromamount($operation->amount, 'pospay');
-			 
-			
+			$fee_data =  Fees::calculatefromamount($operation->final_amount, 'pospay');			
 			if($fee_data['status'] == 1){
 				$transaction = new Transactions;
 				$transaction->operator_id = $vehicle->user_id;
 				$transaction->reference_id = $operation->id;
 				$transaction->type = 0; //in 
 				$transaction->transtype = 1; //in 
-				
-				$transaction->amount 	   =  $request->amount;
+
+				$transaction->amount 	   =  $operation->final_amount;
 				$transaction->fee_amount   =  $fee_data['fee'];
 				$transaction->final_amount =  $fee_data['amount'];
 				
@@ -935,7 +1034,6 @@ class OperationController extends Controller
 	
 	public function api_pendingoperation(Request $request){
 		$user = JWTAuth::parseToken()->authenticate();
-	  	 
 		$operations = Operation::where('receiver_id', $user->id)
 					   ->where('operation.status', 0)
 					   ->select('operation.no', 'operation.amount', 'vehicles.name', 'vehicles.type', 'vehicles.model', 'operation.created_at', 'users.name as customername')
@@ -969,10 +1067,14 @@ class OperationController extends Controller
 			return response()->json(['error' => 1 ,  'msg' => 'invalid_operation']);
 		
 		$operation->amount = $request->amount;
+
+		$fuelstation = Fuelstation::where('no', $operation->fuelstation)->first();
+
+		$operation->final_amount =  Fuelstation::getfinalamount($request->amount, $fuelstation->id);
 		$operation->status = 1;
 		$operation->save();
 
-		$fee_data =  Fees::calculatefee($operation->amount, 'posrev');
+		$fee_data =  Fees::calculatefee($operation->final_amount, 'posrev');
 		 
 		//add the balance
 	    $transaction = new Transactions;
@@ -986,6 +1088,8 @@ class OperationController extends Controller
 		
 		$transaction->no = Transactions::generatevalue();
 		$transaction->save();
+
+		Subfeemanagement::collectingFee($operation->owner_id);
 
 		// refund the money
 		$fee_data =  Fees::calculatefromamount($request->amount, 'pospay');

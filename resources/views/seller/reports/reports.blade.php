@@ -89,7 +89,7 @@
 										<div class = "row">
 											<label for="fuelstation" class="col-sm-12 control-label">   {{trans('app.fuelstation_name')}} </label>
 											<div class="col-xs-12">
-													<select id = "fuelstation" class = "form-control" name ="fuelstation" >
+													<select id = "fuelstation" class = "form-control pospay" name ="fuelstation"  <?php if($setting['service_type'] != "4") echo "disabled";?>>
 														<option value = ""> {{trans('app.all')}} </option>
 														@foreach($fuelstations as $fuelstation)
 															@if($setting['fuelstation'] == $fuelstation->no)
@@ -107,7 +107,7 @@
 										<div class = "row">
 											<label for="state" class="col-sm-12 control-label">   {{trans('app.state')}} </label>
 											<div class="col-xs-12">
-													<select id = "state" class = "form-control" name ="state" >
+													<select id = "state" class = "form-control pospay" name ="state"  <?php if($setting['service_type'] != "4") echo "disabled";?>>
 														<option value=""> {{trans('app.all')}}</option>	
 														
 														@foreach($states as $state)
@@ -128,7 +128,7 @@
 										<div class = "row">
 											<label for="city" class="col-sm-12 control-label">  {{trans('app.city')}}  </label>
 											<div class="col-xs-12">
-													<select id = "city" class = "form-control" name ="city" >
+													<select id = "city" class = "form-control pospay" name ="city"  <?php if($setting['service_type'] != "4") echo "disabled";?>>
 														<option value=""> {{trans('app.all')}} </option>	
 														@foreach($cities as $city)
 															@if($setting['city'] == $city->city)
@@ -159,12 +159,13 @@
 									
 									<div class="col-xs-2">
 										<div class = "row">
-											<label for="operation_type" class="col-sm-12 control-label"> {{trans('app.operation_type')}}  </label>
+											<label for="service_type" class="col-sm-12 control-label"> {{trans('app.operation_type')}}  </label>
 											<div class="col-xs-12">
-													<select id = "operation_type" class = "form-control" name ="operation_type" >
+													<select id = "service_type" class = "form-control" name ="service_type" >
 														<option value=""> {{trans('app.all')}}</option>	
-														<option value="1"> {{trans('app.pos_revenue')}}</option>	
-														<option value="2"> {{trans('app.withdrawl')}}  </option>	
+														<option value="4" <?php if($setting['service_type'] == "4") echo "selected";?>> {{trans('app.pos_revenue')}}</option>	
+														<option value="2" <?php if($setting['service_type'] == "2") echo "selected";?>> {{trans('app.withdrawl')}}  </option>	
+														<option value="5" <?php if($setting['service_type'] == "5") echo "selected";?>> {{trans('app.subscription_fees')}}  </option>	
 													</select>
 											</div>
 										</div>
@@ -232,12 +233,14 @@
 									@foreach( $transactions as $operation)
 										<tr>
 											<th scope="row"> <a href = "{{URL::to('/seller/reports/details/')}}/{{$operation->no}}"> {{$operation->no}} </a> </th>
-											<td>{{$operation->name}} </td>
+											<td>@if($operation-> details !== null)
+													{{$operation->details->name}}  
+												@endif
 											<td> 	
 												@if($operation->type == '4')
 													{{trans('app.pos_revenue')}}
-												@elseif($operation->type == '0')
-													{{trans('app.pos_payment')}}
+												@elseif($operation->type == '5')
+													{{trans('app.subscription_fees')}}
 												@elseif($operation->type == '1')
 													{{trans('app.deposit')}}
 												@elseif($operation->type == '2')
@@ -247,7 +250,6 @@
 												@endif
 											</td>
 											<td>
-
 												@if($operation-> details !== null)
 													@if($operation-> details ->service_type == "1")
 														{{trans('fuel')}}
@@ -256,7 +258,7 @@
 													@elseif($operation->  details ->service_type == "3")
 														{{trans('wash')}}
 													@else
-												 ddd
+												  
 													@endif 
 												@endif
 											</td>

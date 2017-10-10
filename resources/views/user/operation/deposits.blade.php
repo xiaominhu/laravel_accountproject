@@ -49,8 +49,8 @@
 												<th> {{trans('app.amount')}}     </th>
 												
 												<th> {{trans('app.attachment')}} </th>
-												<th>{{trans('app.date')}}        </th>
-												<th>  {{trans('app.approve')}}   </th>
+												<th> {{trans('app.date')}}        </th>
+												<th> {{trans('app.approve')}}   </th>
 											</tr>
 										</thead>
 										<tbody>
@@ -64,32 +64,34 @@
 													<?php
 														switch($deposit->type){
 															case 0:
-																echo 'Bank';
+																echo trans('app.bank');
 																break;
 															case 1:
-																echo 'Master';
+																echo trans('app.master');
 																break;
 															case 2:
-																echo 'VISA';
+																echo trans('app.visa');
 																break;
 															case 3:
-																echo 'SDAD';
+																echo trans('app.sdad');
 																break;
 														}
 													?>
 												</td>
 												<td> {{$deposit->amount}}</td>
 												
-												<td>  </td>
+												<td class = "text-center">  
+													@if($deposit->notes)
+														<a href = "{{URL::to('user/download/attachment')}}/{{$deposit->no}}" > <i class="icon-paperclip2"></i>  <a>
+													@endif
+												</td>
 												<td>{{$deposit->created_at}}</td>
 												<td> 
-													
 													@if($deposit->status == 1) 
 														<span class = "deep-purple lighten-1">  {{trans('app.approved')}}    </span>
 													@else 
 														<span class = "pink lighten-1"> {{trans('app.not_approved')}}    </span>
 													@endif
-													
 												</td>
 											</tr>
 										@endforeach

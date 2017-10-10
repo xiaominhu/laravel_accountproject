@@ -213,9 +213,14 @@
 														{{trans('app.withdrawl')}}
 													@elseif($transaction->type == '3')
 														{{trans('app.reward')}}
+													@elseif($transaction->type == '5')
+														{{trans('app.subscription_fees')}}
+													@elseif($transaction->type == '6')
+														{{trans('app.send_money')}}
+													@elseif($transaction->type == '7')
+														{{trans('app.accept_money')}}
 													@endif
 												 </td>
-
 												  <td>
 														@if($transaction->type == '4')
 															{{trans('app.pos_revenue')}}
@@ -227,9 +232,14 @@
 															{{trans('app.withdrawl')}}
 														@elseif($transaction->type == '3')
 															{{trans('app.reward')}}
+														@elseif($transaction->type == '5')
+															{{trans('app.subscription_fees')}}
+														@elseif($transaction->type == '6')
+															{{trans('app.send_money')}}
+														@elseif($transaction->type == '7')
+															{{trans('app.accept_money')}}
 														@endif
 												 </td>
-
 												<td>
 													@if($transaction->usertype == 0)
 														{{trans('app.user')}}
@@ -238,22 +248,19 @@
 														{{trans('app.seller')}}
 													@endif
 												</td>
-
 												<td>
 													@if($transaction->details !== null)
 														{{$transaction->details->state}}
 													@endif
-												 </td>
-
-												 <td>
+												</td>
+												<td>
 													@if($transaction->details !== null)
 														{{$transaction->details->city}}
 													@endif
-												 </td>
+												</td>
 												<td>
 													{{$transaction->amount}}
-												 
-												 </td>
+												</td>
 												<td>{{$transaction->regdate}}</td>
 												 
 											</tr>

@@ -28,7 +28,7 @@
 							</div>
 						</div>
 						<div class="card-body collapse in">
-							<form class="form-horizontal" method = "post" action="{{URL::to('/user/reports')}}">
+							<form class="form-horizontal" method = "post"  action=" {{ Request::url() . ( Request::getQueryString() ? '?' . Request::getQueryString() : '')}}">
 								{{csrf_field()}}
 								<div class="card-block">
 									<div class="col-xl-5 col-lg-5 col-xs-12">
@@ -58,7 +58,6 @@
 												<h4>{{trans('app.operation_date')}}    </h4>
 											</div>
 											<div class="col-xl-12 col-lg-12 col-xs-12 text-center">
-												
 												<label for="from_date" class="col-sm-2 control-label"> {{trans('app.from')}} </label>
 												<div class="col-xs-4 form-group">
 													 <div class='input-group date' id='from_date'>
@@ -67,8 +66,7 @@
 																<i class="icon-calendar"></i>
 															</span>
 													 </div>
-												</div>
-												
+												</div> 
 												<label for="to_date" class="col-sm-2 control-label"> {{trans('app.to')}} </label>
 												<div class="col-xs-4 form-group">
 													 <div class='input-group date' id='to_date'>
@@ -88,7 +86,7 @@
 										<div class = "row">
 											<label for="vehicle" class="col-sm-12 control-label">   {{trans('app.vehicle_name')}} </label>
 											<div class="col-xs-12">
-													<select id = "vehicle" class = "form-control" name ="vehicle" >
+													<select id = "vehicle" class = "form-control pospay" name ="vehicle"  <?php if($setting['service_type'] != "0") echo "disabled";?> >
 														<option value = ""> {{trans('app.all')}} </option>
 														@foreach($vehicles as $vehicle)
 															@if($setting['vehicle'] == $vehicle->no)
@@ -106,9 +104,8 @@
 										<div class = "row">
 											<label for="state" class="col-sm-12 control-label">   {{trans('app.state')}} </label>
 											<div class="col-xs-12">
-													<select id = "state" class = "form-control" name ="state" >
-														<option value=""> {{trans('app.all')}}</option>	
-														
+													<select id = "state" class = "form-control pospay" name ="state"  <?php if($setting['service_type'] != "0") echo "disabled";?> >
+														<option value=""> {{trans('app.all')}}</option>
 														@foreach($states as $state)
 															@if($setting['state'] == $state->zone_id)
 																<option value="{{$state->zone_id}}" selected> {{$state->name}}</option>	
@@ -116,8 +113,6 @@
 																<option value="{{$state->zone_id}}"> {{$state->name}}</option>	
 															@endif
 														@endforeach
-														 
-														 
 													</select>
 											</div>
 										</div>
@@ -127,7 +122,7 @@
 										<div class = "row">
 											<label for="city" class="col-sm-12 control-label">  {{trans('app.city')}}  </label>
 											<div class="col-xs-12">
-													<select id = "city" class = "form-control" name ="city" >
+													<select id = "city" class = "form-control pospay" name ="city"  <?php if($setting['service_type'] != "0") echo "disabled";?>>
 														<option value=""> {{trans('app.all')}} </option>	
 														@foreach($cities as $city)
 															@if($setting['city'] == $city->city)
@@ -141,7 +136,7 @@
 										</div>
 									</div>
 									
-									<div class="col-xs-2">
+									<!-- div class="col-xs-2">
 										<div class = "row">
 											<label for="service_type" class="col-sm-12 control-label"> {{trans('app.service_type')}}</label>
 											<div class="col-xs-12">
@@ -153,17 +148,21 @@
 													</select>
 											</div>
 										</div>
-									</div>
-									
+									</div -->
 									
 									<div class="col-xs-2">
 										<div class = "row">
-											<label for="operation_type" class="col-sm-12 control-label"> {{trans('app.operation_type')}}  </label>
+											<label for="service_type" class="col-sm-12 control-label"> {{trans('app.service_type')}}  </label>
 											<div class="col-xs-12">
-													<select id = "operation_type" class = "form-control" name ="operation_type" >
+													<select id = "service_type" class = "form-control" name ="service_type" >
 														<option value=""> {{trans('app.all')}}</option>	
-														<option value="1"> {{trans('app.pos_revenue')}}</option>	
-														<option value="2"> {{trans('app.withdrawl')}}  </option>	
+														<option value="0" <?php if($setting['service_type'] == "0") echo "selected";?>> {{trans('app.pos_payment')}}</option>	
+														<option value="1" <?php if($setting['service_type'] == "1") echo "selected";?>> {{trans('app.deposit')}}  </option>	
+														<option value="2" <?php if($setting['service_type'] == "2") echo "selected";?>> {{trans('app.withdrawl')}}  </option>	
+														<option value="3" <?php if($setting['service_type'] == "3") echo "selected";?>> {{trans('app.reward')}}  </option>	
+														<option value="5" <?php if($setting['service_type'] == "5") echo "selected";?>> {{trans('app.subscription_fees')}}  </option>	
+														<option value="6" <?php if($setting['service_type'] == "6") echo "selected";?>> {{trans('app.send_money')}}  </option>	
+														<option value="7" <?php if($setting['service_type'] == "7") echo "selected";?>> {{trans('app.accept_money')}}  </option>	
 													</select>
 											</div>
 										</div>
@@ -248,6 +247,12 @@
 													{{trans('app.withdrawl')}}
 												@elseif($operation->type == '3')
 													{{trans('app.reward')}}
+												@elseif($operation->type == '5')
+													{{trans('app.subscription_fees')}}
+												@elseif($operation->type == '6')
+													{{trans('app.send_money')}}
+												@elseif($operation->type == '7')
+													{{trans('app.accept_money')}}
 												@endif
 											</td>
 
@@ -301,6 +306,5 @@
 		
 		var default_from  = "<?php if($setting['from_date'] != "")  echo  $setting['from_date'] ?>";
 		var default_to    = "<?php if($setting['to_date'] != "")    echo  $setting['to_date'] ?>";
-			
 	</script>
 @endsection

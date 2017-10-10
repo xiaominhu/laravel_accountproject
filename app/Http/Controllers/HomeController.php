@@ -10,7 +10,7 @@ use JWTAuth;
 use Tymon\JWTAuth\Exceptions\JWTException;
 use Carbon\Carbon;
 
-
+use App\Helpers\QrcodeClass;
 use Illuminate\Support\Facades\Input;
 use App\Zone;
 use App\User;
@@ -27,9 +27,12 @@ use App\Transactions;
 Use Nexmo;
 Use Excel;
 Use App\Subscriptionfee;
+use App\Touchwith;
+use App\Sellerrole;
 
 use Illuminate\Support\Facades\Storage;
 use App\Mail\Notification;
+use Mail;
 class HomeController extends Controller
 {
     /**
@@ -44,6 +47,14 @@ class HomeController extends Controller
     }
 	 
 	public function abc(){
+		
+	 
+		//echo trans('app.welcome_sms', ['no'=> 'dddddddddddddd']);
+
+		//dd(User::sendMessage('966543632203', 'Hello world'));
+		dd(Mail::to('cr3884489@gmail.com')
+				->send(new Notification('dd')));
+		exit;
 		Excel::create('abc', function($excel) {
 			
 			$excel->sheet('selfstation', function($sheet) {
@@ -60,7 +71,7 @@ class HomeController extends Controller
 				));
 				//$sheet->freezeFirstRow();	
 			});
-		})->download('xls');
+		})->download('pdf');
 		 
 
 
@@ -94,6 +105,20 @@ class HomeController extends Controller
 		return view('help');
 	}
 	
+	public function getintouch(Request $request){
+		$this->validate($request, Touchwith::rules());
+
+		$touchwith = new Touchwith();
+		$touchwith->name 	= $request->name;
+		$touchwith->phone	= $request->phone;
+		$touchwith->message = $request->message;
+		$touchwith->email   = $request->email;
+		$touchwith->no     =  Touchwith::generatevalue();
+		$touchwith->save();
+
+		Session::flash('message_sent', 'message_sent');
+		return redirect('/');
+	}
 	
 	public function frontend(Request $request){
 		return view('home');
@@ -111,27 +136,58 @@ class HomeController extends Controller
 				return redirect('/user/home');
 				break;
 			case 1:// seller
+			case 5:
 				return redirect('/seller/home');
 				break;
 			case 2:
+			case 6:
 				return redirect('/admin/home');
 				break;
 		}
     }
 	
 	public function adminindex(){
+
+		//withdarawls today
+		$today    = Carbon::createFromFormat('Y-m-d H:i:s',  date('Y-m-d'). " 00:00:00");
 		
-		return view('admin/home');
+		$today_withdrawl = Transactions::where('transactions.created_at',  '>', date('Y-m-d'). " 00:00:00")
+										->where('transactions.created_at',  '<', $today->addDay())
+										->where('type', '2')
+										->count();
+		
+		$today_deposit  =   Transactions::where('transactions.created_at',  '>', date('Y-m-d'). " 00:00:00")
+										->where('transactions.created_at',  '<', $today->addDay())
+										->where('type', '1')
+										->count();
+		
+		$total_balance =    Transactions::sum('fee_amount') + Transactions::where('type', 5)->sum('final_amount') - Deposit::sum('reward');
+		 
+		$latest_users = User::whereIn('users.usertype', ['0', '1'])->orderBy('created_at', 'DESC')->limit(3)->get();
+
+		$latest_deposits = Deposit::select('deposit.*', 'users.name', 'users.phone')
+							->where('deposit.status', 1)
+							->leftJoin('users', 'users.id', '=', 'deposit.user_id')
+							->orderBy('deposit.created_at', 'DESC')->limit(3)->get();
+
+
+		return view('admin/home', compact('today_withdrawl', 'today_deposit', 'total_balance', 'latest_users', 'latest_deposits'));
 	}
 	
 	public function sellerindex(){
-		$balance = Fees::checkbalance(Auth::user()->id, 'current');//
-		
-		
-		$today_revenue = Operation::where('operation.receiver_id', Auth::user()->id)
+	
+		$user_id = Sellerrole::get_seller_id(Auth::user()->id);
+		$balance = Fees::checkbalance($user_id, 'current');//
+
+		$today    = Carbon::createFromFormat('Y-m-d H:i:s',  date('Y-m-d'). " 00:00:00");
+		$tomorrow = $today->addDay();
+
+		$today_revenue = Operation::where('operation.owner_id', $user_id)
 		                          ->where('operation.status', 1)
 		                          ->select('operation.*', 'users.name')
 								  ->leftJoin('users', 'users.id', '=', 'operation.sender_id')
+								  ->where('operation.created_at',  '>', $today)
+								  ->where('operation.created_at',  '<', $tomorrow)
 								  ->get();
 		return view('seller/home', compact('balance', 'today_revenue'));
 	}
@@ -185,6 +241,7 @@ class HomeController extends Controller
 		return response()->json(array('zones'=> $zones, 'status'=> 1), 200);
 	}
 	
+
 	
 	 public function usersettings(Request $request){
 		 $message = "";
@@ -210,6 +267,9 @@ class HomeController extends Controller
 				$imageName = time() . $imageName;
 				$image->move('images/userprofile',$imageName);
 				$user->picture = $imageName;
+
+				// change qr code
+
 			}
 			
 			$user->first_name = $request->first_name;
@@ -225,7 +285,21 @@ class HomeController extends Controller
 		 
 		 return view('admin/usersetting', compact('message', 'countries', 'states', 'user'));
 	}
-	 
+	
+	private function generatevalue(){
+		$digits = 28;
+		while(1){
+			$result = '';
+			for($i = 0; $i < $digits; $i++) {
+				$result .= mt_rand(0, 9);
+			}
+			
+			if( User::where('no', $result)->count() == 0)
+				break;
+		}
+		return $result;
+	}
+
 	// Add new employee
 	 public function addnewemployee(Request $request){
 		 $message = "";
@@ -233,11 +307,12 @@ class HomeController extends Controller
 		 if($request->isMethod('post')){
 			  $validator = Validator::make($request->all(),
 					[ 'picture'  => 'image|mimes:jpeg,bmp,png',
-					  'email'    => 'required|email',
+					  'email'    => 'required|email|unique:users',
 					  'first_name'     => 'required|max:255',
 					  'last_name'      => 'required|max:255',
 			          'phone'    	   => 'required|max:255|unique:users',
 					  'password' 	   => 'required|min:6|confirmed',
+					  'role' 	       => 'required',
 					]
 			  )->validate();
 			  
@@ -252,11 +327,11 @@ class HomeController extends Controller
 			  $user->name   	=  $request->first_name . ' ' . $request->last_name;
 			  $user->no     	=  $this->generatevalue();
 			  $user->email   	=  $request->email;
-			  $user->usertype   =  2;
+			  $user->usertype   =  6;
 			  $user->password   =  bcrypt($request->password);
 			  $user->phone      =  $request->phone;
 			  $user->state      =  $request->state;
-			  $user->country    =  $request->country;
+			  //$user->country    =  $request->country;
 			  $user->save();
 			  
 			  $role = new Role;
@@ -279,31 +354,135 @@ class HomeController extends Controller
 						case 4:  //Manager Operaton Deposit
 							$role->m_dep = 1;
 							break;
-						case 5:  //Manager Operatons
-							$role->m_opr = 1;
+						case 5:  //Manager Coupons
+							$role->m_cup = 1;
 							break;
-						case 6:  //Manager Operatons
+						case 6:  //Manager withdraw
 							$role->m_wir = 1;
 							break;
-						case 7:  //Manager Operatons
+						case 7:  //Manager notification
 							$role->m_not = 1;
+							break;
+						case 8:  //Manager notification
+							$role->m_mes = 1;
 							break;
 					}
 			}
 			$role->save();
+			Session::flash('success', 'success');
 		 }
-		 return view('admin/newemployee', compact('message', 'countries'));
+
+
+		 $states    = Zone::where('country_id',  '184')->get();
+
+
+		 return view('admin/newemployee', compact('message', 'countries','states'));
 	 }
 	 
-	 public function messages(Request $request){
-		 
+	 // getin touch
+	 public function admingetintouch(Request $request){
+		
 		$page_size = 10;
 		if($request->pagesize !== null)
 			$page_size = $request->pagesize;
 		
 		if($request->key !== null){
 			$setting['key'] = $request->key;
-			$messages = Contactus::select('contactus.*', 'users.name')
+			$messages = Touchwith::where('touchwith.message',  'like',  '%'. $request->key . '%')
+						->orWhere('touchwith.name', 'like','%'. $request->key . '%')
+						->orWhere('touchwith.email', 'like','%'. $request->key . '%')
+						->orWhere('touchwith.phone', 'like','%'. $request->key . '%')
+						->paginate($page_size);
+		}
+		else{
+			$setting['key'] = "";
+			$messages =  Touchwith::paginate($page_size);
+		}
+		
+		if($request->isMethod('post')){
+			foreach($messages as $message){
+				
+				$message->status    =  $request->{'status_' .    $message->no};
+				$message->save();
+				
+			}
+		}
+		
+		$setting['pagesize'] = $page_size;
+		
+		return view('admin/getintouch', ['messages' => $messages->appends(Input::except('page')), 'setting' => $setting]);
+		}
+	
+		public function admingetintouch_export(){
+			$messages =  Touchwith::all();
+
+			Excel::create('selfstation', function($excel)  use($messages)  {  
+				$excel->sheet('getintouch', function($sheet)  use($messages)  {    
+					// add header
+					$sheet->appendRow(array(
+						trans('app.no'), trans('app.name'), trans('app.message') , trans('app.type_message'),
+							trans('app.status'), trans('app.date_created')
+					));	
+					
+					foreach($messages as $message){
+						$row = array();
+						$row[] = $message->id;
+						if($message->first_name)
+							$row[] = $message->first_name . ' '  .$message->last_name;
+						else
+							$row[] = $message->name;
+						
+						switch($message->type){
+							case 0:
+								$row[]  = trans('app.technical');
+								break;
+							case 1:
+								$row[]  =  trans('app.deposit');
+								break;
+							case 2:
+								$row[] = trans('app.withrwal');
+								break;
+						}
+						
+						$row[]  =  $message->content;
+
+						if($message->status)
+							$row[] =  trans('app.solved');
+						else
+							$row[] =  trans('app.not_solved');
+						
+						$row[]  =  $message->created_at;
+
+
+						$sheet->appendRow($row);
+					}
+				});
+			})->download('xls');
+		}
+
+		public function message(Request $request){
+			$id = $request->id;
+			$message = Contactus::select('contactus.*', 'users.first_name', 'users.last_name', 'users.phone', 'users.email')
+						->leftJoin('users', 'users.id', '=', 'contactus.user_id')
+						->where('contactus.id', $id)
+					    ->first();
+			if(isset($message)){
+				return response()->json(['status' => 1,   'data'=> $message]); 
+			}
+			else{
+				return response()->json(['status' => 0,   'msg'=> "wrong_request"]); 
+			}
+		}
+
+	    public function messages(Request $request){
+		
+		$page_size = 10;
+		if($request->pagesize !== null)
+			$page_size = $request->pagesize;
+		
+		if($request->key !== null){
+			$setting['key'] = $request->key;
+			$messages = Contactus::select('contactus.type','contactus.id',  DB::raw('left(contactus.content, 21)  as content') ,'contactus.created_at', 'contactus.status','users.name')
 						->leftJoin('users', 'users.id', '=', 'contactus.user_id')
 						->where('contactus.content',  'like',  '%'. $request->key . '%')
 						->orWhere('users.name', 'like','%'. $request->key . '%')
@@ -313,7 +492,7 @@ class HomeController extends Controller
 		}
 		else{
 			$setting['key'] = "";
-			$messages =  Contactus::select('contactus.*', 'users.name')
+			$messages =  Contactus::select('contactus.type','contactus.id',  DB::raw('left(contactus.content, 21)  as content') ,'contactus.created_at', 'contactus.status','users.name')
 						 ->leftJoin('users', 'users.id', '=', 'contactus.user_id')
 					     ->paginate($page_size);
 		}
@@ -405,7 +584,7 @@ class HomeController extends Controller
 			
 		}
 		
-		
+		/*
 		if(null !== $request->input('country')){
 			$setting_val['country'] = $request->input('country');
 			
@@ -417,7 +596,8 @@ class HomeController extends Controller
 			if($sql != "") $sql  .= " and ";
 		    $sql .= ' country = "' . 	$setting_val['country']  . '"';
 		}
-		
+		*/
+
 		if(null !== $request->input('state'))
 		{
 			$setting_val['state'] = $request->input('state');
@@ -465,9 +645,7 @@ class HomeController extends Controller
 				
 			}
 			
-			
-			//$setting_val['service_name'] = Services::find($setting_val['service'])->name;
-			//$sql = 'booking.service = "' . 	$setting_val['service']  . '"';
+		 
 		}
 		
 		
@@ -485,6 +663,7 @@ class HomeController extends Controller
 		}
 		$fuel_json = json_encode($fuel_array);
 		$countries = Country::get();
+		$states    = Zone::where('country_id',  '184')->get();
 		return view('admin/map', compact('countries', 'setting_val', 'states', 'fuel_json'));
 	}
 	
@@ -492,8 +671,32 @@ class HomeController extends Controller
 		$page_size = 10;
 		if($request->pagesize !== null)
 			$page_size = $request->pagesize;
-		$users = User::where('usertype', 2)->paginate($page_size);
+		
+		
 		$setting['pagesize'] = $page_size;
+
+
+		if($request->key !== null){
+			$setting['key'] = $request->key;
+			$users = User::where('usertype', 6)
+						 ->where(function ($query) use ($request) {
+								 $query->where('phone',  'like',  '%'. $request->key . '%')
+								->orWhere('name', 'like','%'. $request->key . '%')
+								->orWhere('first_name', 'like','%'. $request->key . '%')
+								->orWhere('no', 'like','%'. $request->key . '%')
+								->orWhere('last_name', 'like','%'. $request->key . '%'); 
+					})
+					->paginate($page_size);
+
+		}
+		else{
+			$setting['key'] = "";
+			$users = User::where('usertype', 6)->paginate($page_size);
+		}
+
+
+
+
 		return view('admin/attendances', ['users' => $users->appends(Input::except('page')), 'setting' => $setting]);
 	}
 
@@ -538,8 +741,22 @@ class HomeController extends Controller
 				$fee->save();
 			}
 		}
-		$subscripttionfees = Subscriptionfee::all();
-		return view('admin/feedsmanagement', compact('fees', 'subscripttionfees'));
+		return view('admin/feedsmanagement', compact('fees'));
+	}
+
+	public function subscriptionfees(Request $request){
+		$subscripttionfees = Subscriptionfee::leftJoin("users", 'users.id', '=', 'subscriptionfee.name')
+		->select("subscriptionfee.*", 'users.name as username')
+		->paginate(5);
+		if($request->isMethod('post')){
+			foreach($subscripttionfees as $subscripttionfee){
+					$subscripttionfee->amount  =  $request->{'amount_' .  $subscripttionfee->no};
+					$subscripttionfee->save();
+					$subscripttionfee->freeamount  =  $request->{'freeamount_' .  $subscripttionfee->no};
+					$subscripttionfee->save();
+			}
+		}
+		return view ('admin/subscriptionfee', compact('subscripttionfees'));
 	}
 
 	function getusers(Request $request){
@@ -780,36 +997,33 @@ class HomeController extends Controller
 	}
 
 	public function addsubscription(Request $request){
-
 		$this->validate($request, Subscriptionfee::rules());
-
 		$usertype = $request->usertype;
 		$name = $request->name;
-
 		$subscriptionfee = Subscriptionfee::where("name", $name)
 										  ->where("usertype", $usertype)
 										  ->first();
 		if($subscriptionfee !== null)
 			$subscriptionfee = $subscriptionfee;
 		else{
+
+			$user = User::where('no', $name)->first();
+			if(!isset($user)) return view("errors/404");
+
 			$subscriptionfee = new Subscriptionfee;
 			$subscriptionfee->no = Subscriptionfee::generatevalue();
 			$subscriptionfee->usertype = $usertype;
-			$subscriptionfee->name   = $name;
+			$subscriptionfee->name   = $user->id;
 			$subscriptionfee->amount = $request->amount; 
 		}
 
 		if($usertype == 0){
-
+			$subscriptionfee->freecondition = 1;
+			$subscriptionfee->freeamount    = $request->freeamount;
 		}
-		else{
-				//$name = $request->name;
-		}
-		
-		
-		
-		//$freeamount = $request->freeamount;
-		
-
+	
+		$subscriptionfee->amount = $request->amount;
+		$subscriptionfee->save();
+		return redirect('/admin/feedsmanagement/subscription');
 	}
 }

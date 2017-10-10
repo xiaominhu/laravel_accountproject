@@ -15,8 +15,14 @@
 	Route::get('/terms-and-conditions', 'HomeController@terms_and_conditions');
 	Route::get('/help', 'HomeController@help');
 	Route::post('/languages',  'HomeController@languages');
+	Route::post('/getintouch', 'HomeController@getintouch');
 	Route::get('/abc', 'HomeController@abc');
-	
+	Route::get('/seller/login', function(){
+		Session::flash('seller', 'seller');
+		return view('auth.login');
+	});
+ 
+
 	Route::get('api/auth', 'AuthenticateController@authenticate');
 	Route::post('api/auth', 'AuthenticateController@authenticate');
 	
@@ -122,7 +128,7 @@
 		Route::get('/messsages', 'HomeController@messages')->name('messages');
 		Route::post('/messsages', 'HomeController@messages');
 		Route::get('/messsages/export', 'HomeController@messages_export');
-		
+		Route::post('message/item', 'HomeController@message');
 		// user settings
 		Route::get('/usersettings',  'HomeController@usersettings')->name('adminusersettings');
 		Route::post('/usersettings', 'HomeController@usersettings');
@@ -133,13 +139,14 @@
 		Route::get('attendances/export', 'HomeController@attendances_export');
 
 		// feeds management
-		
 		Route::get('/feesmanagement', 'HomeController@feedsmanagement')->name('feedsmanagement');
 		Route::post('/feesmanagement', 'HomeController@feedsmanagement');
+
+		Route::get('/feesmanagement/subscription', 'HomeController@subscriptionfees')->name('subscriptionfees');
+		Route::post('/feesmanagement/subscription', 'HomeController@subscriptionfees');
 		Route::post('/getallusers', 'HomeController@getusers');
 		Route::post('/subscription/add', 'HomeController@addsubscription');
-		
-		
+		 
 		// operation Deposit
 		Route::get('/depositmanagement', 'OperationController@depositmanagement')->name('depositmanagement');
 		Route::post('/depositmanagement', 'OperationController@depositmanagement');
@@ -170,6 +177,12 @@
 		Route::post('/reports', 'HomeController@reports')->name('adminreport');
 
 		Route::get("/reports/export", "HomeController@reports_export");
+
+		//get in touch
+		Route::get('/getintouch', 'HomeController@admingetintouch')->name('admingetintouch');
+		Route::post('/getintouch', 'HomeController@admingetintouch');
+		Route::get('/getintouch/export', 'HomeController@admingetintouch_export');
+
 	});
 
 	Route::group(['prefix' => 'seller', 'middleware' =>  ['auth', 'seller']], function () {
@@ -191,12 +204,13 @@
 		Route::get('/coupons', 'SellerController@coupons')->name('sellercoupons');
 		Route::post('/coupons', 'SellerController@coupons');
 		
+		/*
 		Route::get('/coupons/create',   'SellerController@couponscreate');
 		Route::post('/coupons/create',  'SellerController@couponscreate');
 		Route::get('/coupons/update/{id}',  'SellerController@couponsupdate');
 		Route::post('/coupons/update/{id}', 'SellerController@couponsupdate');
 		Route::get('/coupons/delete/{id}', 'SellerController@couponsdelete');
-		
+		*/
 		Route::get('/contactus', 'SellerController@contactus')->name('sellercontactus');
 		Route::post('/contactus', 'SellerController@contactus');
 		
@@ -210,13 +224,19 @@
 		Route::get('/reports/details/{id}', 'SellerController@reportsdetails');
 		Route::get('/reports/export', 'SellerController@reports_export');
 		
-		
-		//employeer
+		//pos employeer
 		Route::get('/employeers', 'SellerController@employeers')->name('selleremployeers');
 		Route::get('/employeers/create', 'SellerController@employeerscreate');
 		Route::post('/employeers/create', 'SellerController@employeerscreate');
 		
-		
+		Route::get('/employeers/delete/{id}', 'SellerController@employeerdelete');
+		Route::get('/employeers/update/{id}', 'SellerController@employeerupdate');
+		Route::post('/employeers/update/{id}', 'SellerController@employeerupdate');
+
+		//web employeer
+		Route::get('/workers/create', 'SellerController@workercreate')->name('sellerworkers');
+		Route::post('/workers/create', 'SellerController@workercreate');
+
 	});
  
 	Route::group(['prefix' => 'user', 'middleware' => ['auth', 'user']], function (){
@@ -240,7 +260,6 @@
 		Route::post('/notification', 'VehicleController@usernotification');
 
 		Route::get('/notification/export', 'VehicleController@usernotification_export');
-		
 		
 		/////////////////////////////////////
 		Route::get("/operations/widthrawls", 'OperationController@widthrawls')->name('userwidthraw');
@@ -273,10 +292,17 @@
 		Route::get('/reports', 'UserController@reports')->name('userreports');
 		Route::post('/reports', 'UserController@reports');		
 		Route::get('/reports/export', 'UserController@reports_export');
+
+		Route::get('/download/attachment/{id}', 'UserController@userdownload_attach');
+
+		//route
+		Route::get('/sendmoney', 'UserController@sendmoney')->name('usersendmoney');
+		Route::post('/sendmoney', 'UserController@sendmoney');
 	});
 
 	Route::group(['prefix' => 'cron', 'middleware' => []], function (){
 		Route::get('/pending', 'CronController@pending');
 		Route::get('/withdraw', 'CronController@withdraw');
+		Route::get('/collectingsubscription', 'CronController@collectingsubscription');
 	});
 // Unregistered users. later will make unregistered user.

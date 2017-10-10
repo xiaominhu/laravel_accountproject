@@ -6,7 +6,7 @@ class Subscriptionfee extends Model
     //
 	protected $table = 'subscriptionfee';
 	static public function generatevalue(){
-		    $digits = 20;
+		    $digits = 10;
 			while(1){
 				$result = '';
 				for($i = 0; $i < $digits; $i++) {

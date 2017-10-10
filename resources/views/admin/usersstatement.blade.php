@@ -76,19 +76,25 @@
 
 											</td>
 											
-											<td>{{$transaction->phone}}</td>
+											<td>{{$transaction->phone}}</td> 
 											<td>
-												@if($transaction->type == '4')
-													{{trans('app.pos_revenue')}}
-												@elseif($transaction->type == '0')
-													{{trans('app.pos_payment')}}
-												@elseif($transaction->type == '1')
-													{{trans('app.deposit')}}
-												@elseif($transaction->type == '2')
-													{{trans('app.withdrawl')}}
-												@elseif($transaction->type == '3')
-													{{trans('app.reward')}}
-												@endif
+														@if($transaction->type == '4')
+															{{trans('app.pos_revenue')}}
+														@elseif($transaction->type == '0')
+															{{trans('app.pos_payment')}}
+														@elseif($transaction->type == '1')
+															{{trans('app.deposit')}}
+														@elseif($transaction->type == '2')
+															{{trans('app.withdrawl')}}
+														@elseif($transaction->type == '3')
+															{{trans('app.reward')}}
+														@elseif($transaction->type == '5')
+															{{trans('app.subscription_fees')}}
+														@elseif($transaction->type == '6')
+															{{trans('app.send_money')}}
+														@elseif($transaction->type == '7')
+															{{trans('app.accept_money')}}
+														@endif
 											 </td>
 											 
 											<td> {{$transaction->amount}} </td>

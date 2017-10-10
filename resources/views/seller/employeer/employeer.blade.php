@@ -52,6 +52,7 @@
 									</tr>
 								</thead>
 								<tbody>
+								@if(count($employeers))
 									@foreach($employeers as $employeer)
 									<tr>
 										<td> {{$employeer->no}} </td>
@@ -71,12 +72,17 @@
 											@endif
 											 
 										</td>
-										
-										
-										<td>  </td>
+										<td> 
+											<div class="btn-group" role="group" aria-label="Basic example">
+													<a href = "/seller/employeers/update/{{$employeer->no}}"  type="button" class="btn btn-primary">{{trans('app.edit')}}    </a>
+													<a href = "/seller/employeers/delete/{{$employeer->no}}"  type="button" class="btn btn-danger"> {{trans('app.delete')}}  </a>
+											</div>
+										 </td>
 									</tr>
 									@endforeach
-								 
+								@else
+									<tr>  <td colspan= '6' class = "text-center"> {{trans('app.there_is_no_results')}} </td> </tr>
+								@endif
 								
 								</tbody>
 							</table>

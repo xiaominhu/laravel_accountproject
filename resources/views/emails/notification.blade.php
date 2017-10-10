@@ -1,12 +1,10 @@
 <!DOCTYPE html>
 <html lang="{{ config('app.locale') }}">
     <head>
-         
-        <title>Laravel</title>
- 
-             
+       
+        <title>Selfstation</title>             
     </head>
     <body>
-        Hello world.
+        <span>  {{$notification_content}}  </span>
     </body>
 </html>

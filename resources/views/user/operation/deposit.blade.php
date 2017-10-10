@@ -4,8 +4,7 @@
  <div class="content-header row">
  </div>
         <div class="content-body"><!-- stats -->
-			 
-				
+			  
 				
 			<div class = "row">
 				<div class = "col-xs-6 float-xs-right">
@@ -23,7 +22,7 @@
 			
 			<br/>
 			<br/>
-			<form  action="/user/operations/deposit?cardtype={{$setting['type']}}" method="post">	
+			<form  action="/user/operations/deposit?cardtype={{$setting['type']}}" method="post"  enctype="multipart/form-data">	
 				
 				{{csrf_field()}}
 			
@@ -33,21 +32,19 @@
 						  <label for="amount" class="col-sm-2 control-label">  {{trans('app.amount')}}  </label>
 						  <div class="col-sm-10">
 							<input type="text" class="form-control" id="amount" name = "amount" placeholder="" value = "">
-							        	@if ($errors->has('amount'))
-														<span class="help-block">
-															<strong>{{ $errors->first('amount')}}</strong>
-														</span>
-												@endif
-
-
-						  </div>
-						</div>
+									@if ($errors->has('amount'))
+											<span class="help-block">
+												<strong>{{ $errors->first('amount')}}</strong>
+											</span>
+									@endif
+					</div>
+				</div>
 					
 						<div class="form-group col-sm-12">
 						  <label for="full_name" class="col-sm-2 control-label">  {{trans('app.full_name')}} </label>
 						  <div class="col-sm-10">
 							<input type="text" class="form-control" id="full_name" name = "full_name" placeholder="" value = "">
-													@if ($errors->has('full_name'))
+												@if ($errors->has('full_name'))
 																<span class="help-block">
 															<strong>{{ $errors->first('full_name')}}</strong>
 														</span>
@@ -64,38 +61,50 @@
 															<strong>{{ $errors->first('bank_name')}}</strong>
 														</span>
 												@endif
-
-
 						  </div>
 						</div>
-				
+ 
+					 	<div class="form-group col-sm-12">
+						  <label for="attachment" class="col-sm-2 control-label">    {{trans('app.attachment')}}   </label>
+						  <div class="col-sm-10">
+							<input type="file" class="form-control" id="attachment" name = "attachment" placeholder="" value = "">
+						  </div>
+						</div>
+
+
 						<div class="form-group col-sm-12">
 						  <label for="time" class="col-sm-2 control-label">  {{trans('app.time')}}  </label>
 						  <div class="col-sm-10">
-							<input type="text" class="form-control" id="time" name = "time" placeholder="" value = "">
-												 @if ($errors->has('time'))
-																<span class="help-block">
+								<div class='input-group time' id='time'>
+							  <input type="text" class="form-control"   name = "time" placeholder="" value = "">
+								<span class="input-group-addon">
+									<i class="icon-calendar"></i>
+								</span>
+											@if ($errors->has('time'))
+													<span class="help-block">
 															<strong>{{ $errors->first('time')}}</strong>
-														</span>
-												@endif
-
-
+													</span>
+											@endif
+										</div>
 						  </div>
 						</div>
 						
 						<div class="form-group col-sm-12">
-						  <label for="date" class="col-sm-2 control-label">    {{trans('app.date')}}  </label>
-						  <div class="col-sm-10">
-							<input type="text" class="form-control" id="date" name = "date" placeholder="" value = "">
-
-											@if ($errors->has('date'))
-																<span class="help-block">
-															<strong>{{ $errors->first('date')}}</strong>
-														</span>
-											@endif
-
-
-						  </div>
+						   
+							  <label for="date" class="col-sm-2 control-label"> {{trans('app.date')}} </label>
+								<div class="col-sm-10 form-group">
+										<div class='input-group date' id='date'>
+											<input type='text' class="form-control" name = "date" value = "" />
+											<span class="input-group-addon">
+												<i class="icon-calendar"></i>
+											</span>
+												@if ($errors->has('date'))
+																	<span class="help-block">
+																<strong>{{ $errors->first('date')}}</strong>
+															</span>
+												@endif
+										</div>
+								</div>
 						</div>
 						
 						
@@ -194,8 +203,23 @@
 					  </div>
 					</div>
 				@else
-					
 				@endif
+
+						<div class="form-group col-sm-12">
+								<label for="coupon" class="col-sm-2 control-label">   {{trans('app.coupon')}}</label>
+								<div class="col-sm-10">
+									<input type="text" class="form-control" id="coupon" name = "coupon" placeholder="" value = "">	
+									   	@if ($errors->has('coupon'))
+																<span class="help-block">
+															<strong>{{ $errors->first('coupon')}}</strong>
+														</span>
+											@endif
+
+										 
+
+								</div>
+						</div>
+
 			</div>	
 			
 			<div class = "row">
@@ -207,17 +231,15 @@
 						<a type="submit" href = "{{URL::to('/user/operations/deposits')}}" class="btn btn-primary" style = "margin-right:50px;">
 							 {{trans('app.cancel')}}
 						</a>
-
-
 				</div>
 			</div>
 			
 			
-				
-				
 		</form>	
 				
-				
+				<script>
+					deposit = 1;
+				</script>
 			
 		
 		

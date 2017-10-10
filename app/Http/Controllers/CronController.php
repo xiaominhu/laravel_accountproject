@@ -11,6 +11,7 @@ use Carbon\Carbon;
 use App\Transactions;
 use App\Setting;
 use App\Withdraw;
+use App\Subfeemanagement;
 
 class CronController extends Controller
 {
@@ -37,6 +38,7 @@ class CronController extends Controller
             $transaction->transtype    = 0; //in 
             $transaction->no = Transactions::generatevalue();
             $transaction->save();
+            Subfeemanagement::collectingFee($operation->owner_id);
         }
         //return response()->json(['error' => 0 ,  'results' => $operations]);
     }
@@ -48,11 +50,8 @@ class CronController extends Controller
         if($limittime->diffInMinutes($now, false) < 0){
             $limittime->subDay(1);
         }
-
-        
-        
+ 
        // echo $limittime->toDateTimeString();
-        
         $transactions = Transactions::whereIn('transactions.status', [1,2])
                                     ->where('users.usertype', 1)
                                     ->selectRaw('sum(transactions.final_amount) as sum, transactions.operator_id')
@@ -90,5 +89,22 @@ class CronController extends Controller
                 $withdraw->save();
         }
         //$q->whereDate('created_at', '=', Carbon::today()->toDateString());
+    }
+
+    public function collectingsubscription(){
+        //$limittime =  date("m-d");
+        //echo $limittime;
+        $subfeemanagements = Subfeemanagement::where('status', 1)->get();
+
+        foreach($subfeemanagements as $subfeemanagement){
+            $user_id = $subfeemanagement->user_id;
+            $user = User::find($user_id);
+            if(!isset($user)) {
+                $subfeemanagement->status = 0;
+                continue;
+            }
+            Subfeemanagement::collectingFee($user_id);
+        }
+
     }
 }

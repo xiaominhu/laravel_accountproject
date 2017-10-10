@@ -64,7 +64,7 @@ return [
     |
     */
 
-    'timezone' => 'UTC',
+    'timezone' => 'Asia/Riyadh',
 
     /*
     |--------------------------------------------------------------------------
@@ -180,7 +180,9 @@ return [
 		
 		Maatwebsite\Excel\ExcelServiceProvider::class,
         Tymon\JWTAuth\Providers\JWTAuthServiceProvider::class,
-		Nexmo\Laravel\NexmoServiceProvider::class
+		Nexmo\Laravel\NexmoServiceProvider::class,
+		
+		App\Providers\SelfuserServiceProvider::class,
     ],
 
     /*
@@ -234,7 +236,8 @@ return [
 	   
 		'JWTAuth'    => Tymon\JWTAuth\Facades\JWTAuth::class,
 		'JWTFactory' => Tymon\JWTAuth\Facades\JWTFactory::class,
-		'Nexmo' => \Nexmo\Laravel\Facade\Nexmo::class
+		'Nexmo' => \Nexmo\Laravel\Facade\Nexmo::class,
+		'Selfuser' => App\Helpers\Selfuser\Selfuser::class,
     ],
 
 ];

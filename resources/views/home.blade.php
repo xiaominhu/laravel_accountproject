@@ -157,26 +157,44 @@
 			<div class="">
 				<div class="row marginbot-80">
 					<div class="col-md-8 col-md-offset-2">
-						<div id="sendmessage"> {{trans('app.your_message_has_been_sent')}} </div>
-						<div id="errormessage"></div>
-							<form id="contact-form" action="" method="post" role="form" class="contactForm">
+						@if(Session::has('message_sent'))
+							<div id="sendmessage"> {{trans('app.your_message_has_been_sent')}} </div>
+						@endif
+
+						@if($errors->any())
+							<div id="errormessage">{{trans('app.your_message_has_not_been_sent')}}</div>
+						@endif
+
+							<form id="contact-form" action="{{URL::to('/getintouch')}}" method="post" role="form" class="contactForm">
+								{{csrf_field()}}
 								<div class="row marginbot-20">
 									<div class="col-md-12 xs-marginbot-20">
 										<div class="form-group">
 											<input type="text" name="name" class="form-control" id="name" placeholder="{{trans('app.your_name')}} " data-rule="minlen:4" data-msg=" {{trans('app.please_enter_atleast_4_chars')}}" />
-											<div class="validation"></div>
+											
+											@if ($errors->has('name'))
+												<div class="validation"> {{ $errors->first('name') }} </div>
+											@endif
+
 										</div>
 									</div>
 									<div class="col-md-12">
 										<div class="form-group">
 											<input type="email" class="form-control" name="email" id="email" placeholder="{{trans('app.your_email')}}" data-rule="email" data-msg="Please enter a valid email" />
-											<div class="validation"></div>
+										 
+											@if ($errors->has('email'))
+												<div class="validation"> {{ $errors->first('email') }} </div>
+											@endif
+
 										</div>
 									</div>
 									<div class="col-md-12">
 										<div class="form-group">
-											<input type="text" class="form-control" name="phone" id="phone" placeholder="{{trans('app.phone')}}" data-rule="minlen:4"  data-msg="Please enter a valid phone number" />
-											<div class="validation"></div>
+											<input type="text" class="form-control" name="phone" id="phone" placeholder="{{trans('app.phone')}}" value = "966" data-rule="minlen:4"  data-msg="Please enter a valid phone number" />
+											
+											@if ($errors->has('phone'))
+												<div class="validation"> {{ $errors->first('phone') }} </div>
+											@endif
 										</div>
 									</div>
 								</div>
@@ -184,7 +202,9 @@
 									<div class="col-md-12">
 										<div class="form-group">
 											<textarea class="form-control" name="message" rows="5" data-rule="required" data-msg="Please write something for us" placeholder=" {{trans('app.message')}} "></textarea>
-											<div class="validation"></div>
+											@if ($errors->has('message'))
+												<div class="validation"> {{ $errors->first('message') }} </div>
+											@endif
 										</div>						
 										<button type="submit" class="btn btn-skin btn-lg btn-block" id="btnContactUs">
 											 {{trans('app.send_message')}} </button>

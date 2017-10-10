@@ -101,9 +101,10 @@
 											<li><a href="{{URL::to('/terms-and-conditions')}}">  {{trans('app.terms_and_conditions')}}  </a></li>	
 											
 											<li><a href="{{URL::to('/help')}}">  {{trans('app.help')}}  </a></li>	
-											
-											
 											<li><a href="{{$url_home}}#contact"> {{trans('app.contact_us')}} </a></li>
+
+											<li><a href="{{URL::to('/seller/login')}}"> {{trans('app.signup_login_seller')}} </a></li>
+
 										</ul>
 								  </div>
 								  <!-- /.Navbar-collapse -->
@@ -122,25 +123,26 @@
 	<footer>
 		<div class="container">
 			<div class="row">
-				<div class="col-md-6">
-					<ul class="footer-menu">
-						<li><a href="#">  {{trans('app.home')}}  </a></li>
-						 
-					</ul>
+				 
+				<div class = "col-md-6">
+					<div class = "col-xs-4">
+						<img src = "{{URL::asset('img/playstore_img.png')}}">
+					</div>
+					<div class = "col-xs-4">
+						<img src = "{{URL::asset('img/appstore_img.png')}}">
+					</div>
 				</div>
+
 				<div class="col-md-6 text-right copyright">
 					&copy; {{trans('app.copyright')}}  -  {{trans('app.selfstation')}}. {{trans('app.all_rights_reserved')}} 
-                    <div class="credits">
-                        <!-- 
-                            All the links in the footer should remain intact. 
-                            You can delete the links only if you purchased the pro version.
-                            Licensing information: https://bootstrapmade.com/license/
-                            Purchase the pro version with working PHP/AJAX contact form: https://bootstrapmade.com/buy/?theme=Bocor
-                        -->
-                    
-                    </div>
+					<div class="credits">
+					</div>
 				</div>
+
 			</div>	
+
+			 
+			
 		</div>
 	</footer>
 

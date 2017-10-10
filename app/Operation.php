@@ -10,7 +10,7 @@ class Operation extends Model
 	protected $table = "operation";
 	
 	static public function generatevalue(){
-		    $digits = 30;
+		    $digits = 10;
 			while(1){
 				$result = '';
 				for($i = 0; $i < $digits; $i++) {

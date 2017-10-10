@@ -18,14 +18,14 @@ class Vehicle extends Model
             'createvehicle_fuel'     =>    'required',
             'createvehicle_state'    =>    'required|integer',
             'createvehicle_city'     =>    'required',
-            'createvehicle_password' =>    'required',
+            'createvehicle_password' =>    'required|integer|digits:4',
             // 'createvehicle_coutry'   =>    'required|integer',
 			'picture'                => 'image|mimes:jpeg,bmp,png',
         ];
     }
 	
 	static public function generatevalue(){
-		    $digits = 30;
+		    $digits = 10;
 			while(1){
 				$result = '';
 				for($i = 0; $i < $digits; $i++) {
@@ -38,4 +38,7 @@ class Vehicle extends Model
 			
 			return $result;
 	}
+
+
+ 
 }

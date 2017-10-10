@@ -86,16 +86,23 @@
 													}
 												?>
 											</td>
-											<td> {{$deposit->amount}}</td>
-										 
-											<td>  </td>
+											<td> {{$deposit->real_amount}}</td>
+											<td class = "text-center">  
+													@if($deposit->notes)
+														<a href = "{{URL::to('admin/download/attachment')}}/{{$deposit->no}}" > <i class="icon-paperclip2"></i>  <a>
+													@endif
+											</td>
+
 											<td>{{$deposit->created_at}}</td>
 											<td> 
 												 
 												
 												<div class="checkbox">
 													<label>
-														<input type="checkbox" <?php  if($deposit->status == 1) echo "checked  disabled" ?> value="1" name = "status_{{$deposit->no}}" onchange="this.form.submit()" > 
+														<input type="checkbox" <?php  
+															if($deposit->status == 1) echo "checked  ";
+														 	if(Auth::user()->usertype != '2') echo "disabled";
+														?> value="1" name = "status_{{$deposit->no}}" onchange="this.form.submit()" > 
 														@if($deposit->status == 1) 
 															<span class = "deep-purple lighten-1"> {{trans('app.approved')}}   </span>
 														@else 

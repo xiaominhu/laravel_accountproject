@@ -20,7 +20,7 @@
 				<div class = "col-xs-4">
 					<form class="form-horizontal" method = "get" action="{{URL::to('/admin/messsages')}}">
 						<fieldset class="form-group position-relative">
-							<input type="text" class="form-control form-control-lg input-lg" id="iconLeft" placeholder="  {{trans('app.serach')}}" name = "key" value = "{{$setting['key']}}">
+							<input type="text" class="form-control form-control-lg input-lg" id="iconLeft" placeholder="  {{trans('app.search')}}" name = "key" value = "{{$setting['key']}}">
 							<div class="form-control-position">
 								<i class="icon-ios-search-strong font-medium-4"></i>
 							</div>
@@ -60,8 +60,8 @@
 										@foreach($messages as $message)
 											<tr>
 												<th scope="row">{{$message->id}}</th>
-												<td> {{$message->name}} </td>
-												<td> {{$message->content}} </td>
+												<td><a href = "#" class = "adminmessage" data-id = "{{$message->id}}"> {{$message->name}} </td>
+												<td> {{ \Illuminate\Support\Str::words($message->content, 2)}} </td>
 												<td> 
 													@if($message->type == '0')
 														 {{trans('app.technical')}} 
@@ -89,11 +89,81 @@
 							</div>
 					</div>
 				</div>
-				
-				
 			</div>
-			
 		</div>
-      
+
+ 
+		<div class="adminmessagemodal fade text-xs-left modal" id="small" tabindex="-1" role="dialog" aria-labelledby="myModalLabel19" style="display: none;" aria-hidden="true">
+			<div class="modal-dialog" role="document">
+			<div class="modal-content">
+				<div class="modal-header">
+				<button type="button" class="close" data-dismiss="modal" aria-label="Close">
+					<span aria-hidden="true">×</span>
+				</button>
+				<h4 class="modal-title" id="myModalLabel19">  {{trans('app.message')}}    </h4>
+				</div>
+				<div class="modal-body">
+			 		
+				 	<div class = "row">		 
+						<div class="form-group col-sm-12">
+						  <label for="first_name" class="col-sm-2 control-label">  {{trans('app.first_name')}}   </label>
+						  <div class="col-sm-10">
+							<input readonly  type="text" class="form-control" id="first_name" name = "first_name" placeholder="" value = "">
+						  </div>
+						</div>
+					</div>
+					<div class = "row">		 
+						<div class="form-group col-sm-12">
+						  <label for="last_name" class="col-sm-2 control-label">  {{trans('app.last_name')}}   </label>
+						  <div class="col-sm-10">
+							<input readonly type="text" class="form-control" id="last_name" name = "last_name" placeholder="" value = "">
+						  </div>
+						</div>
+					</div>	
+
+					<div class = "row">		 
+						<div class="form-group col-sm-12">
+						  <label for="phone" class="col-sm-2 control-label">  {{trans('app.phone')}}   </label>
+						  <div class="col-sm-10">
+							<input readonly type="text" class="form-control" id="phone" name = "phone" placeholder="" value = "">
+						  </div>
+						</div>
+					</div>	
+
+
+
+					<div class = "row">		 
+						<div class="form-group col-sm-12">
+						  <label for="email" class="col-sm-2 control-label">  {{trans('app.email')}}   </label>
+						  <div class="col-sm-10">
+							<input readonly type="text" class="form-control" id="email" name = "email" placeholder="" value = "">
+						  </div>
+						</div>
+					</div>	
+
+
+					<div class = "row">		 
+						<div class="form-group col-sm-12">
+						  <label for="content" class="col-sm-2 control-label">  {{trans('app.message')}}   </label>
+						  <div class="col-sm-10">
+							<textarea readonly id="content" rows="5" class="form-control border-primary" name="content" placeholder="content"  ></textarea>
+						  </div>
+						</div>
+					</div>
+						 
+					 
+			
+			 
+
+
+				</div>
+				<div class="modal-footer">
+				<button type="button" class="btn grey btn-outline-secondary" data-dismiss="modal">Close</button>
+				 
+				</div>
+			</div>
+			</div>
+		</div>
+
 
 @endsection

@@ -15,19 +15,20 @@
 			<br>
 
 
-
 			<div class = "row">
 				<div class = "col-xs-4">
-					<fieldset class="form-group position-relative">
-						<input type="text" class="form-control form-control-lg input-lg" id="iconLeft" placeholder=" {{trans('app.serach')}}">
-						<div class="form-control-position">
-							<i class="icon-ios-search-strong font-medium-4"></i>
-						</div>
-					</fieldset>
+					<form class="form-horizontal" method = "get" action="{{URL::to('/admin/attendances')}}">
+						<fieldset class="form-group position-relative">
+							<input type="text" class="form-control form-control-lg input-lg" id="iconLeft" value = "{{$setting['key']}}" name = "key" placeholder=" {{trans('app.serach')}}">
+							<div class="form-control-position">
+								<i class="icon-ios-search-strong font-medium-4"></i>
+							</div>
+						</fieldset>
+					</form>	
 				</div>
 				
 				<div class = "col-xs-4 float-xs-right">
-					<form id="w0" class="form-inline float-xs-right" action="/admin/users" method="get">
+					<form id="w0" class="form-inline float-xs-right" action="{{URL::to('/admin/attendances')}}" method="get">
 						<select id="schedulesearch-id_service" class="form-control" name="pagesize" onchange="this.form.submit()">
 							<option value="10" <?php if($setting['pagesize'] == 10) echo "selected";?>><font><font>10</font></font></option>
 							<option value="15" <?php if($setting['pagesize'] == 15) echo "selected";?>><font><font>15</font></font></option>

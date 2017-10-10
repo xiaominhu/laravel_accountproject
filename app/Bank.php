@@ -12,11 +12,13 @@ class Bank extends Model
 	public static function rules()
     {
         return [
-            'amount'         =>   'required|integer',
+            'amount'         =>    'required|numeric',
             'full_name'      =>    'required',
             'bank_name'      =>    'required',
             'time'           =>    'required',
-            'date'           =>    'required'
+			'attachment'     =>    'image|mimes:jpeg,bmp,png',
+            'date'           =>    'required',
+         
         ];
     }
 	

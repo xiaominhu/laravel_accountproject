@@ -86,6 +86,7 @@
   <script>
 	   var seller_create = 0;
 	   var coupon_create = 0;
+		 var coupons = 0;
 	   var reports   = 0;
   </script>
   
@@ -143,7 +144,7 @@
 				@endif
 				</span></a>
                  <div class="dropdown-menu dropdown-menu-right">
-				<a href="{{route('adminusersettings')}}" class="dropdown-item"><i class="icon-head"></i>   {{trans('app.edit_profile')}} </a>
+				<a href="{{route('sellerusersettings')}}" class="dropdown-item"><i class="icon-head"></i>   {{trans('app.edit_profile')}} </a>
 			 
 				<div class="dropdown-divider"></div>
 				  
@@ -176,19 +177,29 @@
       <!-- main menu content-->
       <div class="main-menu-content">
         <ul id="main-menu-navigation" data-menu="menu-navigation" class="navigation navigation-main">
-          
-		  
-		 <li class=" nav-item"><a href="{{URL::to('/home')}}"><i class="icon-home3"></i><span data-i18n="nav.dash.main" class="menu-title"> {{trans('app.main_page')}}  </span></a></li>
-		
-		 <li class=" nav-item"><a href="{{route('fuelstation')}}"><i class="icon-money"></i><span data-i18n="nav.dash.main" class="menu-title">    {{trans('app.manager_fuel_station')}}  </span></a></li>
+
 		 
-		 <li class=" nav-item"><a href="{{route('sellerreports')}}"><i class="icon-book2"></i><span data-i18n="nav.dash.main" class="menu-title"> {{trans('app.reports')}} </span></a></li>
-		 <li class=" nav-item"><a href="{{route('sellercoupons')}}"><i class="icon-eye6"></i><span data-i18n="nav.dash.main" class="menu-title"> {{trans('app.coupons')}}  </span></a></li>
+		  	<li class=" nav-item"><a href="{{URL::to('/home')}}"><i class="icon-home3"></i><span data-i18n="nav.dash.main" class="menu-title"> {{trans('app.main_page')}}  </span></a></li>
 		  
-	     <li class=" nav-item"><a href="{{route('sellercontactus')}}"><i class="icon-paper-plane-o"></i><span data-i18n="nav.dash.main" class="menu-title">   {{trans('app.contact_us')}}  </span></a></li>
-		
-	 	 <li class=" nav-item"><a href="{{route('selleremployeers')}}"><i class="icon-users3"></i><span data-i18n="nav.dash.main" class="menu-title"> {{trans('app.employeers')}}   </span></a></li>
-		 
+      
+			@if(Selfuser::hasPermissionseller(Auth::user()->id, 1))
+		  		<li class=" nav-item"><a href="{{route('fuelstation')}}"><i class="icon-money"></i><span data-i18n="nav.dash.main" class="menu-title">    {{trans('app.manager_fuel_station')}}  </span></a></li>
+		  @endif
+
+			@if(Selfuser::hasPermissionseller(Auth::user()->id, 2))
+		 	 		<li class=" nav-item"><a href="{{route('sellerreports')}}"><i class="icon-book2"></i><span data-i18n="nav.dash.main" class="menu-title"> {{trans('app.reports')}} </span></a></li>
+		  @endif
+
+			@if(Selfuser::hasPermissionseller(Auth::user()->id, 3))
+					<li class=" nav-item"><a href="{{route('sellercoupons')}}"><i class="icon-eye6"></i><span data-i18n="nav.dash.main" class="menu-title"> {{trans('app.coupons')}}  </span></a></li>
+		  @endif
+
+
+	    <li class=" nav-item"><a href="{{route('sellercontactus')}}"><i class="icon-paper-plane-o"></i><span data-i18n="nav.dash.main" class="menu-title">   {{trans('app.contact_us')}}  </span></a></li>
+	 	  
+			@if(Auth::user()->usertype == '1')
+				<li class=" nav-item"><a href="{{route('selleremployeers')}}"><i class="icon-users3"></i><span data-i18n="nav.dash.main" class="menu-title"> {{trans('app.employeers')}}   </span></a></li>
+		  @endif
 		  <li class=" nav-item"><a href="{{route('sellerusersettings')}}"><i class="icon-user4"></i><span data-i18n="nav.dash.main" class="menu-title"> {{trans('app.user_settings')}}   </span></a></li>
 		  
 		  
@@ -253,6 +264,8 @@
 					$('#fuelstation_oil').multiselect('select', service_selection);
 				}
 				
+			 
+
 				if(coupon_create){
 					$(function () {
 						$('#startdate').datetimepicker({
@@ -299,7 +312,9 @@
 					});
 				}
 					
-					
+			 if(employee_role){//fuel_selection
+					$('#createemployee_role').multiselect('select', []);
+				}		
 				
 			});
 		</script>

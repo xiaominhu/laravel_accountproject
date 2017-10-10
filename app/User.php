@@ -41,7 +41,7 @@ class User extends Authenticatable
         $ch = curl_init($url);
 		curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
 		$response = curl_exec($ch);
-       
+             
         if($response == '100') 
             return 1;
         else return 0;

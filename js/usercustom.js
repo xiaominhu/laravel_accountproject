@@ -1,5 +1,4 @@
 
-
 /*****************  chanage language *************************************************/
 
 $(document).on("click", ".dropdown-item.language", function(){
@@ -109,7 +108,7 @@ $("#createvehicle_coutry").change(function(){
 		});
 	} 
 
-
+ 
 	$(".emailsendto").click(function(){
 		if(validateEmail($("#inviteaddresss").val())){
 			sendInvite('email', $("#inviteaddresss").val(), $(this).data('type'), $(this).data('content'));
@@ -130,8 +129,7 @@ $("#createvehicle_coutry").change(function(){
 		}
 	});
    
-// qrcode print
-
+   // qrcode print
 	$(document).on("click", ".qrcodeprint", function(event){
 		event.stopPropagation();
 		event.preventDefault();
@@ -140,8 +138,10 @@ $("#createvehicle_coutry").change(function(){
 		var content = '<!DOCTYPE html>' + 
 					  '<html>' +
 					  '<head><title></title></head>' +
-					  '<body onload="window.focus(); window.print(); window.close();">' + 
-					  '<img src="' + $(this).data('src') + '" style="width: 100%;" />' +
+					  '<body style = "text-align: center;">' +   // onload="window.focus(); window.print(); window.close();"
+					  '<h1> '+ $(this).data('name')  +' </h1>'+
+					  '<img src="' + $(this).data('src') + '" style="width: 50%;" />' +
+					  '<h3> '+ $(this).data('fuelname')  +' </h3>'+
 					  '</body>' +
 					  '</html>';
 		var options = "toolbar=no,location=no,directories=no,menubar=no,scrollbars=yes,width=" + width + ",height=" + height;
@@ -158,8 +158,73 @@ $("#createvehicle_coutry").change(function(){
 		 return result;
 	}
 	  
-	  
+
+	$(document).on("click", ".sellersale  .input-group-addon", function(){
+
+		var mindate = '', maxdate = '';
+
+		if($(this).hasClass('min')){
+			maxdate =	$(this).closest('tr').find('.maxdate').val();
+		}
+		else{
+			mindate =  $(this).closest('tr').find('.mindate').val();
+		 
+		}
+
+		if($('#datetimepicker12').data("DateTimePicker")  === undefined){
+
+		}
+		else
+			$('#datetimepicker12').data("DateTimePicker").destroy();
+
+		$('#datetimepicker12').datetimepicker({
+			inline: true,
+			format: 'YYYY-MM-DD',
+			sideBySide: true
+		});
+
 	 
+		if(maxdate != '')
+			$('#datetimepicker12').data("DateTimePicker").maxDate(maxdate);
+		
+		if(mindate != '')
+			$('#datetimepicker12').data("DateTimePicker").minDate(mindate);
+		
+		$(".timepickermodal .apply").attr('data-id', $(this).attr('id'));
+		
+		$(".timepickermodal").modal('show');
+	});
+
+	$(".timepickermodal .apply").click(function(){
+		 var current_date = $('#datetimepicker12').data("date");
+		 $("#" + $(this).attr('data-id')+ 'val').val(current_date);
+		 $(".timepickermodal").modal('hide');
+	});
+
+
+	$('#service_type').change(function(event){
+ 
+		if($(this).val() == "0" || $(this).val() == "4"){
+			$(".pospay").each(function(){
+				$(this).prop("disabled", false);
+			});
+		}
+		else{
+			$(".pospay").each(function(){
+				$(this).prop("disabled", true);
+			});
+		}
+	});
+
+	/***********************************************************************************************************
+	* 
+	*				admin part  
+	* 
+	* 
+	************************************************************************************************************/
+	// add subscription
+
+
 	$(document).on("change", ".feemanagement", function(event){
 		if(is_numeric($(this).val()))
 		{
@@ -173,8 +238,6 @@ $("#createvehicle_coutry").change(function(){
 			$(".feesmanagement-form").submit();
 		}
 	});
-	
-	// add subscription
 
 	function addSubscriptionName($type){
 
@@ -203,7 +266,6 @@ $("#createvehicle_coutry").change(function(){
 	}
 
 	$(document).on("change", "#type_subscription", function(event){
-	 
 		 if($(this).val() == "0"){
 			 $(".userform").removeClass("hidden");
 			 addSubscriptionName('user');
@@ -215,6 +277,35 @@ $("#createvehicle_coutry").change(function(){
 		 }
 	});
 
+	$(document).on('click', '.adminmessage', function(){
+		$.ajax({
+			url: "/admin/message/item",
+			type: "POST",
+			data: { id :$(this).data('id')},
+			dataType: "json",
+			beforeSend: function () {
+				
+			},
+			success: function (data) {
+				 
+				if(data.status){
+					var data = data.data;
+					$("#first_name").val(data.first_name);
+					$("#last_name").val(data.first_name);
+					$("#phone").val(data.phone);
+					$("#email").val(data.email);
+					$("#content").val(data.content);
+					$(".adminmessagemodal").modal('show');
+				}
+			
+				//$(".adminmessagemodal").modal('show');
+			},
+			complete: function () {
+				//window.location.reload(true);		
+			}
+		});
+	});
+	
 	 
  
  

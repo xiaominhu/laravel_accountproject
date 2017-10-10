@@ -14,9 +14,19 @@ class AdminMiddleware
      * @return mixed
      */
     public function handle($request, Closure $next, $guard = null){
-		if(Auth::check() && Auth::user()->usertype == 2){
-            return $next($request);
+	 
+		if(Auth::check()){
+            if(Auth::user()->usertype == 2)
+                return $next($request);
+                
+            if(Auth::user()->usertype == 6){
+                return $next($request);  
+            }
+            
         }
+        return redirect('home');
+		
+		
         return redirect('home');
     }
 }

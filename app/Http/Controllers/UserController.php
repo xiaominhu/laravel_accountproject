@@ -12,12 +12,18 @@ use App\Zone;
 use App\Paymentmanager;
 use App\Operation;
 use App\Vehicle;
+use App\Deposit;
 use Carbon\Carbon;
-use Auth, Validator, URL, Nexmo;
+use Auth, Validator, URL, Nexmo, Response, Redirect;
 use Illuminate\Support\Facades\Input;
 use App\Transactions;
 use App\Helpers\QrcodeClass;
-use Excel;
+use App\Sendmoney;
+use App\Fees;
+use Mail;
+use App\Mail\Notification;
+
+use Excel, Session;
 
 class UserController extends Controller{
     //
@@ -114,11 +120,22 @@ class UserController extends Controller{
 
 	public function statement(Request $request, $id){
 		$user = User::where('no', $id)->first();
+
+		//5971264575
+		 
+
 		if(isset($user)){
+
+		
 			$setting = array();
 			$setting['id'] = $id;
 			$page_size = 10;
+ 
+
 			if($user->usertype == 0){ //  user
+
+			 
+				
 				if(isset($_GET['pagesize']))
 					$page_size = $_GET['pagesize'];
 				$setting['pagesize'] = $page_size;
@@ -142,6 +159,8 @@ class UserController extends Controller{
 									->get();
 				}
 				return view('admin/usersstatement', ['setting'=> $setting, 'transactions' => $transactions]);
+
+				
 			}
 			if($user->usertype == 1){ // seller
 				if(isset($_GET['pagesize']))
@@ -272,16 +291,28 @@ class UserController extends Controller{
 		}
 	}
 	
+	public function userdownload_attach(Request $request, $id){
+		$deposit = Deposit::where('no', $id)
+					->where('user_id', Auth::user()->id)
+					->first();
+		if(isset($deposit)){
+			$file= base_path(). '/images/bankdeposit_123/' .$deposit->notes;
+		    $headers = array(
+		              'Content-Type: application/image',
+		            );
+			return Response::download($file, $deposit->notes , $headers);
+		}
+	}
 
 	public function admindownload_attach(Request $request, $id){
-		$transaction = Transactions::where('no', $id)->first();
-
-		if(isset($transaction)){
-			$file= public_path(). $transaction->attachment;
-		    $headers = array(
-		              'Content-Type: application/png',
-		               );
-			return Response::download($file, 'filename.pdf', $headers);
+		$deposit = Deposit::where('no', $id)
+				->first();
+		if(isset($deposit)){
+		$file= base_path(). '/images/bankdeposit_123/' .$deposit->notes;
+		$headers = array(
+				'Content-Type: application/image',
+				);
+		return Response::download($file, $deposit->notes , $headers);
 		}
 	}
 
@@ -318,6 +349,33 @@ class UserController extends Controller{
 		return view('user/contactus/index', compact('message'));
 	}
 	
+	private function getnerateqrcode($vehiclename, $model, $fueltype, $code, $picture){
+		$fuel_text = "";
+		switch($fueltype){
+			case '0': //all
+				$fuel_text = "ALL";
+				break;
+			case '1':// green
+				$fuel_text = "Fuel91";
+				break;
+			case '2': // red
+				$fuel_text = "Fuel95";
+				break;
+			case '3': // diesel165,42,42
+			 
+				$fuel_text = "Diesel";
+				break;
+		}
+		$color = ['r' => 0, 'g' => 0, 'b' => 0];
+		$text = $vehiclename . ':' . $model . ':' . $fuel_text. ':' . $code;
+		$input_path  = base_path('images/userprofile/'. $picture);
+		$result_path =   time().rand() . '.png';
+		$output_path = base_path('images/qr/'.$result_path);
+		QrcodeClass::generate($text,$input_path ,$output_path, $color);
+		return $result_path;
+	}
+	
+
 	public function usersettings(Request $request){
 		 $message = "";
 		 $states = array();
@@ -334,7 +392,6 @@ class UserController extends Controller{
 			          'phone'    => 'required'
 					]
 			  )->validate();
-			 
 			
 			if ($request->hasFile('picture')) {
 				$image=$request->file('picture');
@@ -342,16 +399,27 @@ class UserController extends Controller{
 				$imageName = time() . $imageName;
 				$image->move('images/userprofile',$imageName);
 				$user->picture = $imageName;
+				// update vehicle qr code
+				$user->save();
+
+			 
+
+				$vehicles = Vehicle::where('user_id', $user->id)->get();
+			 
+				foreach($vehicles as $vehicle){
+					unlink( base_path('images/qr/'.$vehicle->qrcode )); 
+					$vehicle->qrcode =  $this->getnerateqrcode($vehicle->name, $vehicle->model, $vehicle->fuel,  $vehicle->no, $user->picture );
+					$vehicle->save();
+				}
+
 			}
 			
 			$user->first_name = $request->first_name;
 			$user->last_name  =  $request->last_name;
 			$user->phone  	  =  $request->phone;
 			$user->email      =  $request->email;
-			
 			$user->state      =  $request->state;
 			$user->country    =  $request->country;
-			
 			$user->save();
 		 }
 		 
@@ -380,7 +448,7 @@ class UserController extends Controller{
 			$sql .= 'name like "' . 	$setting_val['name']  . '%"';			
 		}
 		
-		
+		/*
 		if(null !== $request->input('country'))
 		{
 			$setting_val['country'] = $request->input('country');
@@ -393,6 +461,7 @@ class UserController extends Controller{
 			if($sql != "") $sql  .= " and ";
 		    $sql .= ' country = "' . 	$setting_val['country']  . '"';
 		}
+		*/
 		
 		if(null !== $request->input('state'))
 		{
@@ -461,7 +530,7 @@ class UserController extends Controller{
 		}
 		
 		$fuel_json = json_encode($fuel_array);
-		 
+		$states    = Zone::where('country_id',  '184')->get();
 		$countries = Country::get();
 		return view('user/map/map', compact('countries', 'setting_val', 'states', 'fuel_json'));
 	}
@@ -610,8 +679,7 @@ class UserController extends Controller{
 		{
 			
 			$setting['from_amount'] = $request->input('from_amount');
-			
-		    $sql .= ' amount >= "' . 	$setting['from_amount']  . '"';
+		    $sql .= ' transactions.amount >= "' . 	$setting['from_amount']  . '"';
 		}
 		if(null !== $request->input('to_amount'))
 		{
@@ -619,7 +687,7 @@ class UserController extends Controller{
 			$setting['to_amount'] = $request->input('to_amount');
 			
 			if($sql != "") $sql  .= " and ";
-			$sql .= ' amount <= "' . 	$setting['to_amount']  . '"';
+			$sql .= ' transactions.amount <= "' . 	$setting['to_amount']  . '"';
 		}
 
 		if(null !== $request->input('from_date'))
@@ -627,16 +695,17 @@ class UserController extends Controller{
 			$setting['from_date'] = Carbon::createFromFormat('Y-m-d H:i:s', $request->input('from_date'). " 00:00:00"); // 1975-05-21 22:00:00
 
 			if($sql != "") $sql  .= " and ";
-				$sql .= ' operation.created_at > "' . 	$setting['from_date'] .'"';
+				$sql .= ' transactions.created_at > "' . 	$setting['from_date'] .'"';
 		}
 		
 		
 		if(null !== $request->input('to_date'))
 		{
-			$setting['to_date'] = Carbon::createFromFormat('Y-m-d H:i:s', $request->input('to_date'). " 00:00:00");
-			
+			$to_date = Carbon::createFromFormat('Y-m-d H:i:s', $request->input('to_date'). " 00:00:00");
+			$setting['to_date'] = $to_date;
+			$to_date->addDay(); 
 			if($sql != "") $sql  .= " and ";
-			$sql .= 'operation.created_at < "' . 	$setting['to_date'] .'"';
+			$sql .= 'transactions.created_at < "' . 	$to_date .'"';
 		}
 
 		if(null !== $request->input('vehicle'))
@@ -653,7 +722,7 @@ class UserController extends Controller{
 			$setting['state'] = $request->input('state');
 			
 			if($sql != "") $sql  .= " and ";
-		    $sql .= ' fuelstation.state = "' . 	$setting['state']  . '"';
+		    $sql .= ' vehicles.state = "' . 	$setting['state']  . '"';
 		}
 
 		if(null !== $request->input('city'))
@@ -661,56 +730,58 @@ class UserController extends Controller{
 			$setting['city'] = $request->input('city');
 			
 			if($sql != "") $sql  .= " and ";
-		    $sql .= ' fuelstation.city = "' . 	$setting['city']  . '"';
+		    $sql .= ' vehicles.city = "' . 	$setting['city']  . '"';
 		} 
 
+	 
 		if(null !== $request->input('service_type'))
 		{
 			$setting['service_type'] = $request->input('service_type');
 			
 			if($sql != "") $sql  .= " and ";
-		    $sql .= ' operation.service_type = "' . 	$setting['service_type']  . '"';
+			$sql .= ' transactions.type = "' . 	$setting['service_type']  . '"';
+		 
 		} 
 
 		if($sql == "") $sql = "1=1";
 
+	 
 		if($request->key !== null){
 			$setting['key'] = $request->key;
 			
 			$transactions = Transactions::orderBy('transactions.created_at')
-			->select('transactions.created_at','transactions.no', 'transactions.type', 'transactions.reference_id', 'users.usertype', 'transactions.amount', 'transactions.created_at as regdate')
+			->select('transactions.created_at','transactions.no', 'transactions.type', 'transactions.reference_id', 'transactions.amount', 'transactions.created_at as regdate')
 			->where('transactions.operator_id', Auth::user()->id)
+			->where('transactions.type', '0')
 			->whereRaw($sql)
+			->leftJoin('operation', 'operation.id', '=', 'transactions.reference_id')
+			->leftJoin('vehicles', 'vehicles.id', '=', 'operation.vehicle')
+			->leftJoin('oc_zone', 'oc_zone.zone_id', '=', 'vehicles.state')
 			->where(function ($query) use ($request) {
-				$query->where('transactions.no',  'like',  '%'. $request->key . '%');
-				 //  ->orWhere('oc_zone.name', 'like','%'. $request->key . '%')
-				 //  ->orWhere('vehicles.city', 'like','%'. $request->key . '%'); 
+				$query->where('transactions.no',  'like',  '%'. $request->key . '%')
+				   ->orWhere('vehicles.name', 'like','%'. $request->key . '%')
+				   ->orWhere('oc_zone.name', 'like','%'. $request->key . '%')
+				   ->orWhere('vehicles.city', 'like','%'. $request->key . '%'); 
 		     })->paginate($page_size);
-				/* $operations = Operation::where('operation.sender_id', Auth::user()->id)
-					->select('operation.no', 'operation.amount', 'operation.created_at', 'vehicles.name', 'operation.vehicle', 'operation.service_type', 'vehicles.city', 'oc_zone.name as state', 'operation.type', 'operation.service_type')
-					->where('operation.status', 1)
-					->whereRaw($sql)
-					->leftJoin('vehicles', 'vehicles.id', '=', 'operation.vehicle')
-					->leftJoin('oc_zone', 'oc_zone.zone_id', '=', 'vehicles.state')
-					->where(function ($query) use ($request) {
-							$query->where('vehicles.name',  'like',  '%'. $request->key . '%')
-							->orWhere('oc_zone.name', 'like','%'. $request->key . '%')
-							->orWhere('vehicles.city', 'like','%'. $request->key . '%'); 
-					})
-			->paginate($page_size);*/
-		
 		}
 		else{
 			$setting['key'] = "";
+
+		 
 			$transactions = Transactions::orderBy('transactions.created_at')
-							->select('users.name', 'transactions.created_at','users.first_name', 'users.last_name', 'transactions.no', 'transactions.type', 'transactions.reference_id', 'users.usertype', 'transactions.amount', 'transactions.created_at as regdate')
-							->leftJoin( 'users' ,'transactions.operator_id', '=', 'users.id')
-							->where('transactions.operator_id', Auth::user()->id)
-							->whereRaw($sql)
-							->paginate($page_size);
+					->select('transactions.created_at', 'transactions.no', 'transactions.type', 'transactions.reference_id', 'transactions.amount', 'transactions.created_at as regdate')
+					->where('transactions.operator_id', Auth::user()->id)
+					->whereRaw($sql)
+					->leftJoin('operation', 'operation.id', '=', 'transactions.reference_id')
+					->leftJoin('vehicles', 'vehicles.id', '=', 'operation.vehicle')
+					->leftJoin('oc_zone', 'oc_zone.zone_id', '=', 'vehicles.state')
+					->paginate($page_size);
+				 
 			}
+
+
 			foreach ($transactions as $key => $value) {
-				switch ($value->type) { 
+				switch ($value->type) {
 					case '0':
 							$vehicle = Operation::where('operation.id', $value->reference_id)
 											->leftJoin('vehicles', 'vehicles.id', '=', 'operation.vehicle')
@@ -718,16 +789,6 @@ class UserController extends Controller{
 											->select('vehicles.city', 'oc_zone.name as state', 'vehicles.name', 'operation.service_type')
 											->first();
 							$value->details = $vehicle;
-							
-						break;
-					case '4':
-							$fuelstation = Operation::where('operation.id', $value->reference_id)
-												->leftJoin('fuelstation', 'fuelstation.no', '=','operation.fuelstation')
-												->leftJoin('oc_zone', 'oc_zone.zone_id', '=', 'fuelstation.state')
-												->select('fuelstation.city', 'oc_zone.name as state', 'fuelstation.name',  'operation.service_type')
-												->first();
-						
-							$value->details = $fuelstation; 
 						break;
 					default:
 						break;
@@ -869,23 +930,82 @@ class UserController extends Controller{
 			$invite_link = URL::to('/login') . '?invite=' . Auth::user()->no;
 			if($request->type != 'email')
 				User::sendMessage($request->address , 'This is the login verificatoin code.  ' .$invite_link  );
+			else
+				Mail::to($request->address)	->send(new Notification('This is the login verificatoin code.  ' .$invite_link));
 			
 		}
 		else{ 
-
 			if($request->content !== null){
 				$vehicle = Vehicle::where('no',$request->content)->first();
 				if(!isset($vehicle)) return response()->json(['status' => 0]);
-
 				$invite_link =  URL::to('/images/qr') . '/' . $vehicle->qrcode;
-				
 				if($request->type != 'email')
-					User::sendMessage($request->address , 'This is the login verificatoin code.  ' .$invite_link  );
+					User::sendMessage($request->address , 'This is the login verificatoin code.  ' .$invite_link);
+				else
+					Mail::to($request->address)	->send(new Notification('This is the login verificatoin code.  ' .$invite_link));
+					//Mail::to($request->address)->send(new Notification());
 			}
 			else
 				return response()->json(['status' => 0]);
 		}
 		return response()->json(['status' => 1  ,  'msg' => $invite_link]);
 	
+	}
+
+
+	public function sendmoney(Request $request){
+
+		if($request->isMethod('post')){
+			$this->validate($request, Sendmoney::rules());
+			//if($request->amount >)
+			$reference_id = $request->reference_id;
+			$user = User::where('email', $reference_id)
+						->where('usertype', '0')
+						->where('email', '!=', Auth::user()->email)
+						->first();
+			if(!isset($user))
+				return Redirect::back()->withErrors(['reference_id'=> trans('app.invalid_user')]); 	
+			
+			$balance = Fees::checkbalance(Auth::user()->id);
+			if($request->amount > $balance)
+				return Redirect::back()->withErrors(['amount'=> trans('app.insufficient_deposit')]);
+			$sendmoney = new Sendmoney;
+			$sendmoney->user_id 		 = Auth::user()->id;
+			$sendmoney->receiver_id 	 = $user->id;
+			$sendmoney->amount  		 = $request->amount;
+			$sendmoney->reference_id 	 = $request->reference_id;
+			$sendmoney->no               = Sendmoney::generatevalue(); 
+			$sendmoney->save();
+			
+
+			$fee_data =  Fees::calculatefee($sendmoney->amount, 'sendmoney');
+			if($fee_data['status'] == 1){
+				$transaction = new Transactions;
+				$transaction->operator_id = $sendmoney->user_id;
+				$transaction->reference_id = $sendmoney->id;
+				$transaction->type = 6;// send money
+				
+				$transaction->amount 	   =  $sendmoney->amount;
+				$transaction->fee_amount   =  0;
+				$transaction->final_amount =  $sendmoney->amount;
+				$transaction->no = Transactions::generatevalue();
+				$transaction->transtype   =  1;
+				$transaction->save();
+
+				$transaction = new Transactions;
+				$transaction->operator_id = $sendmoney->receiver_id;
+				$transaction->reference_id = $sendmoney->id;
+				$transaction->type = 7;// accept money
+				
+				$transaction->amount 	   =  $sendmoney->amount;
+				$transaction->fee_amount   =  $fee_data['fee'];
+				$transaction->final_amount =  $fee_data['amount'];
+				$transaction->no           = Transactions::generatevalue();
+				$transaction->save();
+				//Subfeemanagement::collectingFee($deposit->user_id);
+				Session::flash('success', 'success');
+			}
+		}
+		return view('user/sendmoney/sendmoney');
 	}
 }

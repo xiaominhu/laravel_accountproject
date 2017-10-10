@@ -11,7 +11,7 @@
 							<div class="card-block">
 								<div class="media">
 									<div class="media-body text-xs-left">
-										<h3 class="deep-orange"> 12 </h3>
+										<h3 class="deep-orange"> {{$today_withdrawl}} </h3>
 										<span> {{trans('app.withdrawls_today')}} </span>
 									</div>
 									<div class="media-right media-middle">
@@ -30,8 +30,6 @@
 										<h6>   {{trans('app.withdrawl_operatons_today')}}  </h6>
 									</div>
 								</div>
-							
-							
 							</div>
 						</div>
 					</div>
@@ -43,7 +41,7 @@
 							<div class="card-block">
 								<div class="media">
 									<div class="media-body text-xs-left">
-										<h3 class="deep-orange">1205480</h3>
+										<h3 class="deep-orange">{{$total_balance}}</h3>
 										<span> {{trans('app.balance')}}  </span>
 									</div>
 									<div class="media-right media-middle">
@@ -62,7 +60,7 @@
 							<div class="card-block">
 								<div class="media">
 									<div class="media-body text-xs-left">
-										<h3 class="deep-orange">74</h3>
+										<h3 class="deep-orange"> {{$today_deposit}} </h3>
 										<span>  {{trans('app.deposit_today')}} </span>
 									</div>
 									<div class="media-right media-middle">
@@ -115,26 +113,66 @@
 										</tr>
 									</thead>
 									<tbody>
+										@foreach($latest_users as $user)
 										<tr>
-											<th scope="row">123</th>
-											<td>Ahmed</td>
-											<td>whitebear619@hotmail.com</td>
-											<td>  123445</td>
-											<td>  </td>
-											<td>  </td>
-											<td> Activated </td>
-											<td> Yes </td>
-											<td> Yes </td>
+											<th scope="row">{{$user->no}}</th>
+											<td>
+												{{$user->name}}
+											</td>
+											<td>{{$user->email}}</td>
+											<td>  {{$user->phone}} </td>
+											 
+											<td> 	
+												<?php
+													switch($user->usertype){
+														case 0:
+															echo trans('app.user');
+															break;
+														case 1:
+															echo  trans('app.seller');
+															break;
+														case 2:
+															echo trans('app.admin');
+															break;
+													}
+												?> 
+											</td>
+											<td> 
+												 @if($user->usertype != 2)
+													<a href = "{{URL::to('/admin/users/statement/')}}/{{$user->no}}"> <span class="text-bold-600">Statement</span> </a>
+												  @endif 
+											</td>
+											<td>  
+												@if($user->status == 1)  
+													 {{trans('app.activated')}} 
+												@else
+													{{trans('app.deactivated')}} <
+												@endif
+											</td>
+											<td> 	
+												@if($user->email_verify)
+														  {{trans('app.yes')}}
+												@else
+														 {{trans('app.no_en')}}
+												@endif
+											 </td>
+											<td> 	
+												@if($user->phone_verify)
+														  {{trans('app.yes')}}
+												@else
+														 {{trans('app.no_en')}}
+												@endif
+												
+											 </td>
 											
-											<td> 2104. april 12:15:22 </td>
-											<td> 2104. april 12:15:22 </td>
+											<td> {{$user->last_login_at}} </td>
+											<td>{{$user->created_at}} </td>
 										</tr>
-										
+										@endforeach
 										<tr>
 											<th scope="row" colspan = "11">
 												<a href = "{{URL::to('/admin/users')}}" class="btn btn-warning btn-block"> {{trans('app.view_all')}}  </a>
 											</th>
-										   
 										</tr>
 									   
 									</tbody>
@@ -147,7 +185,7 @@
 				<div class="col-xs-12">
 					<div class="card">
 					    <div class="card-header">
-							<h4 class="card-title">  {{trans('app.top_fuel_station_revenue')}}  </h4>
+							<h4 class="card-title">  {{trans('app.latest_deposit_operations')}}  </h4>
 						</div>
 						<div class="card-body">
 							<div class="table-responsive">
@@ -157,30 +195,52 @@
 											<th> {{trans('app.no')}}</th>
 											<th> {{trans('app.name')}}</th>
 											<th> {{trans('app.phone')}}</th>
-											<th> {{trans('app.depo_no')}}  </th>
+										 
 											<th> {{trans('app.type_depo')}}  </th>
 											<th> {{trans('app.amount_depo')}}   </th>
-											<th> {{trans('app.notes')}}   </th>
 											<th> {{trans('app.attachment')}} </th>
 											<th> {{trans('app.deposite_date')}} </th>
 										</tr>
 									</thead>
 									<tbody>
-										<tr>
-											<th scope="row">205</th>
-											<td>Ahmed</td>
+										@foreach($latest_deposits as $deposit)
+											<tr>
+												<th scope="row"> {{$deposit->no}}    </th>
+												<td>             {{$deposit->name}}  </td>
+												<td>             {{$deposit->phone}} </td>
+											 
+												<td> 
+													<?php
+														switch($deposit->type){
+															case 0:
+																echo trans('app.bank');
+																break;
+															case 1:
+																echo trans('app.master');
+																break;
+															case 2:
+																echo trans('app.visa');
+																break;
+															case 3:
+																echo trans('app.sdad');
+																break;
+														}
+													?>
+												</td>
+												<td> {{$deposit->amount}}</td>
+												
+												<td class = "text-center">  
+													@if($deposit->notes)
+														<a href = "{{URL::to('admin/download/attachment')}}/{{$deposit->no}}" > <i class="icon-paperclip2"></i>  <a>
+													@endif
+												</td>
+												 
 											
-											<td>  123445</td>
-											<td> 123445 </td>
-											<td> Visa </td>
-											<td> 12345 </td>
-											<td> Example </td>
-											<td> <div class="fonticon-wrap"><i class="icon-paperclip2"></i></div> </td>
-											
-										
-											<td> 2104. april 12:15:22 </td>
-										</tr>
-										
+												<td>  {{$deposit->created_at}} </td>
+											</tr>
+										@endforeach
+
+
 										<tr>
 											<th scope="row" colspan = "11">
 												

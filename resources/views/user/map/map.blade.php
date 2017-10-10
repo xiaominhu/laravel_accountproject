@@ -10,9 +10,9 @@
 			@if($errors->any())
 			   <div class="alert alert-warning">
 					 <ul>
-						   @foreach ($errors->all() as $error)
+						@foreach ($errors->all() as $error)
 							  <li>{{ $error }}</li>
-						  @endforeach
+						@endforeach
 					  </ul>
 			  </div>
 			@endif
@@ -43,10 +43,10 @@
                   <label for="createvehicle_fuel" class="col-sm-2 control-label"> {{trans('app.fuel_type')}}  </label>
                   <div class="col-sm-10">
 						<select id="fuelstation_fuel" class = "form-control" multiple="multiple" name ="fuel[]" onchange="this.form.submit()">
-							<option value="1" >  {{trans('app.green_fuel')}}   </option>	
-							<option value="2"> {{trans('app.red_fuel')}}  </option>	
-							<option value="3"> {{trans('app.diesel')}} </option>	
-							<option value="4">   {{trans('app.wash')}}   </option>
+							<option value="1">  {{trans('app.green_fuel')}}    </option>	
+							<option value="2"> {{trans('app.red_fuel')}}  		</option>	
+							<option value="3"> {{trans('app.diesel')}} 		    </option>	
+							<option value="4">   {{trans('app.wash')}}          </option>
 						</select>								 
                   </div>
                 </div>
@@ -66,10 +66,10 @@
 				<div class="form-group col-sm-12">
                   <label for="createvehicle_coutry" class="col-sm-2 control-label">  {{trans('app.country')}}  </label>
                   <div class="col-sm-10">
-				    	<select id = "createvehicle_coutry" class = "form-control" name ="country" onchange="this.form.submit()">
+				    	<select id = "createvehicle_coutry" class = "form-control" disabled = "disabled" name ="country" onchange="this.form.submit()">
 							<option value=""> {{trans('app.all_countries')}} </option>	
 							@foreach($countries as $country)
-									@if($country->country_id == $setting_val['country'])
+								@if($country->country_id == '184')
 										<option value="{{$country->country_id}}" selected>{{$country->name}}</option>
 									@else
 										<option value="{{$country->country_id}}">{{$country->name}}</option>
@@ -98,8 +98,7 @@
 	    
 		function initMap() {
 			var myLatLng = {lat: <?= $setting_val['lat']  ?>, lng: <?= $setting_val['lng']   ?>};
-			
-			
+						
 			var map = new google.maps.Map(document.getElementById('map'), {
 			  zoom: 8,
 			  center: myLatLng

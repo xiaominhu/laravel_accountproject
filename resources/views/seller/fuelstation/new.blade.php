@@ -8,7 +8,7 @@
 				$flag = isset($fuelstation) ? 1 : 0;
 			?>
 			@if($flag)
-				<form class="form-horizontal" method = "post" action="/seller/fuelstation/update/{{$fuelstation->id}}">
+				<form class="form-horizontal" method = "post" action="/seller/fuelstation/update/{{$fuelstation->no}}">
 			@else
 				<form class="form-horizontal" method = "post" action="/seller/fuelstation/create">
 			@endif
@@ -40,8 +40,6 @@
 						@endif
                   </div>
                 </div>
-			
-			
 			
 				<div class="form-group col-sm-12">
                   <label for="createvehicle_fuel" class="col-sm-2 control-label"> {{trans('app.fuel_type')}} </label>

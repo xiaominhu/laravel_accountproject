@@ -7,18 +7,23 @@ use Illuminate\Mail\Mailable;
 use Illuminate\Queue\SerializesModels;
 use Illuminate\Contracts\Queue\ShouldQueue;
 
+
 class Notification extends Mailable
 {
     use Queueable, SerializesModels;
 
+	public $notification_content; 
+	
+	
     /**
      * Create a new message instance.
      *
      * @return void
      */
-    public function __construct()
+    public function __construct($notification_content)
     {
         //
+		$this->notification_content = $notification_content;
     }
 
     /**
