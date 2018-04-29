@@ -13,7 +13,7 @@
 				<form class="form-horizontal" method = "post" action="/seller/fuelstation/create">
 			@endif
 			
-				{{csrf_field()}}
+				{{csrf_field()}}  
 				
 				<input type = "hidden"  name = "lat" id = "lat" value = "<?php 
 					if($flag) 
@@ -32,7 +32,7 @@
 				<div class="form-group col-sm-12">
                   <label for="emailtemplate_config_subject" class="col-sm-2 control-label">  {{trans('app.name')}}  </label>
                   <div class="col-sm-10">
-                    <input type="text" class="form-control" id="name" name = "name" placeholder="" value = "<?php if($flag) echo $fuelstation->name;  ?>">
+                    <input type="text" class="form-control" id="name" name = "name" placeholder="{{trans('app.name')}}" value = "<?php if($flag) echo $fuelstation->name;  ?>">
 						@if ($errors->has('name'))
 							<span class="help-block">
 								<strong>{{ $errors->first('name') }}</strong>
@@ -53,12 +53,12 @@
 									if($fuelstation->f_r) echo "selected";?>>  {{trans('app.red_fuel')}} </option>	
 							<option value="3" <?php if($flag) 
 									if($fuelstation->f_d) echo "selected";?>> {{trans('app.diesel')}} </option>	
-						</select>								 
+						</select>
+ 
                   </div>
                 </div>
-								 
-								   
-				<div class="form-group col-sm-12 invisible">
+								    
+				<div class="form-group col-sm-12">
                   <label for="createvehicle_oil" class="col-sm-2 control-label">   {{trans('app.service_type')}} </label>
                   <div class="col-sm-10">
                     
@@ -70,14 +70,14 @@
 									if($fuelstation->s_w) echo "selected"; ?>>    {{trans('app.wash')}} </option>	
 							<option value="3" <?php //if($lang == "en") echo "selected" ?>> {{trans('app.oil')}} </option>	
 					</select>	
-						
+ 
                   </div>
                 </div>
 				
 				<div class="form-group col-sm-12">
                   <label for="createvehicle_oil" class="col-sm-2 control-label">  {{trans('app.city')}} </label>
                   <div class="col-sm-10">
-                    <input type="text" class="form-control" id="createvehicle_city" name = "city" placeholder="" value = "<?php if($flag) echo $fuelstation->city;  ?>">
+                    <input type="text" class="form-control" id="createvehicle_city" name = "city" placeholder="{{trans('app.city')}}" value = "<?php if($flag) echo $fuelstation->city;  ?>">
 						@if ($errors->has('city'))
 							<span class="help-block">
 								<strong>{{ $errors->first('city') }}</strong>
@@ -89,9 +89,7 @@
 				<div class="form-group col-sm-12">
                   <label for="createvehicle_state" class="col-sm-2 control-label">   {{trans('app.state')}}  </label>
                   <div class="col-sm-10">
-                    
-					
-						<select id = "createvehicle_state" class = "form-control" name ="state" >
+						<select id = "createvehicle_state" class = "form-control" name ="state"  >
 							<option value=""> -- {{trans('app.choose_state')}} -- </option>	
 							@if($flag)
 								@foreach($states as $state)
@@ -130,17 +128,16 @@
 										<option value="{{$country->country_id}}">{{$country->name}}</option>
 									@endif
 								@endif
-							  
 							@endforeach
 						</select>
                   </div>
                 </div>
 				
 				<div class = "col-xs-12 text-center">
-					<button type="submit" class="btn btn-primary">
+					<button type="submit" class="btn btn-warning">
 						 {{trans('app.apply')}} 
 					</button>
-					<a href = "{{URL::to('/seller/fuelstation')}}" class="btn btn-primary">
+					<a href = "{{URL::to('/seller/fuelstation')}}" class="btn btn-warning">
 						 {{trans('app.cancel')}} 
 					</a>
 				</div>
@@ -207,6 +204,7 @@ function myMap() {
 
      var marker = new google.maps.Marker({
           position: myLatLng,
+		  icon: "{{URL::asset('images/fuelstationmap.png')}}",
           map: map,
           title: ''
        });
@@ -243,8 +241,11 @@ function myMap() {
 		document.getElementById('lat').value = currentLocation.lat(); //latitude
 		document.getElementById('lng').value = currentLocation.lng(); //longitude
 	}
-	
 }
 		</script>
-<script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyAsrLlI_6pd7UEiJBJCea3yOdZ6glxVzXk&callback=myMap"></script>		
+	
+<script async defer src="https://maps.googleapis.com/maps/api/js?key=AIzaSyCJgcL_4zdeEI7q4E-crcMP19Jx8YCbWR8&callback=myMap"></script>
+
+	
+
 @endsection

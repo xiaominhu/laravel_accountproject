@@ -26,7 +26,7 @@ class ApiauthMiddleware
 
 		} catch (TokenExpiredException $e) {
 
-			return response()->json(['token_expired'], $e->getStatusCode());
+			return response()->json(['token_expired'], $e->getStatusCode()); 
 
 		} catch (TokenInvalidException $e) {
 			
@@ -35,14 +35,12 @@ class ApiauthMiddleware
 		} catch (JWTException $e) {
 			return response()->json(['error' => 1, 'msg' => 'token_absent' ]);
 		}
-		
-		if($user->status != "1")
+		 
+		if($user->status !=  1)
 			return response()->json(['error' => 1, 'msg' => 'not_verified' ]);
 
 		if($user->usertype != "0")
 			return response()->json(['error' => 1, 'msg' => 'wrong_type_user' ]);
-		
-		
 		
         return $next($request);
     }

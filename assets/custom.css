@@ -1,5 +1,7 @@
 /* here you can put your own css to customize and override the theme */
 
+ 
+
 .page-header.navbar {
 	background:#fff;
 	height:135px;
@@ -302,7 +304,7 @@
 	padding:5px 15px !important;
 }
 .btn-green {
-	background: #3e6170 !important;
+	background-color: #e6b522 !important;
 }
 .btn-orange {
 	background: #f68e23 !important;
@@ -333,7 +335,11 @@ form .btn {
 /*Login*/
 
 .login {
-	background-color:#e9ecf3 !important;
+	background-image: -moz-linear-gradient( -29deg, rgb(107, 107, 107) 0%, rgb(230, 181, 34) 100%);
+
+    background-image: -webkit-linear-gradient( -29deg, rgb(107, 107, 107) 0%, rgb(230, 181, 34) 100%);
+
+    background-image: -ms-linear-gradient( -29deg, rgb(107, 107, 107) 0%, rgb(230, 181, 34) 100%);
 }
 .login form .btn {
 	height:auto;
@@ -346,7 +352,7 @@ form .btn {
 }
 .login .content .create-account:last-child {
     margin-top: 30px;
-    background-color: #03756f;
+    background-color: #6b6b6b;
 }
 
 .page-content-wrapper .page-content,
@@ -381,7 +387,7 @@ form .btn {
 }
 
 .modal .modal-header{
-	background-color: #03756f !important;
+	background-color: #e6b522 !important;
 	color: #fff !important;
 }
 
@@ -399,4 +405,11 @@ form .btn {
 
 .help-block{
 	color: #fc3e3f;
+}
+
+
+@media (max-width: 768px) {
+	.login .logo a img{
+		height: 50px;
+	}
 }

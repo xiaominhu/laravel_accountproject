@@ -6,7 +6,7 @@ class Transactions extends Model
     //
 	protected $table = 'transactions';
 	static public function generatevalue(){
-		    $digits = 15;
+		    $digits = 11;
 			while(1){
 				$result = '';
 				for($i = 0; $i < $digits; $i++) {

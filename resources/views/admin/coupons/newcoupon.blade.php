@@ -16,15 +16,29 @@
 						  </ul>
 				  </div>
 				@endif
-			
+	<div class="row">
+		<div class="col-xs-12">
+			<div class="card">		
+				<div class="card-header">
+							<h4 class="card-title"> {{$title}}  </h4>
+							<a class="heading-elements-toggle"><i class="icon-ellipsis font-medium-3"></i></a>
+							<div class="heading-elements">
+								<ul class="list-inline mb-0">
+									<li><a data-action="collapse"><i class="icon-minus4"></i></a></li>
+									<li><a data-action="expand"><i class="icon-expand2"></i></a></li>
+									<li><a data-action="close"><i class="icon-cross2"></i></a></li>
+								</ul>
+							</div> 
+						</div>
+						<div class = "card-body">
 			@if($flag)
 				<form class="form-horizontal" method = "post" action="/admin/coupons/update/{{$coupon->id}}">
 			@else
 				<form class="form-horizontal" method = "post" action="/admin/coupons/create">
 			@endif
 				{{csrf_field()}}
-			
-				<div class="form-group col-sm-12">
+			<br>
+				<div class="form-group col-sm-12 required">
 					<label for="createvehicle_oil" class="col-sm-2 control-label">    {{trans('app.code')}}</label>
 					<div class="col-sm-10">
 						<input type="text" class="form-control"  id="code" name = "code" placeholder="" value = "<?php 
@@ -62,14 +76,14 @@
 				  </div>
                 </div>
 				
-				<div class="form-group col-sm-12">
-                  <label for="createvehicle_oil" class="col-sm-2 control-label">    {{trans('app.limit_number_users')}}  </label>
-                  <div class="col-sm-10">
+				<div class="form-group col-sm-12 required">
+                  <label for="createvehicle_oil" class="col-sm-3 control-label">    {{trans('app.limit_number_users')}}  </label>
+                  <div class="col-sm-9">
                     <input type="number" class="form-control" id="limit_users" name = "limit_users" placeholder="" value = "<?php if($flag) echo $coupon->limit_users;  ?>">
                   </div>
                 </div>
 				
-				<div class="form-group col-sm-12">
+				<div class="form-group col-sm-12 required">
                   <label for="createvehicle_oil" class="col-sm-2 control-label">  {{trans('app.amount')}}  </label>
                   <div class="col-sm-10">
                     <input type="number" class="form-control" id="amount" name = "amount" placeholder="" value = "<?php if($flag) echo $coupon->amount;  ?>">
@@ -77,7 +91,7 @@
                 </div>
 				
 								   
-				<div class="form-group col-sm-12">
+				<div class="form-group col-sm-12 required">
                   <label for="createvehicle_oil" class="col-sm-2 control-label">  {{trans('app.type')}}  </label>
                   <div class="col-sm-10">
 					<select id="type" class = "form-control"  name ="type" >
@@ -93,11 +107,9 @@
 											<strong>{{ $errors->first('type') }}</strong>
 										</span>
 								@endif
-
-
                   </div>
                 </div>
-				<div class = "col-xs-4 pull-right">
+				<div class = "col-xs-12 text-center">
 					<button type="submit" class="btn btn-primary">
 						  {{trans('app.apply')}}
 					</button>
@@ -107,7 +119,15 @@
 					</a>
 					
 				</div>
-			</form>  				
+			</form>
+			<div class = "clearfix"> </div> 
+			<br>
+			<br>
+		</div>	
+		</div>
+		</div>
+	</div>
+					
 		</div>
 		
 		<script>

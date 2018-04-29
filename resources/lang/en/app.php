@@ -6,7 +6,6 @@ return [
     |--------------------------------------------------------------------------
     | Authentication Language Lines
     |--------------------------------------------------------------------------
-    |
     | The following language lines are used during authentication for various
     | messages that we need to display to the user. You are free to modify
     | these language lines according to your application's requirements.
@@ -87,7 +86,7 @@ return [
 	'fees_operation'   => 'Fees Operation',
 	'select'   => 'Select',
 	'percentage'   => 'Percentage',
-	'fixed_sar'   => 'Fixed(SAR)',
+	'fixed_sar'   => 'Fixed',
 	'no_en'   => 'No',
 	'all'   => 'All',
 	'seller'   => 'Seller',
@@ -213,10 +212,6 @@ return [
 	'start_date'  =>'Start Date',
 	'end_date'  =>'End Date',
 	'cancel'  =>'Cancel',
-	
-	
-	
-	
 	//fuelstatoin  new.blade.
 	'service_type'  =>'Services Type',
 	'fuel'  =>'Fuel',
@@ -284,7 +279,7 @@ return [
 	'selfstation_show_message' => 'Udah dari dulu tahu kalo selfstation kenapa nggak ditambal tong',
 	'learn_more' => 'Learn more',
 	'about_company' => 'About Company',
-	'about_company_mess1' => 'Lorem ipsum dolor sit amet, vis tale malis tacimates et, graece doctus omnesque ne est, deserunt pertinacia ne nam. Pro eu simul affert referrentur, natum mutat erroribus te his',
+	'about_company_mess1' => 'Lorem ipsum dolor sLorem ipsum doLorem ipsum doLorem ipsum doLorem ipsum do Lorem ipsum doLorem ipsum do Lorem ipsum doLorem ipsum do LorLorem ipsum doLorem ipsum doLorem ipsum doLorem ipsum do Lorem ipsum doLorem ipsum doLorem ipsum doLorem ipsum do Lorem ipsum doLorem ipsum do em ipsum doLorem ipsum doLorem ipsum doLorem ipsum doLorem ipsum do Lorem ipsum doLorem ipsum do it amet, vis tale malis tacimates et, graece doctus omnesque ne est, deserunt pertinacia ne nam. Pro eu simul affert referrentur, natum mutat erroribus te his',
 	'about_company_mess2' => 'Lorem ipsum dolor sit amet, vis tale malis tacimates et, graece doctus omnesque ne est, deserunt pertinacia ne nam. Pro eu simul affert referrentur, natum mutat erroribus te his',
 	'what_we_do' => 'What we do',
 	
@@ -316,9 +311,9 @@ return [
 	'signup_login' => 'SignUP/LogIn',
 	'services' => 'Services',
 	'terms_and_conditions' => 'Terms and Conditions',
-	 
+	'phone_number'  => 'Phone Number', 
 	/////////////////////////////////////////// add more  ///////////////////////////////////////////////////
-	'phone_number'  => 'Phone Number',
+	
 	'request_sent_success' =>  'Request is sent successfully.',
 	'add_operation_withdrawl_for_user'  => 'Add Operation Withdrawal for User',
 	'withdrawl_time_limit_setting'  => 'Withdrawl Time Limit Setting',
@@ -390,5 +385,123 @@ return [
 	'reward'    => 'Reward',
 	'accept_money' => 'Accept Money',
 
-	'latest_deposit_operations' => 'Latest Deposit operations'
+	'latest_deposit_operations' => 'Latest Deposit operations',
+	'subscription_fee'  => 'Subscription Fee' ,
+
+	// new
+	'verify_email_link_sent'  => 'We have sent verification email link. Check your inbox.',
+	'click_verify_email'    => 'Please verify your email address.',
+	'click_verify_phone'    => 'Please verify your  phone number. ',
+	
+	'click_verify_link'    => 'Click  here.',
+	'warning' =>'Warning',
+	'verify_phone ' => ' Verify Phone ',
+
+	//admin setting
+	'setting'           => "Settings",
+	'reward_amount'     => "Reward Amount", 
+	'sellerdetails'     => 'Seller Details',
+	'userdetails'       => 'User Details', 
+	'userstatement'     => 'User Statement',
+	'sellerstatement'   => 'Seller Statement',
+	'coupon_create'     => 'Add new Coupon',
+	'coupon_update'     => 'Coupon Update',
+
+	'low_balance'  => "Low Balance",
+	'final_amount' => "Final Amount",
+	'admin_profit' => "Admin Profit",
+	'sum'          => "Sum",
+	'available'   => "Available",
+	'edit_vehicle' => 'Edit Vehicle',
+	'invalid_code'  => 'invalid Verification Code',
+	'couponhistory' => 'Coupon Hisotry',
+	'pos_employeer' => 'POS Employeer',
+	'export_to_pdf' => 'Export to PDF',
+	'employeer'    =>  'Employeer',
+	'update_pos_user' => 'Update Pos User',
+	'duplicated_vehicle' => 'Duplicated vehicle',
+	'operation_details' => 'Operation Details - :id',
+	'add_operation_deposit_for_user'  => 'Add Operation Deposit for User',
+	'choose_users'  => 'Choose User',
+	'history'  => 'History',
+
+	'history_user_type_0' => ":name activated :user",
+	'history_user_type_1' => ":name deactivated :user",
+	'history_user_type_2' => ":name added :user",
+	'history_user_type_3' => ":name changed :user 's info",
+
+	'history_fees_type_0' => ":name changed the  fee ':no'",
+	'history_subscript_type_0' => ":name changed the  fee #:no",
+	'history_subscript_type_1' => ":name added the  fee #:no",
+
+	'history_deposit_type_1' => ":name confirmed the  deposit #:no",
+	'history_deposit_type_0' => ":name deactived the  deposit #:no",
+	'history_deposit_type_2' => ":name created the  deposit #:no",
+	
+	'history_withdraw_1' => ":name confirmed the  withdraw #:no",
+	'history_withdraw_0' => ":name deactived the  withdraw #:no",
+	'history_withdraw_2' => ":name created the  withdraw #:no",
+
+	'history_notification_type_0' => ":name changed the   #:no's notification.",
+
+	'history_message_type_0' => ":name solved message #:no",
+	'history_message_type_1' => ":name deactived message #:no",
+
+	'history_touchwith_type_1' => ":name solved message #:no",
+	'history_touchwith_type_0' => ":name deactived message #:no",
+
+	'history_qrstatus_type_1' => ":name actived vehicle #:no",
+	'history_qrstatus_type_0' => ":name deactived vehicle #:no",
+
+	'history_voucher_type_0' => ":name created voucher #:no",
+	'history_voucher_type_1' => ":name updated voucher #:no",
+	'history_voucher_type_2' => ":name deleted voucher #:no",
+
+	'welcomeback_message'    =>  "Hi. :name.  Welcome Back",
+
+
+
+
+
+	
+	'page_not_found' => "Page Not Found !",
+	'qrstatus_management'     =>  "QRstatus management",
+	'qrstatus'   => 'QR Status',
+	'pos_employeers'  => 'POS Employeers',
+	'minimum_cars_for_qrcode' => 'Minimum Cars for QRCODE',
+
+	// vouchers
+	'vouchers'   => 'Vouchers',
+	'add_new_voucher' => 'Add New Voucher',
+	'voucher_create'  => 'Voucher Create',  
+	'voucher_update'   => 'Voucher update',
+	'redeem_voucher' => 'Redeem Voucher',
+	'wrong_code'     =>  'Wrong Code',
+	'subject'     =>  'Subject',
+	'voucherhistory' => 'Voucher Histories',
+	'tnc'     =>  'Please agree on our privacy policy.',
+	'register_txt'        =>  'To activate your account, you need to send government papers to this email sales@selfstation.sa',
+	'withdrawl_for_admin' =>  'Withdrawl For Admin',
+	'admin_withdraw' => "Admin withdraw",
+	'signup_success_message'  => 'You are registered now, so you can login by your entered credentials.',
+	'welcome_sms_message'  => 'Welcome to Selfstation.',
+	'email_mobile_id_number'   =>  'Email or Mobile Numer or ID Number',
+	'plate'  => 'Plate Number',
+	'add_operation_deposit_for_user'    => 'Add Operation Deposit for user',
+	'add_subscripttion_fee'   =>  'Add Subscripttion Fee',
+	'choose_bank'   =>  'Choose Bank Name',
+	'deposit_for_user'    =>  'Deposit for User',
+	'plate_is_need'   =>  'Platenumber is need.',
+	'fuelstation_location'   =>  'Fuelstation Location',
+	'seller_withdraw'   =>  'Seller Withdraw',
+	'withdrawl_for_seller' => 'Withdrawl For Seller',
+	'approve_time' => 'Approve Time',
+ 
+	'choose_seller'  => 'Choose Seller',
+	'add_pos_revenue_fee'  => 'Add Pos Revenue Fee',
+	'posuser_name'   => 'POS user name',
+	'posuser_email'   => 'POS user email',
+	
+    'today_deposit_operations' => "Deposit Operations Today",
+    'verification_code' => "verification code"
 ];

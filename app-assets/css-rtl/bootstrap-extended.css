@@ -751,7 +751,11 @@ button:focus {
   background : #FFFFFF;
 }
 .header-navbar.navbar-semi-dark .navbar-header {
-  background : #1D2B36;
+  background-image: -moz-linear-gradient( 0deg, rgb(107, 107, 107) 0%, rgb(230, 181, 34) 100%);
+
+    background-image: -webkit-linear-gradient( 0deg, rgb(107, 107, 107) 0%, rgb(230, 181, 34) 100%);
+
+    background-image: -ms-linear-gradient( 0deg, rgb(107, 107, 107) 0%, rgb(230, 181, 34) 100%);
 }
 .header-navbar.navbar-semi-dark .navbar-nav li {
   line-height : 1;

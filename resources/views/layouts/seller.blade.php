@@ -9,7 +9,13 @@
     <meta name="author" content="PIXINVENT">
 	<meta name="csrf-token" content="{{ csrf_token()}}">
 	
-    <title> {{trans('app.home')}} </title>
+    <title> 
+		@if(isset($title))
+			{{$title}}
+		@else
+			{{trans('app.home')}}
+		@endif
+	</title>
 	
     <link rel="apple-touch-icon" sizes="60x60" href="../../app-assets/images/ico/apple-icon-60.png">
     <link rel="apple-touch-icon" sizes="76x76" href="../../app-assets/images/ico/apple-icon-76.png">
@@ -52,7 +58,6 @@
 		<link rel="stylesheet" type="text/css" href="{{ URL::asset('app-assets/css-rtl/core/colors/palette-gradient.css')}}">
     <!-- END Page Level CSS-->
 	
-	
     @else
 		<link rel="stylesheet" type="text/css" href="{{ URL::asset('app-assets/css/bootstrap-extended.css') }}">
 		<link rel="stylesheet" type="text/css" href="{{ URL::asset('app-assets/css/app.css') }}">
@@ -82,12 +87,12 @@
    
     <!-- END Custom CSS-->
   </head>
-  
   <script>
 	   var seller_create = 0;
 	   var coupon_create = 0;
 		 var coupons = 0;
 	   var reports   = 0;
+	   var employee_role = 0;
   </script>
   
   <body data-open="click" data-menu="vertical-menu" data-col="2-columns" class="vertical-layout vertical-menu 2-columns  fixed-navbar">
@@ -99,7 +104,7 @@
 		 
 		  <ul class="nav navbar-nav">
             <li class="nav-item mobile-menu hidden-md-up float-xs-left"><a class="nav-link nav-menu-main menu-toggle hidden-xs"><i class="icon-menu5 font-large-1"></i></a></li>
-            <li class="nav-item"><a href="{{Url::to('/')}}" class="navbar-brand nav-link"><img alt="branding logo" src="{{URL::asset('app-assets/images/logo/robust-logo-light.png')}}" data-expand="{{URL::asset('app-assets/images/logo/robust-logo-light.png')}}" data-collapse="{{URL::asset('app-assets/images/logo/robust-logo-small.png')}}" class="brand-logo"></a></li>
+            <li class="nav-item"><a href="{{Url::to('/')}}" class="navbar-brand nav-link"><img  height = "35"  alt="branding logo" src="{{URL::asset('app-assets/images/logo/robust-logo-light.png')}}" data-expand="{{URL::asset('app-assets/images/logo/robust-logo-light.png')}}" data-collapse="{{URL::asset('app-assets/images/logo/robust-logo-small.png')}}" class="brand-logo"></a></li>
             <li class="nav-item hidden-md-up float-xs-right"><a data-toggle="collapse" data-target="#navbar-mobile" class="nav-link open-navbar-container"><i class="icon-ellipsis pe-2x icon-icon-rotate-right-right"></i></a></li>
           </ul> 
 		  
@@ -113,17 +118,21 @@
             </ul>
 			
             <ul class="nav navbar-nav float-xs-right">
-			
+				<li class="nav-item no-useritem">
+					<span> <strong>    {{trans('app.no')}} : </strong>  </span>
+					<span>  {{Auth::user()->no}} </span>
+				</li>
+
 				@if(App::getLocale() == "sa")
-					<li class="dropdown dropdown-language nav-item"><a id="dropdown-flag" href="#" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" class="dropdown-toggle nav-link"><i class="flag-icon flag-icon-sa"></i><span class="selected-language">العربية</span></a>
+					<li class="dropdown dropdown-language nav-item"><a id="dropdown-flag" href="#" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" class="dropdown-toggle nav-link"> <span class="selected-language">العربية</span></a>
 				@else
-					<li class="dropdown dropdown-language nav-item"><a id="dropdown-flag" href="#" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" class="dropdown-toggle nav-link"><i class="flag-icon flag-icon-gb"></i><span class="selected-language">English</span></a>
+					<li class="dropdown dropdown-language nav-item"><a id="dropdown-flag" href="#" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" class="dropdown-toggle nav-link"> <span class="selected-language">English</span></a>
 				@endif
 			
 			
                <div aria-labelledby="dropdown-flag" class="dropdown-menu">
-					<a href="#" class="dropdown-item language" data-lang = "en"><i class="flag-icon flag-icon-gb"></i> English</a>
-					<a href="#" class="dropdown-item language" data-lang = "sa"><i class="flag-icon flag-icon-sa"></i> العربية </a>
+					<a href="#" class="dropdown-item language" data-lang = "en"> English</a>
+					<a href="#" class="dropdown-item language" data-lang = "sa"> العربية </a>
                 </li>
 			  
 			  
@@ -137,11 +146,9 @@
 					@endif
 			    </span>
 			    <span class="user-name">   
-			    @if(Auth::user()->first_name)
-					{{Auth::user()->first_name}}   {{Auth::user()->last_name}} 
-				@else
+			   
 					{{Auth::user()->name}}
-				@endif
+				 
 				</span></a>
                  <div class="dropdown-menu dropdown-menu-right">
 				<a href="{{route('sellerusersettings')}}" class="dropdown-item"><i class="icon-head"></i>   {{trans('app.edit_profile')}} </a>
@@ -178,29 +185,30 @@
       <div class="main-menu-content">
         <ul id="main-menu-navigation" data-menu="menu-navigation" class="navigation navigation-main">
 
-		 
-		  	<li class=" nav-item"><a href="{{URL::to('/home')}}"><i class="icon-home3"></i><span data-i18n="nav.dash.main" class="menu-title"> {{trans('app.main_page')}}  </span></a></li>
-		  
+ 
+			@if(Selfuser::hasPermissionseller(Auth::user()->id, 4))   
+				<li class=" nav-item"><a href="{{URL::to('/seller/home')}}"><i class="icon-home3"></i><span data-i18n="nav.dash.main" class="menu-title"> {{trans('app.main_page')}}  </span></a></li>
+			@endif
+
       
 			@if(Selfuser::hasPermissionseller(Auth::user()->id, 1))
 		  		<li class=" nav-item"><a href="{{route('fuelstation')}}"><i class="icon-money"></i><span data-i18n="nav.dash.main" class="menu-title">    {{trans('app.manager_fuel_station')}}  </span></a></li>
-		  @endif
+		    @endif
 
 			@if(Selfuser::hasPermissionseller(Auth::user()->id, 2))
-		 	 		<li class=" nav-item"><a href="{{route('sellerreports')}}"><i class="icon-book2"></i><span data-i18n="nav.dash.main" class="menu-title"> {{trans('app.reports')}} </span></a></li>
-		  @endif
+		 	 	<li class=" nav-item"><a href="{{route('sellerreports')}}"><i class="icon-book2"></i><span data-i18n="nav.dash.main" class="menu-title"> {{trans('app.reports')}} </span></a></li>
+		   @endif
 
 			@if(Selfuser::hasPermissionseller(Auth::user()->id, 3))
 					<li class=" nav-item"><a href="{{route('sellercoupons')}}"><i class="icon-eye6"></i><span data-i18n="nav.dash.main" class="menu-title"> {{trans('app.coupons')}}  </span></a></li>
-		  @endif
-
-
-	    <li class=" nav-item"><a href="{{route('sellercontactus')}}"><i class="icon-paper-plane-o"></i><span data-i18n="nav.dash.main" class="menu-title">   {{trans('app.contact_us')}}  </span></a></li>
-	 	  
+		    @endif
+  
+	        <li class=" nav-item"><a href="{{route('sellercontactus')}}"><i class="icon-paper-plane-o"></i><span data-i18n="nav.dash.main" class="menu-title">   {{trans('app.contact_us')}}  </span></a></li>
 			@if(Auth::user()->usertype == '1')
-				<li class=" nav-item"><a href="{{route('selleremployeers')}}"><i class="icon-users3"></i><span data-i18n="nav.dash.main" class="menu-title"> {{trans('app.employeers')}}   </span></a></li>
-		  @endif
-		  <li class=" nav-item"><a href="{{route('sellerusersettings')}}"><i class="icon-user4"></i><span data-i18n="nav.dash.main" class="menu-title"> {{trans('app.user_settings')}}   </span></a></li>
+				<li class=" nav-item"><a href="{{route('selleremployeers')}}"><i class="icon-qrcode2"></i><span data-i18n="nav.dash.main" class="menu-title"> {{trans('app.pos_employeer')}}   </span></a></li>
+				<li class=" nav-item"><a href="{{route('sellerworkerlist')}}"><i class="icon-users3"></i><span data-i18n="nav.dash.main" class="menu-title"> {{trans('app.employeers')}}   </span></a></li>
+		    @endif
+		   <li class=" nav-item"><a href="{{route('sellerusersettings')}}"><i class="icon-user4"></i><span data-i18n="nav.dash.main" class="menu-title"> {{trans('app.user_settings')}}   </span></a></li>
 		  
 		  
         </ul>
@@ -213,8 +221,64 @@
     <!-- / main menu-->
 
     <div class="app-content content container-fluid">
+
+		  @if(Session::has('emailverifysend'))
+			<div class = "col-md-12">
+				<div class="alert alert-success">
+					 {{trans('app.verify_email_link_sent')}} 
+				</div>
+			</div>
+		@else	
+			@if(!Auth::user()->email_verify)
+				<div class = "col-md-12">
+					<div class="alert alert-warning mb-2" role="alert">
+						<strong> {{trans('app.warning')}} </strong>   {{trans('app.click_verify_email')}}    <a href = "{{URL::to('verify/email')}}"> {{trans('app.click_verify_link')}} </a>
+					</div>
+				</div>
+			@endif
+		@endif		 
+
+		@if(!Auth::user()->phone_verify)
+			<div class = "col-md-12">
+				<div class="alert alert-warning mb-2" role="alert">
+					<strong>{{trans('app.warning')}} </strong> {{trans('app.click_verify_phone')}}    <a href = "#" class = "verifyphonenumber"> {{trans('app.click_verify_link')}}</a>
+				</div>
+			</div>	 
+		<!-- Modal -->
+		<div class="modal fade text-xs-left" id="verifyphonenumbermodal" tabindex="-1" role="dialog" aria-labelledby="verifyphonenumbermodal" aria-hidden="true">
+			<div class="modal-dialog" role="document">
+			<div class="modal-content">
+				<div class="modal-header">
+				<button type="button" class="close" data-dismiss="modal" aria-label="Close">
+					<span aria-hidden="true">&times;</span>
+				</button>
+				<h4 class="modal-title" id="myModalLabel1"> {{trans('app.verify_phone ')}} </h4>
+				</div>
+				<div class="modal-body">
+				 	<form class="form-horizontal sms-verifymodal" method = "post" action="{{URL::to('/verify/sms/validate')}}">
+					 	{{csrf_field()}}
+						<div class = "row">
+							<div class = "col-sm-6">
+								<input class="form-control border-primary"   type="text"  name = "verifycode" id="verifysms">
+								<input class="form-control border-primary"   type="hidden"   name = "request_id" id="request_id">
+							</div>
+							<div class = "col-sm-6">
+								<button type="button"  class="btn btn-primary sendverificationlink">
+									   {{trans('app.verify')}} 
+								</button>
+							</div>
+						</div>
+					</form>
+				</div>
+			</div>
+			</div>
+		</div>				
+		@endif
+		
       <div class="content-wrapper">
 		
+
+
 		 @yield('admincontent')
 	  
 	  </div>
@@ -244,7 +308,9 @@
    
     <!-- BEGIN VENDOR JS-->
     <!-- BEGIN PAGE VENDOR JS-->
-   
+        <!-- BEGIN VENDOR JS-->
+	<script src="https://unpkg.com/sweetalert/dist/sweetalert.min.js"></script>
+	
     <!-- END PAGE VENDOR JS-->
     <!-- BEGIN ROBUST JS-->
     <script src="{{  URL::asset('app-assets/js/core/app-menu.js')}}" type="text/javascript"></script>
@@ -323,6 +389,7 @@
     
 	
 	<script type="text/javascript" src="{{  URL::asset('js/usercustom.js') }}"></script>
+	  @stack('scripts')
     <!-- END PAGE LEVEL JS-->
   </body>
 </html>

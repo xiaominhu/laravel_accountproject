@@ -7,7 +7,7 @@ use App\User;
 use Tymon\JWTAuth\Exceptions\JWTException;
 
 class ApiauthsellerMiddleware
-{
+{ 
     /**
      * Handle an incoming request.
      *

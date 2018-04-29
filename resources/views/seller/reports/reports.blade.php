@@ -6,10 +6,14 @@
         <div class="content-body"><!-- stats -->
 			
 			<div class = "row">
-				<div class = "col-xs-4">
-					<a  href = "{{URL::to('/seller/reports/export')}}"  class="btn btn-primary">
+				<div class = "col-md-4">
+					<a  href = "{{URL::to('/seller/reports/export'). ( Request::getQueryString() ? '?' . Request::getQueryString() : '')}}"  class="btn btn-warning">
 						 <i class="icon-file-excel"></i> {{trans('app.export_to_excel')}}  
 					</a>
+					<a  href = "{{URL::to('/seller/reports/export/pdf'). ( Request::getQueryString() ? '?' . Request::getQueryString() : '')}}"  class="btn btn-warning">
+						 <i class="icon-file-pdf"></i> {{trans('app.export_to_pdf')}}  
+					</a>
+
 				</div>	
 			</div>
 			<br>
@@ -29,7 +33,7 @@
 							</div>
 						</div>
 						<div class="card-body collapse in">
-							<form class="form-horizontal" method = "post" action="{{URL::to('/seller/reports')}}">
+							<form class="form-horizontal" method = "get" action="{{URL::to('/seller/reports')}}">
 								{{csrf_field()}}
 								<div class="card-block">
 									<div class="col-xl-6 col-lg-6 col-xs-12">
@@ -39,14 +43,14 @@
 											</div>
 											<div class="col-xl-12 col-lg-12 col-xs-12 text-center">
 											
-												<label for="expireyear" class="col-sm-2 control-label">  {{trans('app.from')}}  </label>
-												<div class="col-xs-4">
-													<input id = "expireyear" class = "form-control" name ="from_amount" type = "number" value = "{{$setting['from_amount']}}"  onchange="this.form.submit()">
+												<label for="expireyear" class="col-sm-2 col-xs-4 control-label mbbt-5">  {{trans('app.from')}}  </label>
+												<div class="col-sm-4 col-xs-8 mbbt-5">
+													<input id = "expireyear" placeholder = "{{trans('app.from')}}" class = "form-control" name ="from_amount" type = "text" value = "{{$setting['from_amount']}}"  onchange="this.form.submit()">
 												</div>
 												
-												<label for="expireyear" class="col-sm-2 control-label">  {{trans('app.to')}}  </label>
-												<div class="col-sm-4">
-													<input type = "number" id = "expiremonth" class = "form-control" name ="to_amount" value = "{{$setting['to_amount']}}"  onchange="this.form.submit()"/>
+												<label for="expireyear" class="col-sm-2 col-xs-4  control-label">  {{trans('app.to')}}  </label>
+												<div class="col-sm-4 col-xs-8">
+													<input type = "text" placeholder = "{{trans('app.to')}}" id = "expiremonth" class = "form-control" name ="to_amount" value = "{{$setting['to_amount']}}"  onchange="this.form.submit()"/>
 												</div>
 												
 											</div>
@@ -60,20 +64,20 @@
 											</div>
 											<div class="col-xl-12 col-lg-12 col-xs-12 text-center">
 												
-												<label for="from_date" class="col-sm-2 control-label"> {{trans('app.from')}} </label>
-												<div class="col-xs-4 form-group">
+												<label for="from_date" class="col-sm-2 col-xs-4 control-label mbbt-5"> {{trans('app.from')}} </label>
+												<div class="col-sm-4 col-xs-8 form-group">
 													 <div class='input-group date' id='from_date'>
-															<input type='text' class="form-control" name = "from_date" value = "" />
+															<input type='text' class="form-control" placeholder = "{{trans('app.from')}}" name = "from_date" value = "" />
 															<span class="input-group-addon">
 																<i class="icon-calendar"></i>
 															</span>
 													 </div>
 												</div>
 												
-												<label for="to_date" class="col-sm-2 control-label"> {{trans('app.to')}} </label>
-												<div class="col-xs-4 form-group">
+												<label for="to_date" class="col-sm-2 col-xs-4 control-label mbbt-5"> {{trans('app.to')}} </label>
+												<div class="col-sm-4 col-xs-8 form-group">
 													 <div class='input-group date' id='to_date'>
-															<input type='text' class="form-control" name = "to_date" value = "" />
+															<input type='text' class="form-control" placeholder = "{{trans('app.to')}}" name = "to_date" value = "" />
 															<span class="input-group-addon">
 																<i class="icon-calendar"></i>
 															</span>
@@ -85,7 +89,7 @@
 								</div>
 								
 								<div class="card-block">
-									<div class="col-xs-2">
+									<div class="col-md-2">
 										<div class = "row">
 											<label for="fuelstation" class="col-sm-12 control-label">   {{trans('app.fuelstation_name')}} </label>
 											<div class="col-xs-12">
@@ -103,7 +107,7 @@
 										</div>
 									</div>
 									
-									<div class="col-xs-2">
+									<div class="col-md-2">
 										<div class = "row">
 											<label for="state" class="col-sm-12 control-label">   {{trans('app.state')}} </label>
 											<div class="col-xs-12">
@@ -124,7 +128,7 @@
 										</div>
 									</div>
 									
-									<div class="col-xs-2">
+									<div class="col-md-2 mbbt-5">
 										<div class = "row">
 											<label for="city" class="col-sm-12 control-label">  {{trans('app.city')}}  </label>
 											<div class="col-xs-12">
@@ -157,9 +161,9 @@
 									</div -->
 									
 									
-									<div class="col-xs-2">
+									<div class="col-md-2">
 										<div class = "row">
-											<label for="service_type" class="col-sm-12 control-label"> {{trans('app.operation_type')}}  </label>
+											<label for="service_type" class="col-sm-12 control-label mbbt-5"> {{trans('app.operation_type')}}  </label>
 											<div class="col-xs-12">
 													<select id = "service_type" class = "form-control" name ="service_type" >
 														<option value=""> {{trans('app.all')}}</option>	
@@ -170,8 +174,7 @@
 											</div>
 										</div>
 									</div>
-						 
-									<div class="col-xs-2" style = "margin-top: 20px;">
+									<div class="col-md-2" style = "margin-top: 20px;">
 										<button type="submit" class="btn btn-warning btn-block"> {{trans('app.apply')}}</button>
 									</div>				
 								</div>
@@ -208,31 +211,38 @@
 					</form>
 				</div>
 			</div>
-			
+			   
 			<div class="row">
-				<div class="col-xs-12">
+				<div class="col-xs-12"> 
 					<div class="card">
 					  
 							<div class="table-responsive">
 								<table class="table table-bordered table-striped">
 									<thead>
 										<tr>
+											<th>  </th>
 											<th>  {{trans('app.no')}}             </th>
 											<th> {{trans('app.fuelstation_name')}} </th>
-								
 											<th> {{trans('app.operation_type')}} </th>
 											<th>  {{trans('app.service_type')}}  </th>
 											<th> {{trans('app.state')}}</th>
 											<th>  {{trans('app.city')}} </th>
 											<th> {{trans('app.amount')}} </th>
+											<!-- th>  {{trans('app.sum')}}   </th -->
 											<th>  {{trans('app.date_opration')}}   </th>
 										</tr>
 									</thead>
 									<tbody>
 									
+									<?php 
+										$id = 0;
+										if(isset($_REQUEST['page']))
+											$id = $_REQUEST['page'] * $setting['pagesize']; 									
+									?>
 									@foreach( $transactions as $operation)
 										<tr>
-											<th scope="row"> <a href = "{{URL::to('/seller/reports/details/')}}/{{$operation->no}}"> {{$operation->no}} </a> </th>
+											<th  scope="row">   {{++$id}} </th>
+											<td> <a href = "{{URL::to('/seller/reports/details/')}}/{{$operation->no}}"> {{$operation->no}} </a> </td>
 											<td>@if($operation-> details !== null)
 													{{$operation->details->name}}  
 												@endif
@@ -274,14 +284,12 @@
 												@endif
 
 											</td>
-											<td> {{$operation->amount}} </td>
-											<td> {{$operation->created_at}}</td>
+											<td>  {{$operation->amount}} </td>
+											<!-- td>  {{$operation->profit}}</td -->
+											<td>  {{$operation->created_at}}</td>
 										</tr>
 									@endforeach
-										
-										
-									 
-									   
+										  
 									</tbody>
 								</table>
 							</div>

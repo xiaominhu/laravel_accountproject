@@ -4,25 +4,32 @@
  <div class="content-header row">
  </div>
         <div class="content-body"><!-- stats -->
-				@if($errors->any())
-				   <div class="alert alert-warning">
-						 <ul>
-							   @foreach ($errors->all() as $error)
-								  <li>{{ $error }}</li>
-							  @endforeach
-						  </ul>
-				   </div>
-				@endif
+		 
 				
 				@if($message != "")
 					 <div class="alert alert-success">
 						{{$message}}
 				   </div>
 				@endif
-				
-			<br/>  
-
+				 
 			<br/>
+
+			<div class="row">
+					<div class="col-xs-12">
+								<div class="card">
+												<div class="card-header">
+													<h4 class="card-title" id="basic-layout-form"> {{$title}}</h4>
+													<a class="heading-elements-toggle"><i class="icon-ellipsis font-medium-3"></i></a>
+														<div class="heading-elements">
+															<ul class="list-inline mb-0">
+																<li><a data-action="collapse"><i class="icon-minus4"></i></a></li>
+																<li><a data-action="expand"><i class="icon-expand2"></i></a></li>
+																<li><a data-action="close"><i class="icon-cross2"></i></a></li>
+															</ul>
+														</div>
+												</div>
+											<div class="card-body collapse in">
+											<div class="card-block">
 			<form  action="/user/usersettings" method="post" enctype="multipart/form-data">	
 				{{csrf_field()}}
 				<div class = "row">
@@ -33,31 +40,39 @@
 								<img src = "/images/default-user.png" height = "200"> 
 							@endif
 						</div>
-						<div class="form-group">
+						<div class="form-group col-sm-12">
 							<label for="userinput8" > {{trans('app.picture')}} </label>
-							<input id="content" type = "file" class="form-control border-primary" name="picture"></input>
+							<input id="content" type = "file" class="form-control border-primary " name="picture"></input>
 						</div>
 						 
-						<div class="form-group col-sm-12">
-						  <label for="createvehicle_oil" class="col-sm-2 control-label">  {{trans('app.first_name')}} </label>
+						<div class="form-group col-sm-12 required">
+						  <label for="createvehicle_oil" class="col-sm-2 control-label">  {{trans('app.name')}} </label>
 						  <div class="col-sm-10">
-							<input type="text" class="form-control" id="first_name" name = "first_name" placeholder="" value = "{{$user->first_name}}">
+							<input type="text" class="form-control" id="name" name = "name" placeholder="{{trans('app.name')}}" value = "{{$user->name}}">
+
+											@if ($errors->has('name'))
+												<span class="help-block">
+													<strong>{{ $errors->first('name')}}</strong>
+												</span>
+											@endif
+
+
 						  </div>
 						</div>
+						 
 						
-						
-						<div class="form-group col-sm-12">
-						  <label for="createvehicle_oil" class="col-sm-2 control-label">  {{trans('app.last_name')}}  </label>
-						  <div class="col-sm-10">
-							<input type="text" class="form-control" id="last_name" name = "last_name" placeholder="" value = "{{$user->last_name}}">
-						  </div>
-						</div>
-						
-						
-						<div class="form-group col-sm-12">
+						<div class="form-group col-sm-12 required">
 						  <label for="createvehicle_oil" class="col-sm-2 control-label"> {{trans('app.email')}} </label>
 						  <div class="col-sm-10">
-							<input type="text" class="form-control" id="email" name = "email" placeholder="" value = "{{$user->email}}">
+							<input type="text" class="form-control" id="email" name = "email" placeholder="{{trans('app.email')}}" value = "{{$user->email}}" >
+
+											@if ($errors->has('email'))
+												<span class="help-block">
+													<strong>{{ $errors->first('email')}}</strong>
+												</span>
+											@endif
+
+
 						  </div>
 						</div>
 						
@@ -69,10 +84,25 @@
 						</div>
 						
 						
-						<div class="form-group col-sm-12">
+						<div class="form-group col-sm-12 required">
 						  <label for="createvehicle_oil" class="col-sm-2 control-label"> {{trans('app.phone')}} </label>
 						  <div class="col-sm-10">
-							<input type="text" class="form-control" id="phone" name = "phone" placeholder="" value = "{{$user->phone}}">
+						 
+							<div class="intl-tel-input allow-dropdown">
+									<div class="flag-container">
+										<div class="selected-flag" tabindex="0">
+											<div class="iti-flag sa"> </div> 
+											<div class="iti-arrow1">(+966)</div>
+										</div>
+									</div>
+										<input id="phone"  class="form-control" name = "phone"   type="tel" autocomplete="off" value = "<?php
+										
+											if(old('phone')  !== null) echo old('phone');
+											else     echo $user->phone;
+										?>" placeholder = "{{trans('app.phone')}}">
+							    </div>
+							
+
 						  </div>
 						</div>
 						
@@ -111,13 +141,36 @@
 				</div>	
 				<div class = "row">
 					<div class = "col-xs-12">
-						<button type="submit" class="btn btn-primary  float-xs-right" style = "margin-right:50px;">
+						<button type="submit" class="btn btn-warning  float-xs-right" style = "margin-right:50px;">
 						   <i class="icon-paper-plane-o"></i>
 							{{trans('app.apply')}}
 						</button>
+					
 					</div>
 				</div>
+					<br>
 	 	 </form>	
-				
+				</div>
+		</div>
+								</div>
+					</div>
+		</div>
+
+
+	@push('scripts')
+				<link href="{{ URL::asset('app-assets/build/css/intlTelInput.css') }}" rel="stylesheet" type="text/css">
+				 <style>
+						.iti-arrow1{
+							position: absolute;
+							margin-top: 3px;
+							right: 6px;
+							width: 0;
+							height: 0;
+							border-top: 4px solid #555;
+						}
+
+					 
+				</style>
+		@endpush
 		</div>
 @endsection

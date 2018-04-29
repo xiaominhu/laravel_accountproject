@@ -16,6 +16,21 @@
 					  </ul> 
 			  </div>
 			@endif
+	
+	 
+						<div class="card-header">
+							<h4 class="card-title"> {{$title}}  </h4>
+							<a class="heading-elements-toggle"><i class="icon-ellipsis font-medium-3"></i></a>
+							<div class="heading-elements">
+								<ul class="list-inline mb-0">
+									<li><a data-action="collapse"><i class="icon-minus4"></i></a></li>
+									<li><a data-action="expand"><i class="icon-expand2"></i></a></li>
+									<li><a data-action="close"><i class="icon-cross2"></i></a></li>
+								</ul>
+							</div>
+						</div>
+	 
+	  
 			<form class="form-horizontal" method = "get" action="/admin/map">
 				<input type = "hidden"  name = "lat" id = "lat" value = "<?php 
 					if($flag) 
@@ -46,7 +61,8 @@
 							<option value="1" >   {{trans('app.green_fuel')}}   </option>	
 							<option value="2">    {{trans('app.red_fuel')}} </option>	
 							<option value="3"> {{trans('app.diesel')}}   </option>	
-							<option value="4">   {{trans('app.wash')}}   </option>
+							<option value="4"> {{trans('app.oil')}}   </option>	
+							<option value="5">   {{trans('app.wash')}}   </option>
 						</select>								 
                   </div>
                 </div>
@@ -80,13 +96,13 @@
                 </div>
 				
 				<div class = "col-xs-4 pull-right">
-					<button type="submit" class="btn btn-primary">
+					<button type="submit" class="btn btn-warning">
 						 {{trans('app.apply')}} 
 					</button>
 				</div>
-			</form>  				
-		</div>
-		
+			</form>  	
+			 	 
+	 
 		<script>
 		
 		var fuel_selection = '<?php
@@ -112,15 +128,16 @@
 			for(var i = 0; i < lat_array.length; i++){
 				var marker = new google.maps.Marker({
 					  position: lat_array[i],
+					  icon: "{{URL::asset('images/fuelstationmap.png')}}",
 					  map: map
 				});
 			}
 			
 		}
 		</script>
+																			
 
-
-        <script async defer src="https://maps.googleapis.com/maps/api/js?key=AIzaSyAyIXfep7919J0jwyVuxDzqzj_qI-A26lI&callback=initMap">
+        <script async defer src="https://maps.googleapis.com/maps/api/js?key=AIzaSyCJgcL_4zdeEI7q4E-crcMP19Jx8YCbWR8&callback=initMap">
 		</script>
    
 	

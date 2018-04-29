@@ -12,22 +12,22 @@ use App\Transactions;
 use App\Setting;
 use App\Withdraw;
 use App\Subfeemanagement;
+use App\Voucher;
 
 class CronController extends Controller
 {
     //
-
     public function pending(){
         $operations = Operation::where('operation.status', 0)->get();
         $now = Carbon::now();
        // echo $after->toDateTimeString();
         foreach($operations as $operation){
             $after = new Carbon( $operation ->created_at);
-            if($now->diffInMinutes($after) < 25) continue;
+            if($now->diffInMinutes($after) < 30) continue;
             $operation->status = 1;
             $operation->save();
             
-            $fee_data =  Fees::calculatefee($operation->amount, 'posrev');
+            $fee_data =  Fees::calculatefee($operation->amount, 'posrev', 1, $operation->owner_id);
             $transaction = new Transactions;
             $transaction->operator_id  =  $operation->owner_id;
             $transaction->reference_id = $operation->id;
@@ -42,51 +42,49 @@ class CronController extends Controller
         }
         //return response()->json(['error' => 0 ,  'results' => $operations]);
     }
+    public function changeExpireStatus(){
+        // voucher
+        $vouchers = Voucher::whereDate('limit_date', '<', Carbon::now())->get();
+        foreach($vouchers as $voucher){
+            $voucher->status = 0;
+            $voucher->save();
+        }
+    }
 
     public function withdraw(){
         $setting = Setting::where('name', 'withdraw_limit')->first();
         $limittime = new Carbon(date("Y-m-d") . $setting->value . ':00');
         $now = Carbon::now();
-        if($limittime->diffInMinutes($now, false) < 0){
-            $limittime->subDay(1);
-        }
- 
-       // echo $limittime->toDateTimeString();
-        $transactions = Transactions::whereIn('transactions.status', [1,2])
-                                    ->where('users.usertype', 1)
-                                    ->selectRaw('sum(transactions.final_amount) as sum, transactions.operator_id')
-                                    ->leftJoin('users', 'users.id', '=', 'transactions.operator_id')
-                                    ->whereDate('transactions.created_at', '<=', $limittime->toDateString())
-                                    ->groupBy('transactions.operator_id')
-                                    ->get();
+
         
-        foreach($transactions as $transaction){
-                $withdraw = Withdraw::where('user_id', $transaction->operator_id)
-                                    ->where('status', 0)
-                                    ->first();
-                if(!isset($withdraw)) 
-                    $withdraw  = new Withdraw;
+       if(($limittime->diffInMinutes($now, false) > 10) || ($limittime->diffInMinutes($now, false) < -5)){
+           echo "Not payment time";
+           return;
+        } 
+   
+        $users = User::where('usertype', 1)->where('phone_verify', 1)->get();
+        
+        foreach($users as $user){
+            $balance =  Fees::checkbalance($user->id);
+            
+            if($balance <= 0) continue;
 
-                $transactions_inte = Transactions::whereIn('transactions.status', [1,2])
-                    ->select('transactions.id')
-                    ->leftJoin('users', 'users.id', '=', 'transactions.operator_id')
-                    ->whereDate('transactions.created_at', '<=', $limittime->toDateString())
-                    ->where('transactions.operator_id', $transaction->operator_id)
-                    ->get();
+            $withdraws = Withdraw::where('user_id', $user->id)
+                        ->where('status', 0)
+                        ->get();
+            foreach($withdraws as $withdraw)
+                $withdraw->delete();
+            
+            $withdraw  = new Withdraw;
+               //$withdraw->user_id 
+            $fee_data =  Fees::calculatefee($balance, 'withrawal', 1);
 
-                foreach($transactions_inte as $transactionitem){
-                    $internal_transcation = Transactions::find($transactionitem->id);
-                    $internal_transcation->status = 2; // pending
-                    $internal_transcation->save();
-                }
-
-                $fee_data =  Fees::calculatefee($transaction->sum, 'withrawal');
-                $withdraw->fee_amount   =  $fee_data['fee'];
-                $withdraw->final_amount =  $fee_data['amount'];
-                $withdraw->user_id  = $transaction->operator_id;
-				$withdraw->no       = Withdraw::generatevalue();
-                $withdraw->amount   = $transaction->sum;
-                $withdraw->save();
+            $withdraw->fee_amount   =  $fee_data['fee'];
+            $withdraw->final_amount =  $fee_data['amount'];
+            $withdraw->user_id      =  $user->id;
+            $withdraw->no           =  Withdraw::generatevalue();
+            $withdraw->amount       =  $balance;
+            $withdraw->save();
         }
         //$q->whereDate('created_at', '=', Carbon::today()->toDateString());
     }
@@ -105,6 +103,5 @@ class CronController extends Controller
             }
             Subfeemanagement::collectingFee($user_id);
         }
-
-    }
+    }    
 }

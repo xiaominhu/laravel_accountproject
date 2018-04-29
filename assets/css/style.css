@@ -41,5 +41,79 @@ WE WILL RELEASE FUTURE UPDATES SO IN ORDER TO NOT OVERWRITE YOUR STYLES IT'S BET
 }
 
 .help-block{
-	color: #fc1020;
+	color: #e6b522;
 }
+
+
+.form-group.required .control-label:after { 
+    content:"*";
+    color: #e6b522;
+  }
+
+  .dropdown-menu > li > a {
+    display: block;
+    padding: 3px 20px;
+    clear: both;
+    font-weight: 400;
+    line-height: 1.42857143;
+    color: #333;
+    white-space: nowrap;
+}
+
+.label-danger {
+  background-color: #d9534f;
+}
+.label-success {
+  background-color: #5cb85c;
+}
+.label {
+  display: inline;
+  padding: .2em .6em .3em;
+  font-size: 75%;
+  font-weight: 700;
+  line-height: 1;
+  color: #fff;
+  text-align: center;
+  white-space: nowrap;
+  vertical-align: baseline;
+  border-radius: .25em;
+}
+
+.mbbt-5{
+  margin-bottom: 5px; 
+}
+
+.menu-title{
+  white-space: nowrap;
+  width: 11em;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+ 
+.licenseplate{
+  color: #333;
+  background-color: #fff;
+  font-size: 55px;
+  line-height: 60px;
+  font-weight: bold;
+  text-transform: uppercase;
+  text-align: center;
+  width: 70px;
+  border: 5px solid #e6b522;
+  border-radius: 15px;
+  outline: none;
+  direction: ltr;
+   
+}
+
+@media (max-width: 768px) {
+  .licenseplate {
+      font-size: 12px;
+      line-height: 20px;
+      width: 22px;
+      border: 2px solid #e6b522;
+      border-radius: 6px;
+  }
+}
+
+ 

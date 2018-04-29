@@ -9,7 +9,14 @@
     <meta name="author" content="PIXINVENT">
 	<meta name="csrf-token" content="{{ csrf_token() }}">
 	
-    <title> {{trans('app.home')}} </title>
+    <title> 
+	
+		@if(isset($title))
+			{{$title}}
+		@else
+			{{trans('app.home')}}
+		@endif
+	</title>
 	
     <link rel="apple-touch-icon" sizes="60x60" href="../../app-assets/images/ico/apple-icon-60.png">
     <link rel="apple-touch-icon" sizes="76x76" href="../../app-assets/images/ico/apple-icon-76.png">
@@ -68,7 +75,11 @@
     <link rel="stylesheet" type="text/css" href="{{ URL::asset('assets/css/style.css')}}">
     <!-- END Custom CSS-->
   </head>
-  <body data-open="click" data-menu="vertical-menu" data-col="2-columns" class="vertical-layout vertical-menu 2-columns  fixed-navbar">
+  	@if(App::getLocale() == "sa")
+	<body data-open="click" data-menu="vertical-menu" data-col="2-columns" class="vertical-layout vertical-menu 2-columns  fixed-navbar sa">
+	@else
+	<body data-open="click" data-menu="vertical-menu" data-col="2-columns" class="vertical-layout vertical-menu 2-columns  fixed-navbar">
+	@endif
 	
 	<script>
 		var map_search = 0;
@@ -83,7 +94,7 @@
         <div class="navbar-header">
            <ul class="nav navbar-nav">
             <li class="nav-item mobile-menu hidden-md-up float-xs-left"><a class="nav-link nav-menu-main menu-toggle hidden-xs"><i class="icon-menu5 font-large-1"></i></a></li>
-            <li class="nav-item"><a href="{{Url::to('/')}}" class="navbar-brand nav-link"><img alt="branding logo" src="{{URL::asset('app-assets/images/logo/robust-logo-light.png')}}" data-expand="{{URL::asset('app-assets/images/logo/robust-logo-light.png')}}" data-collapse="{{URL::asset('app-assets/images/logo/robust-logo-small.png')}}" class="brand-logo"></a></li>
+            <li class="nav-item"><a href="{{Url::to('/')}}" class="navbar-brand nav-link"><img alt="branding logo"  height = "35"  src="{{URL::asset('app-assets/images/logo/robust-logo-light.png')}}" data-expand="{{URL::asset('app-assets/images/logo/robust-logo-light.png')}}" data-collapse="{{URL::asset('app-assets/images/logo/robust-logo-small.png')}}" class="brand-logo"></a></li>
             <li class="nav-item hidden-md-up float-xs-right"><a data-toggle="collapse" data-target="#navbar-mobile" class="nav-link open-navbar-container"><i class="icon-ellipsis pe-2x icon-icon-rotate-right-right"></i></a></li>
           </ul>
         </div>
@@ -97,22 +108,20 @@
             <ul class="nav navbar-nav float-xs-right">
 
 				<li class="nav-item no-useritem">
-					<span> <strong>    {{trans('app.no_en')}} : </strong>  </span>
+					<span> <strong>    {{trans('app.no')}} : </strong>  </span>
 					<span>  {{Auth::user()->no}} </span>
 				</li>
 
-
-
                 @if(App::getLocale() == "sa")
-					<li class="dropdown dropdown-language nav-item"><a id="dropdown-flag" href="#" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" class="dropdown-toggle nav-link"><i class="flag-icon flag-icon-sa"></i><span class="selected-language">العربية</span></a>
+					<li class="dropdown dropdown-language nav-item"><a id="dropdown-flag" href="#" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" class="dropdown-toggle nav-link"> <span class="selected-language">العربية</span></a>
 				@else
-					<li class="dropdown dropdown-language nav-item"><a id="dropdown-flag" href="#" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" class="dropdown-toggle nav-link"><i class="flag-icon flag-icon-gb"></i><span class="selected-language">English</span></a>
+					<li class="dropdown dropdown-language nav-item"><a id="dropdown-flag" href="#" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" class="dropdown-toggle nav-link"> <span class="selected-language">English</span></a>
 				@endif
 
 		
                    <div aria-labelledby="dropdown-flag" class="dropdown-menu">
-					<a href="#" class="dropdown-item language" data-lang = "en"><i class="flag-icon flag-icon-gb"></i> English</a>
-					<a href="#" class="dropdown-item language" data-lang = "sa"><i class="flag-icon flag-icon-sa"></i> العربية </a>
+					<a href="#" class="dropdown-item language" data-lang = "en"> English</a>
+					<a href="#" class="dropdown-item language" data-lang = "sa"> العربية </a>
                 </li>
 			
 			 <li class="dropdown dropdown-user nav-item"><a href="#" data-toggle="dropdown" class="dropdown-toggle nav-link dropdown-user-link">
@@ -126,11 +135,9 @@
 					<i></i>
 			    </span>
 			    <span class="user-name">   
-			    @if(Auth::user()->first_name)
-					{{Auth::user()->first_name}}   {{Auth::user()->last_name}} 
-				@else
+			  
 					{{Auth::user()->name}}
-				@endif
+				 
 				</span></a>
                  <div class="dropdown-menu dropdown-menu-right">
 				<a href="{{route('userusersettings')}}" class="dropdown-item"><i class="icon-head"></i>   {{trans('app.edit_profile')}} </a>
@@ -165,7 +172,7 @@
       <!-- main menu content-->
       <div class="main-menu-content">
         <ul id="main-menu-navigation" data-menu="menu-navigation" class="navigation navigation-main"> 
-		<li class=" nav-item"><a href="{{URL::to('/home')}}"><i class="icon-home3"></i><span data-i18n="nav.dash.main" class="menu-title">{{trans('app.main_page')}}</span></a></li>
+		<li class=" nav-item"><a href="{{URL::to('/user/home')}}"><i class="icon-home3"></i><span data-i18n="nav.dash.main" class="menu-title">{{trans('app.main_page')}}</span></a></li>
 		<li class=" nav-item"><a href="{{URL::to('/user/vehicles')}}"><i class="icon-money"></i><span data-i18n="nav.dash.main" class="menu-title">  {{trans('app.manager_vehicle')}}   </span></a></li>
 		 
 		<li class=" nav-item"><a href="#"><i class="icon-ios-albums-outline"></i><span data-i18n="nav.cards.main" class="menu-title"> {{trans('app.manager_operation')}}  </span></a>
@@ -178,22 +185,23 @@
 		 </li>
  
 		 <li class=" nav-item"><a href="{{route('userreports')}}"><i class="icon-book2"></i><span data-i18n="nav.dash.main" class="menu-title">  {{trans('app.reports')}}  </span></a></li>
-		@if(0)
+
 		 <li class=" nav-item"><a href="{{route('usernotification')}}"><i class="icon-envelope"></i><span data-i18n="nav.dash.main" class="menu-title"> {{trans('app.manager_notifications')}}  </span></a></li>
-		@endif
-		 		
+	
 		 <li class=" nav-item"><a href="{{route('fillingup')}}"><i class="icon-pencil3"></i><span data-i18n="nav.dash.main" class="menu-title">  {{trans('app.free_feeling_up')}}   </span></a></li>
 		
 		 <li class=" nav-item"><a href="{{route('usermap')}}"><i class="icon-map22"></i><span data-i18n="nav.dash.main" class="menu-title"> {{trans('app.maps')}}   </span></a></li>
 		
 		 <li class=" nav-item"><a href="{{route('usersendmoney')}}"><i class="icon-coin-dollar"></i><span data-i18n="nav.dash.main" class="menu-title"> {{trans('app.send_money')}}   </span></a></li>
+        
+		 <li class=" nav-item"><a href="{{route('redeem_voucher')}}"><i class="icon-hand-o-right"></i><span data-i18n="nav.dash.main" class="menu-title"> {{trans('app.redeem_voucher')}}   </span></a></li>
 
 		 <li class=" nav-item"><a href="{{route('contactus')}}"><i class="icon-paper-plane-o"></i><span data-i18n="nav.dash.main" class="menu-title">  {{trans('app.contact_us')}} </span></a></li>
 
 	 	 <li class=" nav-item"><a href="{{route('userusersettings')}}"><i class="icon-user4"></i><span data-i18n="nav.dash.main" class="menu-title">  {{trans('app.user_settings')}} </span></a></li>
 		 
         </ul>
-      </div>
+      </div> 
       <!-- /main menu content-->
       <!-- main menu footer-->
       <!-- include includes/menu-footer-->
@@ -202,6 +210,61 @@
     <!-- / main menu-->
 
     <div class="app-content content container-fluid">
+			<br>
+
+        @if(Session::has('emailverifysend'))
+			<div class = "col-md-12">
+				<div class="alert alert-success">
+					 {{trans('app.verify_email_link_sent')}} 
+				</div>
+			</div>
+		@else	
+			@if(!Auth::user()->email_verify)
+				<div class = "col-md-12">
+					<div class="alert alert-warning mb-2" role="alert">
+						<strong> {{trans('app.warning')}} </strong>   {{trans('app.click_verify_email')}}    <a href = "{{URL::to('verify/email')}}"> {{trans('app.click_verify_link')}} </a>
+					</div>
+				</div>
+			@endif
+		@endif		
+
+		@if(!Auth::user()->phone_verify)
+			<div class = "col-md-12">
+				<div class="alert alert-warning mb-2" role="alert">
+					<strong>{{trans('app.warning')}} </strong> {{trans('app.click_verify_phone')}}    <a href = "#" class = "verifyphonenumber"> {{trans('app.click_verify_link')}}</a>
+				</div>
+			</div>	
+		<!-- Modal -->
+		<div class="modal fade text-xs-left" id="verifyphonenumbermodal" tabindex="-1" role="dialog" aria-labelledby="verifyphonenumbermodal" aria-hidden="true">
+			<div class="modal-dialog" role="document">
+			<div class="modal-content">
+				<div class="modal-header">
+				<button type="button" class="close" data-dismiss="modal" aria-label="Close">
+					<span aria-hidden="true">&times;</span>
+				</button>
+				<h4 class="modal-title" id="myModalLabel1"> {{trans('app.verify_phone ')}} </h4>
+				</div>
+				<div class="modal-body">
+				 	<form class="form-horizontal sms-verifymodal" method = "post" action="{{URL::to('/verify/sms/validate')}}">
+					 	{{csrf_field()}}
+						<div class = "row">
+							<div class = "col-sm-6">
+								<input class="form-control border-primary"   type="text"  name = "verifycode" id="verifysms">
+								<input class="form-control border-primary"   type="hidden"   name = "request_id" id="request_id">
+							</div>
+							<div class = "col-sm-6">
+								<button type="button"  class="btn btn-primary sendverificationlink">
+									   {{trans('app.verify')}} 
+								</button>
+							</div>
+						</div>
+					</form>
+				</div>
+			</div>
+			</div>
+		</div>				
+		@endif
+
       <div class="content-wrapper">
 		
 		 @yield('admincontent')
@@ -233,10 +296,12 @@
 	<script src="{{  URL::asset('js/moment/moment.min.js') }}" type="text/javascript"></script>
     <script src="{{  URL::asset('js/bootstrap-datetimepicker.js') }}" type="text/javascript"></script>
    
-
-    <script src="{{URL::asset('app-assets/js/core/app.js') }}" type="text/javascript"></script>
-	 
-	   <script src="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.js" type="text/javascript"></script>
+    <script src="{{URL::asset('app-assets/js/core/app.js') }}" type="text/javascript"></script> 
+	<script src="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.js" type="text/javascript"></script>
+	    <!-- BEGIN VENDOR JS-->
+ 
+	< <script src="{{  URL::asset('js/sweet.js') }}" type="text/javascript"></script>
+	
     <!-- END PAGE VENDOR JS-->
     <!-- BEGIN ROBUST JS-->
     <script src="{{  URL::asset('app-assets/js/core/app-menu.js')}}" type="text/javascript"></script>
@@ -250,13 +315,9 @@
 			});
 			
 			$(document).ready(function() {
-
 					var directtion = "<?php 
 								if(App::getLocale() == "sa")  echo "rtl";
 								else   echo "ltr"; ?>";
-					
-
-
 				toastr.options = {
 					"closeButton": false,
 					"debug": false,
@@ -314,7 +375,7 @@
     <!-- BEGIN PAGE LEVEL JS-->
    
 	<script type="text/javascript" src="{{  URL::asset('js/usercustom.js') }}"></script>
-	
+	  @stack('scripts')
     <!-- END PAGE LEVEL JS-->
   </body>
 </html>

@@ -6,7 +6,6 @@ use Illuminate\Auth\Events\Login;
 use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Http\Request;
-
 class LogSuccessfulLogin
 {
     /**
@@ -29,12 +28,10 @@ class LogSuccessfulLogin
     public function handle(Login $event)
     {
         //
-	 
 		$user = $event->user;
-		 
         $user->last_login_at = date('Y-m-d H:i:s');
         $user->last_login_ip = $this->request->ip();
+        $user->phone_verify  = 1;
         $user->save();
-		 
     }
 }

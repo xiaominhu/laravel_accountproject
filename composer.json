@@ -11,6 +11,7 @@
         "laravel/tinker": "~1.0",
         "maatwebsite/excel": "~2.1.0",
         "nexmo/laravel": "^1.0",
+		"elibyy/tcpdf-laravel": "5.4.0",
         "tymon/jwt-auth": "0.5.*"
     },
     "require-dev": {

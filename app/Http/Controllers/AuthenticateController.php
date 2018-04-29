@@ -10,13 +10,39 @@ use Validator, Hash;
 use App\Contactus;
 use App\Sellerlogin;
 use Nexmo;
+use Mail, URL;
+use App\Mail\Notification;
+use App\Selleremployee;
+use App\Fuelstation;
 
 class AuthenticateController extends Controller
 {
     //
 	public function authenticate(Request $request){
         // grab credentials from the request
-        $credentials = $request->only('email', 'password');
+		 
+		$flag = 1;
+
+		$validator =  Validator::make($request->all(),[
+			'email' => 'email',
+		]); 
+		
+		if($validator->fails()){
+			$credentials = array();
+			$credentials['password'] = $request->password;
+			$credentials['phone'] =   $request->email;
+			$phone = $request->email;
+            if(substr($phone,0,1) == "0"){
+                $credentials['phone'] = substr($phone,1);
+            } 
+			  
+			$flag = 0;
+		}
+		else{
+			$credentials = $request->only('email', 'password');
+		}
+
+
         try{
             // attempt to verify the credentials and create a token for the user
             if (! $token = JWTAuth::attempt($credentials)) {
@@ -25,23 +51,28 @@ class AuthenticateController extends Controller
         }catch (JWTException $e) {
             // something went wrong whilst attempting to encode the token
 				return response()->json(['error' => 1 ,    'msg' => 'could_not_create_token'], 200);  // 500
-        }
-		
-		$user = User::where('email', $request->email)
-				->select('email', 'no', 'name', 'first_name', 'last_name', 'phone', 'picture', 'country', 'state', 'usertype')
-				->first();
+		}
 
+		if($flag)
+			$user = User::where('email', $request->email)
+					->select('email', 'no', 'name', 'first_name', 'last_name','last_login_at', 'phone', 'picture', 'status' ,'country', 'state', 'usertype')
+					->first();
+		else
+			$user = User::where('phone', $request->email)
+				->select('email', 'no', 'name', 'first_name', 'last_name','last_login_at', 'phone', 'picture', 'status' , 'country', 'state', 'usertype')
+				->first();
+ 
 		if($request->input('gcm') !== null){
 			$gcm = $request->input('gcm');
 			$user->gcm = $gcm;
 			$user->save();
 		}
-		
-		
-	
-		
+		 
 		if($user->usertype != "0")
 			return response()->json(['error' => 1 ,    'msg' => 'wrong_type_user'], 200);  // 500
+		
+		if($user->status != "1")	
+			return response()->json(['error' => 1 ,    'msg' => 'not_verified'], 200);  // 500
 		
         // all good so return the token
         return response()->json(['error' => 0 ,  'user'=> $user,  'token' => $token]);
@@ -49,9 +80,25 @@ class AuthenticateController extends Controller
 	
 	
 	public function authenticateseller(Request $request){
-        // grab credentials from the request
-        $credentials = $request->only('email', 'password');
-        try{
+		// grab credentials from the request
+		$flag = 1;
+		$validator =  Validator::make($request->all(), [
+			'email' => 'email',
+		]); 
+
+		if($validator->fails()){
+			$credentials = array();
+			$credentials['password'] = $request->password;
+			$credentials['phone'] =   $request->email;
+			$flag = 0;
+ 
+		}
+		else{
+		   
+			$credentials = $request->only('email', 'password');
+		}
+		 
+		try{
             // attempt to verify the credentials and create a token for the user
             if (! $token = JWTAuth::attempt($credentials)) {
                 return response()->json(['error' => 1, 'msg' => 'invalid_credentials'], 200);// 401
@@ -61,9 +108,16 @@ class AuthenticateController extends Controller
 				return response()->json(['error' => 1 ,    'msg' => 'could_not_create_token'], 200);  // 500
         }
 		
-		$user = User::where('email', $request->email)
-				->select('email', 'no', 'name', 'first_name', 'last_name', 'phone', 'picture', 'country', 'state', 'usertype')
-				->first();
+	
+	   
+        if($flag)
+			$user = User::where('email', $request->email)
+					->select('email', 'no', 'name', 'first_name', 'last_name', 'phone', 'picture', 'status' ,'country', 'state', 'usertype')
+					->first();
+		else
+			$user = User::where('phone', $request->email)
+			->select('email', 'no', 'name', 'first_name', 'last_name', 'phone', 'picture', 'status' , 'country', 'state', 'usertype')
+			->first();
 
 		if($request->input('gcm') !== null){
 			$gcm = $request->input('gcm');
@@ -73,14 +127,40 @@ class AuthenticateController extends Controller
 		
 		if($user->usertype != "4")
 			return response()->json(['error' => 1 ,    'msg' => 'wrong_type_user'], 200);  // 500
+	 
 		
+		if($user->status != "1")
+			return response()->json(['error' => 1 ,    'msg' => 'invalid_credentials'], 200);  // 500
+
+		
+		$user1 = User::where('no', $user->no)->first();
+		$selleremployee =   Selleremployee::where('user_id', $user1->id)->first();
+		
+	 
+		if(!isset($selleremployee)){
+			return response()->json(['error' => 1 ,    'msg' => 'invalid_credentials'], 200);  // 500
+		}
+
+ 
+		$fuelstation    =   Fuelstation::find($selleremployee->fuelstation_id);
+		 
+		if(!isset($fuelstation)){
+			return response()->json(['error' => 1 ,    'msg' => 'inactive_fuelstation'], 200);  // 500
+		}
+
+		if($fuelstation->pos_status == 0){
+			return response()->json(['error' => 1 ,   'msg' => 'inactive_fuelstation']);
+		}	
+
+		if($fuelstation->status == 0){
+			return response()->json(['error' => 1 ,   'msg' => 'inactive_fuelstation']);
+		}
+
         // all good so return the token
         return response()->json(['error' => 0 ,  'user'=> $user,  'token' => $token]);
     }
 	
-	
-	
-	
+	 
 	public function getuser(Request $request){
 		$user = JWTAuth::parseToken()->authenticate();
 		// the token is valid and we have found the user via the sub claim
@@ -111,7 +191,7 @@ class AuthenticateController extends Controller
 			'password' => 'required|min:6',
 		]); 
 		
-		
+
 		if($validator->fails()){
 			$errors = $validator->errors();
 			return response()->json(['error' => 1 ,  'msg' => $errors->messages()]);
@@ -122,6 +202,7 @@ class AuthenticateController extends Controller
 				'email'    => $request->email,
 				'phone'    => $request->phone,
 				'usertype' => 0,
+				'status' => 0,
 				'password' => bcrypt($request->password),
 			]);	
          //'result' => $response, 
@@ -130,16 +211,16 @@ class AuthenticateController extends Controller
             $sellerlogin->seller_id = $response->id;
             $sellerlogin->verification_code = Sellerlogin::generatevalue();
             $sellerlogin->request_id =  Sellerlogin::generaterequestcode();
-			User::sendMessage( $user->phone , 'This is the login verificatoin code.  ' .$sellerlogin->verification_code );
-			$sellerlogin->save();
-			return response()->json(['error' => 0 ,   'requestid'=>$sellerlogin->request_id]);  
-            
 			
+			User::sendMessage($request->phone, trans('sms.welcome_sms', ['verification_code'=> $sellerlogin->verification_code]));
+			 
+		
+			$sellerlogin->save();
+			return response()->json(['error' => 0 ,   'requestid'=>$sellerlogin->request_id]);
 		}
 	}
 		
 	public function validateuser(Request $request){
-
 
 		$validator =  Validator::make($request->all(), [
 						'requestid' => 'required',
@@ -242,11 +323,13 @@ class AuthenticateController extends Controller
 					
 		$user = JWTAuth::parseToken()->authenticate();
 		
+		$invite_link = URL::to('/login') . '?invite=' . $user->no;
+
 		if($validator->fails()){
 			$errors = $validator->errors();
 			return response()->json(['error' => 1 ,  'msg' => $errors->messages()]);
 		} else{
-			
+			Mail::to($request->email)->send(new Notification('This is the login verificatoin code.  ' .$invite_link));
 			return response()->json(['error' => 0 ,   'result' => "success"]);
 		}
 	}
@@ -258,16 +341,131 @@ class AuthenticateController extends Controller
 					]); 
 
 		$user = JWTAuth::parseToken()->authenticate();
-		
+		$invite_link = URL::to('/login') . '?invite=' . $user->no;
 		if($validator->fails()){
 			$errors = $validator->errors();
 			return response()->json(['error' => 1 ,  'msg' => $errors->messages()]);
 		} else{
-			
+			User::sendMessage($request->phone , trans('sms.invite_sms', ['invite_link'=>  $invite_link ])); 
 			return response()->json(['error' => 0 ,   'result' => "success"]);
 		}
 	}
 	
+	public function forgot_password(Request $request){
+		$validator =  Validator::make($request->all(), [
+			'phone' => 'required',
+		]); 
+		if($validator->fails()){
+			$errors = $validator->errors();
+			return response()->json(['error' => 1 ,  'msg' => $errors->messages()]);
+		}
+		$user = User::where('phone',$request->phone)
+					->where('usertype', '0')
+					->first(); 
+		
+		if(!isset($user)){
+			return response()->json(['error' => 1 ,  'msg' =>array('phone'=> 'invalid_user')]);
+		}
+
+		$sellerlogin  = new Sellerlogin;
+		$sellerlogin->seller_id = $user->id;
+		$sellerlogin->verification_code = Sellerlogin::generatevalue();
+		$sellerlogin->request_id =  Sellerlogin::generaterequestcode();
+
+		User::sendMessage($user->phone , trans('sms.validatoin_sms', ['verification_code'=>  $sellerlogin->verification_code ])); 
+		$sellerlogin->save();
+		return response()->json(['error' => 0 ,  'msg' =>'success', 'request_id' =>  $sellerlogin->request_id]);
+	}
+
+	public function validate_password(Request $request){
+		$validator =  Validator::make($request->all(), [
+			'request_id' => 'required',
+			'verification_code' => 'required',
+		]); 
+		if($validator->fails()){
+			$errors = $validator->errors();
+			return response()->json(['error' => 1 ,  'msg' => $errors->messages()]);
+		}
+
+		$sellerlogin = Sellerlogin::where('verification_code', $request->verification_code)
+				->where('request_id', $request->request_id)
+				->first();
+
+		if(isset($sellerlogin)){
+			//$sellerlogin->delete();
+			return response()->json(['error' => 0]);
+		}
+		else{
+			$sellerlogin = Sellerlogin::where('request_id', $request->request_id)->first();
+
+			if(isset($sellerlogin)){
+				$sellerlogin->status = $sellerlogin->status + 1;
+				$sellerlogin->save();
+
+				if($sellerlogin->status > 3){
+					$sellerlogin->delete();
+					$sellerlogin  = new Sellerlogin;
+					$sellerlogin->seller_id = $user->id;
+					$sellerlogin->verification_code = Sellerlogin::generatevalue();
+					$sellerlogin->request_id =  Sellerlogin::generaterequestcode();
+					$sellerlogin->save();
+					User::sendMessage($user->phone , trans('sms.loginvalidatoin_sms', ['verification_code'=>  $sellerlogin->verification_code ])); 
+					return response()->json(['error' => 1 ,  'msg' =>array('verification_code'=> 'expired'),  'request_id' =>  $sellerlogin->request_id]);
+				}
+				return response()->json(['error' => 1 ,  'msg' =>array('verification_code'=> 'invalid_code')]);
+			}
+			else{
+			 
+				return response()->json(['error' => 1 ,  'msg' =>array('request_id'=> 'invalid_id')]);
+			}
+					/**/
+
+			
+			}
+	}
 	
+
+	public function forgot_resetpassword(Request $request){
+
+		$validator =  Validator::make($request->all(), [
+			'request_id'     		=> 'required',
+			'verification_code' 	=> 'required',
+			'password'     			=>'required|min:6',
+			'confirm_password'     => 'required|min:6',
+		]); 
+		
+		if($validator->fails()){
+			$errors = $validator->errors();
+			return response()->json(['error' => 1 ,  'msg' => $errors->messages()]);
+		}
+ 
+		if($request->confirm_password != $request->password){
+			return response()->json(['error' => 1 ,   'msg' =>array('password'=> 'not_match')]);
+		}
+
+		$sellerlogin = Sellerlogin::where('verification_code', $request->verification_code)
+						->where('request_id', $request->request_id)
+						->first();
+
+
+		$sellerlogin = Sellerlogin::where('verification_code', $request->verification_code)
+				->where('request_id', $request->request_id)
+				->first();
+		
+		if(!isset($sellerlogin)){
+			
+			return response()->json(['error' => 1, 'msg' =>array('verification_code'=> 'expired')]);
+		}
+	
+		$user = User::find($sellerlogin->seller_id);
+		if(!isset($user))
+			return response()->json(['error' => 1,  'msg' =>array('verification_code'=> 'expired')]);
+
+		$user->password = bcrypt($request->password);
+		$user->save();
+		$sellerlogin->delete();
+		return response()->json(['error' => 0 ,   'result' => 'success']);
+	}
+
 }
 

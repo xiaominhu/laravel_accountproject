@@ -13,18 +13,61 @@ use App\Operation;
 use App\Selleremployee;
 use App\Transactions;
 use App\Sellerrole;
-use Excel, Session;
+use Excel, Session, PDF;
 use Illuminate\Support\Facades\Input;
-class SellerController extends Controller
-{
-    //
+use App\Vehicle;
+
+class SellerController extends Controller{
 	
 	public function fuelstation_export(Request $request){
-		
-		$fuelstations =  Fuelstation::select('fuelstation.*', 'oc_zone.name as statename')
-						 ->where('fuelstation.user_id', '=', Auth::user()->id)
-						 ->leftJoin('oc_zone', 'fuelstation.state', '=', 'oc_zone.zone_id')
-					     ->get();
+		$user_id = Auth::user()->id;
+		if($request->key !== null){
+			if(Auth::user()->usertype == '1')
+				$fuelstations = Fuelstation::select('fuelstation.*', 'oc_zone.name as statename')
+							->where('fuelstation.user_id', '=', $user_id)
+							->leftJoin('oc_zone', 'fuelstation.state', '=', 'oc_zone.zone_id')
+							->where(function ($query) use ($request){
+								$query->where('fuelstation.name',  'like',  '%'. $request->key . '%')
+								->orWhere('oc_zone.name', 'like','%'. $request->key . '%')
+								->orWhere('fuelstation.no', 'like','%'. $request->key . '%')
+								->orWhere('fuelstation.city', 'like','%'. $request->key . '%'); 
+							})
+					->get();
+			else{
+				$sellerrole = Sellerrole::where('user_id', $user_id)->first();
+				$role_fulestations = json_decode($sellerrole->fuelstation_id);
+					$fuelstations = Fuelstation::select('fuelstation.*', 'oc_zone.name as statename')
+					->where('fuelstation.user_id', '=', $user_id)
+					->where('state', $sellerrole->state)
+					->whereIn('fuelstation.no', $role_fulestations)
+					->leftJoin('oc_zone', 'fuelstation.state', '=', 'oc_zone.zone_id')
+					->where(function ($query) use ($request) {
+						$query->where('fuelstation.name',  'like',  '%'. $request->key . '%')
+						->orWhere('oc_zone.name', 'like','%'. $request->key . '%')
+						->orWhere('fuelstation.city', 'like','%'. $request->key . '%'); 
+					})->get();
+			}
+		}
+		else{
+			if(Auth::user()->usertype == '1')
+				$fuelstations =  Fuelstation::select('fuelstation.*', 'oc_zone.name as statename')
+						->where('fuelstation.user_id', '=', $user_id)
+						->leftJoin('oc_zone', 'fuelstation.state', '=', 'oc_zone.zone_id')
+						->get();
+			else{
+				$sellerrole = Sellerrole::where('user_id', Auth::user()->id)->first();
+				$role_fulestations = json_decode($sellerrole->fuelstation_id);
+				$fuelstations =  Fuelstation::select('fuelstation.*', 'oc_zone.name as statename')
+									->where('fuelstation.user_id', '=', $user_id)
+									->whereIn('fuelstation.no', $role_fulestations)
+									->where('state', $sellerrole->state)
+									->leftJoin('oc_zone', 'fuelstation.state', '=', 'oc_zone.zone_id')
+									->get();
+			
+			}
+		}
+						 
+						 
 		Excel::create('fuelstation', function($excel)  use($fuelstations)  {
 			$excel->sheet('seller', function($sheet)  use($fuelstations)  {
 				// add header
@@ -32,13 +75,13 @@ class SellerController extends Controller
 					trans('app.no'), trans('app.name'), trans('app.status') , trans('app.position'), trans('app.pos_status'),trans('app.reg_date')
 				));
 				
-				foreach ($fuelstations as $fuelstation) {
+				foreach ($fuelstations as $fuelstation){
 					$row    = array();
 					$row[]  = $fuelstation->no;
 					$row[]  = $fuelstation->name;
 					$row[]  = $fuelstation->statename . '-'  .$fuelstation->city;
 					
-					if($fuelstation-> status) $row[] =  trans('app.working');
+					if($fuelstation->status)  $row[] =  trans('app.working');
 					else 					  $row[] =  trans('app.not_working');
 					
 					if($fuelstation-> pos_status) $row[] =  trans('app.working');
@@ -51,6 +94,58 @@ class SellerController extends Controller
 		})->download('xls');
 	}
 	
+	public function fuelstation_export_pdf(Request $request){
+		$user_id = Auth::user()->id;
+		if($request->key !== null){
+			if(Auth::user()->usertype == '1')
+				$fuelstations = Fuelstation::select('fuelstation.*', 'oc_zone.name as statename')
+							->where('fuelstation.user_id', '=', $user_id)
+							->leftJoin('oc_zone', 'fuelstation.state', '=', 'oc_zone.zone_id')
+							->where(function ($query) use ($request){
+								$query->where('fuelstation.name',  'like',  '%'. $request->key . '%')
+								->orWhere('oc_zone.name', 'like','%'. $request->key . '%')
+								->orWhere('fuelstation.no', 'like','%'. $request->key . '%')
+								->orWhere('fuelstation.city', 'like','%'. $request->key . '%'); 
+							})
+					->get();
+			else{
+				$sellerrole = Sellerrole::where('user_id', $user_id)->first();
+				$role_fulestations = json_decode($sellerrole->fuelstation_id);
+					$fuelstations = Fuelstation::select('fuelstation.*', 'oc_zone.name as statename')
+					->where('fuelstation.user_id', '=', $user_id)
+					->where('state', $sellerrole->state)
+					->whereIn('fuelstation.no', $role_fulestations)
+					->leftJoin('oc_zone', 'fuelstation.state', '=', 'oc_zone.zone_id')
+					->where(function ($query) use ($request) {
+						$query->where('fuelstation.name',  'like',  '%'. $request->key . '%')
+						->orWhere('oc_zone.name', 'like','%'. $request->key . '%')
+						->orWhere('fuelstation.city', 'like','%'. $request->key . '%'); 
+					})->get();
+			}
+		}
+		else{
+			if(Auth::user()->usertype == '1')
+				$fuelstations =  Fuelstation::select('fuelstation.*', 'oc_zone.name as statename')
+						->where('fuelstation.user_id', '=', $user_id)
+						->leftJoin('oc_zone', 'fuelstation.state', '=', 'oc_zone.zone_id')
+						->get();
+			else{
+				$sellerrole = Sellerrole::where('user_id', Auth::user()->id)->first();
+				$role_fulestations = json_decode($sellerrole->fuelstation_id);
+				$fuelstations =  Fuelstation::select('fuelstation.*', 'oc_zone.name as statename')
+									->where('fuelstation.user_id', '=', $user_id)
+									->whereIn('fuelstation.no', $role_fulestations)
+									->where('state', $sellerrole->state)
+									->leftJoin('oc_zone', 'fuelstation.state', '=', 'oc_zone.zone_id')
+									->get();
+			
+			}
+		}
+		 
+		$title = trans('app.manage_fuelstations');
+		User::downloadPDF('seller/pdf/fuelstation_pdf', compact('fuelstations', 'title'));
+	}
+
 	public function fuelstation(Request $request){
 		//Fuelstation
 		$page_size = 10;
@@ -62,36 +157,38 @@ class SellerController extends Controller
 		$setting['pagesize'] = $page_size;
 	
 		if($request->key !== null){
-			$setting['key'] = $request->key;		 
-			
+			$setting['key'] = $request->key;
 			if(Auth::user()->usertype == '1')
 				$fuelstations = Fuelstation::select('fuelstation.*', 'oc_zone.name as statename')
 							->where('fuelstation.user_id', '=', $user_id)
 							->leftJoin('oc_zone', 'fuelstation.state', '=', 'oc_zone.zone_id')
-							->where(function ($query) use ($request) {
+							->where(function ($query) use ($request){
 								$query->where('fuelstation.name',  'like',  '%'. $request->key . '%')
 								->orWhere('oc_zone.name', 'like','%'. $request->key . '%')
+								->orWhere('fuelstation.no', 'like','%'. $request->key . '%')
 								->orWhere('fuelstation.city', 'like','%'. $request->key . '%'); 
 							})
-							->paginate($page_size);
+					->paginate($page_size);
 			else{
 				$sellerrole = Sellerrole::where('user_id', Auth::user()->id)->first();
-				$fuelstations = Fuelstation::select('fuelstation.*', 'oc_zone.name as statename')
-				->where('fuelstation.user_id', '=', $user_id)
-				->where('state', $sellerrole->state)
-				->leftJoin('oc_zone', 'fuelstation.state', '=', 'oc_zone.zone_id')
-				->where(function ($query) use ($request) {
-					$query->where('fuelstation.name',  'like',  '%'. $request->key . '%')
-					->orWhere('oc_zone.name', 'like','%'. $request->key . '%')
-					->orWhere('fuelstation.city', 'like','%'. $request->key . '%'); 
-				})
-				->paginate($page_size);
+				$role_fulestations = json_decode($sellerrole->fuelstation_id);
+					$fuelstations = Fuelstation::select('fuelstation.*', 'oc_zone.name as statename')
+					->where('fuelstation.user_id', '=', $user_id)
+					->where('state', $sellerrole->state)
+					->whereIn('fuelstation.no', $role_fulestations)
+					->leftJoin('oc_zone', 'fuelstation.state', '=', 'oc_zone.zone_id')
+					->where(function ($query) use ($request) {
+						$query->where('fuelstation.name',  'like',  '%'. $request->key . '%')
+						->orWhere('oc_zone.name', 'like','%'. $request->key . '%')
+						->orWhere('fuelstation.city', 'like','%'. $request->key . '%'); 
+					})
+					->paginate($page_size);
+		 
 			}
 				
 		}
 		else{
 			$setting['key'] = "";
-
 			if(Auth::user()->usertype == '1')
 				$fuelstations =  Fuelstation::select('fuelstation.*', 'oc_zone.name as statename')
 						 ->where('fuelstation.user_id', '=', $user_id)
@@ -99,11 +196,14 @@ class SellerController extends Controller
 						 ->paginate($page_size);
 			else{
 				$sellerrole = Sellerrole::where('user_id', Auth::user()->id)->first();
+				$role_fulestations = json_decode($sellerrole->fuelstation_id);
 				$fuelstations =  Fuelstation::select('fuelstation.*', 'oc_zone.name as statename')
-					->where('fuelstation.user_id', '=', $user_id)
-					->where('state', $sellerrole->state)
-					->leftJoin('oc_zone', 'fuelstation.state', '=', 'oc_zone.zone_id')
-					->paginate($page_size);
+									->where('fuelstation.user_id', '=', $user_id)
+									->whereIn('fuelstation.no', $role_fulestations)
+									->where('state', $sellerrole->state)
+									->leftJoin('oc_zone', 'fuelstation.state', '=', 'oc_zone.zone_id')
+									->paginate($page_size);
+			
 			}
 		}				 
 		 		 
@@ -115,7 +215,9 @@ class SellerController extends Controller
 					$fuelstation->save();
 			}
 		}
-		return view('seller/fuelstation/index', ['fuelstations' => $fuelstations->appends(Input::except('page')), 'setting' => $setting]);
+
+		$title = trans('app.fuelstation');
+		return view('seller/fuelstation/index', ['fuelstations' => $fuelstations->appends(Input::except('page')), 'title' => $title ,'setting' => $setting]);
 	}
 	
 	public function fuelstationcreate(Request $request){
@@ -162,16 +264,18 @@ class SellerController extends Controller
 							->where('user_id', $user_id)
 							->first();
 
-		if ($request->isMethod('post')) {
+		if ($request->isMethod('post')) { 
 			if(isset($fuelstation)){
-				  $this->validate($request, Fuelstation::rules());
+					
+				$this->validate($request, Fuelstation::rules());
+ 
 				  $fuelstation->name      = $request->name;
 				  $fuelstation->user_id   = $user_id;
 				  $fuelstation->lat       = $request->lat;
 				  $fuelstation->lng       = $request->lng;
 				  $fuelstation->state     = $request->state;
 				  $fuelstation->city      = $request->city;
-				  $fuelstation->country   = $request->country;
+				 // $fuelstation->country   = $request->country;
 
 				if($request->fuel !== null)
 				  foreach($request->fuel as  $value){
@@ -179,12 +283,14 @@ class SellerController extends Controller
 					  if( $value == 2)    $fuelstation->f_r = 1;
 					  if( $value == 3)    $fuelstation->f_d = 1;
 				  }
-				  /*
+				  /**/
+
+				 
 				  foreach($request->oil as  $value){
 					  if( $value == 1)    $fuelstation->s_f = 1;
 					  if( $value == 2)    $fuelstation->s_w = 1;
 					  if( $value == 3)    $fuelstation->s_o = 1;
-				  }*/
+				  } 
 				  $fuelstation->save();
 			}
 			else
@@ -248,7 +354,6 @@ class SellerController extends Controller
 			$this->validate($request, Sellercoupon::rules());
 
 			$user_id = Sellerrole::get_seller_id(Auth::user()->id);
-			
 
 		    $sellercoupon = new Sellercoupon;
 			 
@@ -269,8 +374,7 @@ class SellerController extends Controller
 			 return redirect('/seller/coupons');
 		 }
 		 
-		// $sellercoupon = Sellercoupon::where('user_id', Auth::user()->id)->first();
-		  
+		// $sellercoupon = Sellercoupon::where('user_id', Auth::user()->id)->first();  
 		 return view('seller/coupons/create', compact('sellercoupon'));
 	
 	}
@@ -339,17 +443,16 @@ class SellerController extends Controller
 	public function contactus(Request $request){
 			$message = "";
 			if ($request->isMethod('post')) {
-				
 				 $this->validate($request, Contactus::rules());
 				 $contactus = new Contactus;
-				
 				 $contactus->content = $request->content;
 				 $contactus->user_id = Auth::user()->id;
 				 $contactus->type    = $request->type;
 				 $contactus->save();
 				 $message = "Successfully Sent";
-			}
-			return view('seller/contactus/index', compact('message'));
+			} 
+			$title = trans('app.contact_us');
+			return view('seller/contactus/index', compact('message', 'title'));
 	 }
 	  
 	public function usersettings(Request $request){
@@ -361,28 +464,28 @@ class SellerController extends Controller
 		 $states    = Zone::where('country_id',  $user->country)->get();
 		 
 		 if($request->isMethod('post')){
-			 
-			  $validator = Validator::make($request->all(),
-					[ 'picture'  => 'image|mimes:jpeg,bmp,png',
-					  'email'    => 'required|email',
-			          'phone'    => 'required'
-					]
-			  )->validate();
-			 
-			
-			if ($request->hasFile('picture')) {
+
+			$validator = Validator::make($request->all(),
+				[ 'picture'  => 'image|mimes:jpeg,bmp,png',
+					'email'    => 'required|email',
+					'phone'    => 'required',
+					'name'     => 'required'   
+				]
+			)->validate();
+
+			if ($request->hasFile('picture')){
 				$image=$request->file('picture');
 				$imageName=$image->getClientOriginalName();
 				$imageName = time() . $imageName;
+				$imageName = utf8_encode($imageName);
 				$image->move('images/userprofile',$imageName);
 				$user->picture = $imageName;
 			}
 			
-			$user->first_name = $request->first_name;
-			$user->last_name  =  $request->last_name;
+			$user->name       =  $request->name;
 			$user->phone  	  =  $request->phone;
 			$user->email      =  $request->email;
-			
+
 			$user->state      =  $request->state;
 			$user->country    =  $request->country;
 			
@@ -391,13 +494,11 @@ class SellerController extends Controller
 		 
 		 return view('seller/usersettings/usersetting', compact('message', 'countries', 'states', 'user'));
 	}
-	
-	public function reports(Request $request){
-		$page_size = 10;
+
+	public function reports_export_pdf(Request $request){
+		$user_id = Sellerrole::get_seller_id(Auth::user()->id);
+			
 		$setting = array();
-		if($request->pagesize !== null)
-			$page_size = $request->pagesize;
-		$setting['pagesize'] = $page_size;
 		$setting['from_amount'] = "";
 		$setting['to_amount'] = "";
 		$setting['from_date'] = "";
@@ -430,6 +531,7 @@ class SellerController extends Controller
 		if(null !== $request->input('from_date'))
 		{
 			$setting['from_date'] = Carbon::createFromFormat('Y-m-d H:i:s', $request->input('from_date'). " 00:00:00"); // 1975-05-21 22:00:00
+			if($sql != "") $sql  .= " and ";
 			$sql .= 'transactions.created_at > "' . 	$setting['from_date'] .'"';
 		}
 		
@@ -476,42 +578,79 @@ class SellerController extends Controller
 		    $sql .= ' transactions.type = "' . 	$setting['service_type']  . '"';
 		} 
 
-
-		
 		if($sql == "") $sql = "1";
-		
-		if($request->key !== null){
-			$setting['key'] = $request->key;		
-			$transactions = Transactions::orderBy('transactions.created_at')
+		if($request->key !== null){ 
+			 
+			if(Auth::user()->usertype == '1')
+				$transactions = Transactions::orderBy('transactions.created_at')
 							->where('transactions.operator_id', $user_id)
-							->select('transactions.created_at','transactions.no', 'transactions.type', 'transactions.reference_id', 'transactions.amount', 'transactions.created_at as regdate')
+							->select('transactions.created_at','transactions.id','transactions.no', 'transactions.type', 'transactions.reference_id', 'transactions.amount', 'transactions.created_at as regdate')
 							->whereRaw($sql)
-							->where('transactions.type', '4')
+							//->where('transactions.type', '4')
 							->leftJoin('operation', 'operation.id', '=', 'transactions.reference_id')
 						  	->leftJoin('fuelstation', 'fuelstation.no', '=', 'operation.fuelstation')
 						  	->leftJoin('oc_zone', 'oc_zone.zone_id', '=', 'fuelstation.state')
 						  	->where(function ($query) use ($request) {
 								 $query->where('fuelstation.name',  'like',  '%'. $request->key . '%')
 									->orWhere('oc_zone.name', 'like','%'. $request->key . '%')
+									->orWhere('transactions.no', 'like','%'. $request->key . '%')
 									->orWhere('fuelstation.city', 'like','%'. $request->key . '%'); 
 							})
-						  ->paginate($page_size);
+						  ->get();
+			else{
+				$sellerrole = Sellerrole::where('user_id', Auth::user()->id)->first();
+				$role_fulestations = json_decode($sellerrole->fuelstation_id);
+				
+				$transactions = Transactions::orderBy('transactions.created_at')
+									->where('transactions.operator_id', $user_id)
+									->select('transactions.created_at','transactions.id','transactions.no', 'transactions.type', 'transactions.reference_id', 'transactions.amount', 'transactions.created_at as regdate')
+									->whereRaw($sql)
+									->where('fuelstation.state', $sellerrole->state)
+									->whereIn('fuelstation.no', $role_fulestations )
+									->leftJoin('operation', 'operation.id', '=', 'transactions.reference_id')
+									->leftJoin('fuelstation', 'fuelstation.no', '=', 'operation.fuelstation')
+									->leftJoin('oc_zone', 'oc_zone.zone_id', '=', 'fuelstation.state')
+									->where(function ($query) use ($request) {
+										$query->where('fuelstation.name',  'like',  '%'. $request->key . '%')
+											->orWhere('oc_zone.name', 'like','%'. $request->key . '%')
+											->orWhere('transactions.no', 'like','%'. $request->key . '%')
+											->orWhere('fuelstation.city', 'like','%'. $request->key . '%'); 
+									})
+								->get();
+			}
 		}
 		else{
-			$setting['key'] = "";
-			$transactions = Transactions::orderBy('transactions.created_at')
-							->select('transactions.created_at','transactions.no', 'transactions.type', 'transactions.reference_id', 'transactions.amount', 'transactions.created_at as regdate')
+			if(Auth::user()->usertype == '1')
+				$transactions = Transactions::orderBy('transactions.created_at')
+							->select('transactions.created_at', 'transactions.id','transactions.no', 'transactions.type', 'transactions.reference_id', 'transactions.amount', 'transactions.created_at as regdate')
 							->where('transactions.operator_id', $user_id)
 							->leftJoin('operation', 'operation.id', '=', 'transactions.reference_id')
 							->leftJoin('fuelstation', 'fuelstation.no', '=', 'operation.fuelstation')
 							->leftJoin('oc_zone', 'oc_zone.zone_id', '=', 'fuelstation.state')
 							->whereRaw($sql)
-							->paginate($page_size);
-			}	
+							->get();
+			else{
+				$sellerrole = Sellerrole::where('user_id', Auth::user()->id)->first();
+				$role_fulestations = json_decode($sellerrole->fuelstation_id);
 				
+				$transactions = Transactions::orderBy('transactions.created_at')
+								->select('transactions.created_at', 'transactions.id','transactions.no', 'transactions.type', 'transactions.reference_id', 'transactions.amount', 'transactions.created_at as regdate')
+								->where('transactions.operator_id', $user_id)
+								->leftJoin('operation', 'operation.id', '=', 'transactions.reference_id')
+								->leftJoin('fuelstation', 'fuelstation.no', '=', 'operation.fuelstation')
+								->where('fuelstation.state', $sellerrole->state)
+								->whereIn('fuelstation.no', $role_fulestations )
+								->leftJoin('oc_zone', 'oc_zone.zone_id', '=', 'fuelstation.state')
+								->whereRaw($sql)
+								->get();
+				 
+				/////////////////////////////////////////////////////
+				////////////////////////////////////////////////////
+			}
+		}
+		
 			foreach ($transactions as $key => $value) {
-			 
-				switch ($value->type) { 
+					switch ($value->type) { 
 					case '4':
 							$fuelstation = Operation::where('operation.id', $value->reference_id)
 												->leftJoin('fuelstation', 'fuelstation.no', '=','operation.fuelstation')
@@ -523,10 +662,190 @@ class SellerController extends Controller
 						break;
 					default:
 						break;
-				}
-			
-		}		
+					}
+			}
+			$title = trans('app.reports');
+			User::downloadPDF('seller/pdf/reports_pdf', compact('transactions', 'title'));
+	}
+	
+	public function reports(Request $request){
+		$page_size = 10;
+		$setting = array();
+		if($request->pagesize !== null)
+			$page_size = $request->pagesize;
+		$setting['pagesize'] = $page_size;
+		$setting['from_amount'] = "";
+		$setting['to_amount'] = "";
+		$setting['from_date'] = "";
+		$setting['to_date'] = "";
+				
+		$setting['fuelstation'] = "";
+		$setting['state'] = "";
+		$setting['city'] = "";
+		$setting['service_type'] = "";
+		//$setting['fuelstations'] = "";
 		
+		$user_id = Sellerrole::get_seller_id(Auth::user()->id);
+		$sql = "";
+		
+		if(null !== $request->input('from_amount'))
+		{
+			$setting['from_amount'] = $request->input('from_amount');
+			
+			if($sql != "") $sql  .= " and ";
+		    $sql .= ' transactions.amount >= "' . 	$setting['from_amount']  . '"';
+		}
+		if(null !== $request->input('to_amount'))
+		{
+			$setting['to_amount'] = $request->input('to_amount');
+			
+			if($sql != "") $sql  .= " and ";
+			$sql .= ' transactions.amount <= "' . 	$setting['to_amount']  . '"';
+		}
+		
+		if(null !== $request->input('from_date'))
+		{
+			$setting['from_date'] = Carbon::createFromFormat('Y-m-d H:i:s', $request->input('from_date'). " 00:00:00"); // 1975-05-21 22:00:00
+			if($sql != "") $sql  .= " and ";
+			$sql .= 'transactions.created_at > "' . 	$setting['from_date'] .'"';
+		}
+		
+		
+		if(null !== $request->input('to_date'))
+		{
+			$to_date = Carbon::createFromFormat('Y-m-d H:i:s', $request->input('to_date'). " 00:00:00");
+			$setting['to_date'] = $to_date;
+			$to_date->addDay(); 
+			if($sql != "") $sql  .= " and ";
+			$sql .= 'transactions.created_at < "' . 	$to_date .'"';
+		}
+		
+		if(null !== $request->input('fuelstation'))
+		{
+			$setting['fuelstation'] = $request->input('fuelstation');
+			
+			if($sql != "") $sql  .= " and ";
+		    $sql .= ' fuelstation.no = "' . 	$setting['fuelstation']  . '"';
+		}
+		
+
+		if(null !== $request->input('state'))
+		{
+			$setting['state'] = $request->input('state');
+			
+			if($sql != "") $sql  .= " and ";
+		    $sql .= ' fuelstation.state = "' . 	$setting['state']  . '"';
+		}
+
+		if(null !== $request->input('city'))
+		{
+			$setting['city'] = $request->input('city');
+			
+			if($sql != "") $sql  .= " and ";
+		    $sql .= ' fuelstation.city = "' . 	$setting['city']  . '"';
+		} 
+
+		if(null !== $request->input('service_type'))
+		{
+			$setting['service_type'] = $request->input('service_type');
+			
+			if($sql != "") $sql  .= " and ";
+		    $sql .= ' transactions.type = "' . 	$setting['service_type']  . '"';
+		} 
+
+		if($sql == "") $sql = "1";
+		if($request->key !== null){ 
+			$setting['key'] = $request->key;
+			
+			if(Auth::user()->usertype == '1')
+				$transactions = Transactions::orderBy('transactions.created_at')
+							->where('transactions.operator_id', $user_id)
+							->select('transactions.created_at','transactions.id','transactions.no', 'transactions.type', 'transactions.reference_id', 'transactions.amount', 'transactions.created_at as regdate')
+							->whereRaw($sql)
+							//->where('transactions.type', '4')
+							->leftJoin('operation', 'operation.id', '=', 'transactions.reference_id')
+						  	->leftJoin('fuelstation', 'fuelstation.no', '=', 'operation.fuelstation')
+						  	->leftJoin('oc_zone', 'oc_zone.zone_id', '=', 'fuelstation.state')
+						  	->where(function ($query) use ($request) {
+								 $query->where('fuelstation.name',  'like',  '%'. $request->key . '%')
+									->orWhere('oc_zone.name', 'like','%'. $request->key . '%')
+									->orWhere('transactions.no', 'like','%'. $request->key . '%')
+									->orWhere('fuelstation.city', 'like','%'. $request->key . '%'); 
+							})
+						  ->paginate($page_size);
+			else{
+				$sellerrole = Sellerrole::where('user_id', Auth::user()->id)->first();
+				$role_fulestations = json_decode($sellerrole->fuelstation_id);
+				
+				$transactions = Transactions::orderBy('transactions.created_at')
+									->where('transactions.operator_id', $user_id)
+									->select('transactions.created_at','transactions.id','transactions.no', 'transactions.type', 'transactions.reference_id', 'transactions.amount', 'transactions.created_at as regdate')
+									->whereRaw($sql)
+									->where('fuelstation.state', $sellerrole->state)
+									->whereIn('fuelstation.no', $role_fulestations )
+									->leftJoin('operation', 'operation.id', '=', 'transactions.reference_id')
+									->leftJoin('fuelstation', 'fuelstation.no', '=', 'operation.fuelstation')
+									->leftJoin('oc_zone', 'oc_zone.zone_id', '=', 'fuelstation.state')
+									->where(function ($query) use ($request) {
+										$query->where('fuelstation.name',  'like',  '%'. $request->key . '%')
+											->orWhere('oc_zone.name', 'like','%'. $request->key . '%')
+											->orWhere('transactions.no', 'like','%'. $request->key . '%')
+											->orWhere('fuelstation.city', 'like','%'. $request->key . '%'); 
+									})
+								->paginate($page_size);
+			}
+		}
+		else{
+			$setting['key'] = "";
+
+			if(Auth::user()->usertype == '1')
+				$transactions = Transactions::orderBy('transactions.created_at')
+							->select('transactions.created_at', 'transactions.id','transactions.no', 'transactions.type', 'transactions.reference_id', 'transactions.amount', 'transactions.created_at as regdate')
+							->where('transactions.operator_id', $user_id)
+							->leftJoin('operation', 'operation.id', '=', 'transactions.reference_id')
+							->leftJoin('fuelstation', 'fuelstation.no', '=', 'operation.fuelstation')
+							->leftJoin('oc_zone', 'oc_zone.zone_id', '=', 'fuelstation.state')
+							->whereRaw($sql)
+							->paginate($page_size);
+			else{
+				$sellerrole = Sellerrole::where('user_id', Auth::user()->id)->first();
+				$role_fulestations = json_decode($sellerrole->fuelstation_id);
+				
+				$transactions = Transactions::orderBy('transactions.created_at')
+								->select('transactions.created_at', 'transactions.id','transactions.no', 'transactions.type', 'transactions.reference_id', 'transactions.amount', 'transactions.created_at as regdate')
+								->where('transactions.operator_id', $user_id)
+								->leftJoin('operation', 'operation.id', '=', 'transactions.reference_id')
+								->leftJoin('fuelstation', 'fuelstation.no', '=', 'operation.fuelstation')
+								->where('fuelstation.state', $sellerrole->state)
+								->whereIn('fuelstation.no', $role_fulestations )
+								->leftJoin('oc_zone', 'oc_zone.zone_id', '=', 'fuelstation.state')
+								->whereRaw($sql)
+								->paginate($page_size);
+				 
+				/////////////////////////////////////////////////////
+				////////////////////////////////////////////////////
+			}
+		}	
+				
+			foreach ($transactions as $key => $value) {
+			 
+				switch ($value->type) {
+					case '4':
+							$fuelstation = Operation::where('operation.id', $value->reference_id)
+												->leftJoin('fuelstation', 'fuelstation.no', '=','operation.fuelstation')
+												->leftJoin('oc_zone', 'oc_zone.zone_id', '=', 'fuelstation.state')
+												->select('fuelstation.city', 'oc_zone.name as state', 'fuelstation.name', 'operation.service_type')
+												->first();
+							$value->details = $fuelstation;
+						break;
+					default:
+						break;
+				}
+
+				$value->profit =   Transactions::where('operator_id',  Auth::user()->id)->where('id' ,  '<=', $value->id)->where('transtype', 0)->sum('final_amount')
+				- Transactions::where('operator_id',  Auth::user()->id)->where('id' ,  '<=', $value->id)->where('transtype', 1)->sum('final_amount');
+				$value->profit = number_format($value->profit , 2, '.', ',');
+		}
 		
 		$fuelstations = Fuelstation::where("user_id", Auth::user()->id)->get();
 		$states       = Fuelstation::where("user_id", Auth::user()->id)
@@ -535,25 +854,166 @@ class SellerController extends Controller
 									->groupBy('fuelstation.state')
 									->get();
 
-		$cities       = Fuelstation::where("user_id", Auth::user()->id)
+		$cities     = Fuelstation::where("user_id", Auth::user()->id)
 									->select('fuelstation.city')
 									->groupBy('fuelstation.city')
 									->get();
-
-
 		return view('seller/reports/reports', compact('setting', 'transactions', 'fuelstations', 'states', 'cities'));
 	}
 	
 	public function reports_export(Request $request){
+			
+		$setting = array();
+		$setting['from_amount'] = "";
+		$setting['to_amount'] = "";
+		$setting['from_date'] = "";
+		$setting['to_date'] = "";
+				
+		$setting['fuelstation'] = "";
+		$setting['state'] = "";
+		$setting['city'] = "";
+		$setting['service_type'] = "";
+		//$setting['fuelstations'] = "";
+		
 		$user_id = Sellerrole::get_seller_id(Auth::user()->id);
+		$sql = "";
+		
+		if(null !== $request->input('from_amount'))
+		{
+			$setting['from_amount'] = $request->input('from_amount');
+			
+			if($sql != "") $sql  .= " and ";
+		    $sql .= ' transactions.amount >= "' . 	$setting['from_amount']  . '"';
+		}
+		if(null !== $request->input('to_amount'))
+		{
+			$setting['to_amount'] = $request->input('to_amount');
+			
+			if($sql != "") $sql  .= " and ";
+			$sql .= ' transactions.amount <= "' . 	$setting['to_amount']  . '"';
+		}
+		
+		if(null !== $request->input('from_date'))
+		{
+			$setting['from_date'] = Carbon::createFromFormat('Y-m-d H:i:s', $request->input('from_date'). " 00:00:00"); // 1975-05-21 22:00:00
+			if($sql != "") $sql  .= " and ";
+			$sql .= 'transactions.created_at > "' . 	$setting['from_date'] .'"';
+		}
+		
+		
+		if(null !== $request->input('to_date'))
+		{
+			$to_date = Carbon::createFromFormat('Y-m-d H:i:s', $request->input('to_date'). " 00:00:00");
+			$setting['to_date'] = $to_date;
+			$to_date->addDay(); 
+			if($sql != "") $sql  .= " and ";
+			$sql .= 'transactions.created_at < "' . 	$to_date .'"';
+		}
+		
+		if(null !== $request->input('fuelstation'))
+		{
+			$setting['fuelstation'] = $request->input('fuelstation');
+			
+			if($sql != "") $sql  .= " and ";
+		    $sql .= ' fuelstation.no = "' . 	$setting['fuelstation']  . '"';
+		}
+		
 
+		if(null !== $request->input('state'))
+		{
+			$setting['state'] = $request->input('state');
+			
+			if($sql != "") $sql  .= " and ";
+		    $sql .= ' fuelstation.state = "' . 	$setting['state']  . '"';
+		}
 
-		$transactions = Transactions::orderBy('transactions.created_at')
-		->select('users.name', 'transactions.created_at','users.first_name', 'users.last_name', 'transactions.no', 'transactions.type', 'transactions.reference_id', 'users.usertype', 'transactions.amount', 'transactions.created_at as regdate')
-		->leftJoin( 'users' ,'transactions.operator_id', '=', 'users.id')
-		->where('transactions.operator_id', $user_id)
-		->get();
+		if(null !== $request->input('city'))
+		{
+			$setting['city'] = $request->input('city');
+			
+			if($sql != "") $sql  .= " and ";
+		    $sql .= ' fuelstation.city = "' . 	$setting['city']  . '"';
+		} 
 
+		if(null !== $request->input('service_type'))
+		{
+			$setting['service_type'] = $request->input('service_type');
+			
+			if($sql != "") $sql  .= " and ";
+		    $sql .= ' transactions.type = "' . 	$setting['service_type']  . '"';
+		} 
+
+		if($sql == "") $sql = "1";
+		if($request->key !== null){ 
+			 
+			if(Auth::user()->usertype == '1')
+				$transactions = Transactions::orderBy('transactions.created_at')
+							->where('transactions.operator_id', $user_id)
+							->select('transactions.created_at','transactions.id','transactions.no', 'transactions.type', 'transactions.reference_id', 'transactions.amount', 'transactions.created_at as regdate')
+							->whereRaw($sql)
+							//->where('transactions.type', '4')
+							->leftJoin('operation', 'operation.id', '=', 'transactions.reference_id')
+						  	->leftJoin('fuelstation', 'fuelstation.no', '=', 'operation.fuelstation')
+						  	->leftJoin('oc_zone', 'oc_zone.zone_id', '=', 'fuelstation.state')
+						  	->where(function ($query) use ($request) {
+								 $query->where('fuelstation.name',  'like',  '%'. $request->key . '%')
+									->orWhere('oc_zone.name', 'like','%'. $request->key . '%')
+									->orWhere('transactions.no', 'like','%'. $request->key . '%')
+									->orWhere('fuelstation.city', 'like','%'. $request->key . '%'); 
+							})
+						  ->get();
+			else{
+				$sellerrole = Sellerrole::where('user_id', Auth::user()->id)->first();
+				$role_fulestations = json_decode($sellerrole->fuelstation_id);
+				
+				$transactions = Transactions::orderBy('transactions.created_at')
+									->where('transactions.operator_id', $user_id)
+									->select('transactions.created_at','transactions.id','transactions.no', 'transactions.type', 'transactions.reference_id', 'transactions.amount', 'transactions.created_at as regdate')
+									->whereRaw($sql)
+									->where('fuelstation.state', $sellerrole->state)
+									->whereIn('fuelstation.no', $role_fulestations )
+									->leftJoin('operation', 'operation.id', '=', 'transactions.reference_id')
+									->leftJoin('fuelstation', 'fuelstation.no', '=', 'operation.fuelstation')
+									->leftJoin('oc_zone', 'oc_zone.zone_id', '=', 'fuelstation.state')
+									->where(function ($query) use ($request) {
+										$query->where('fuelstation.name',  'like',  '%'. $request->key . '%')
+											->orWhere('oc_zone.name', 'like','%'. $request->key . '%')
+											->orWhere('transactions.no', 'like','%'. $request->key . '%')
+											->orWhere('fuelstation.city', 'like','%'. $request->key . '%'); 
+									})
+								->get();
+			}
+		}
+		else{
+			if(Auth::user()->usertype == '1')
+				$transactions = Transactions::orderBy('transactions.created_at')
+							->select('transactions.created_at', 'transactions.id','transactions.no', 'transactions.type', 'transactions.reference_id', 'transactions.amount', 'transactions.created_at as regdate')
+							->where('transactions.operator_id', $user_id)
+							->leftJoin('operation', 'operation.id', '=', 'transactions.reference_id')
+							->leftJoin('fuelstation', 'fuelstation.no', '=', 'operation.fuelstation')
+							->leftJoin('oc_zone', 'oc_zone.zone_id', '=', 'fuelstation.state')
+							->whereRaw($sql)
+							->get();
+			else{
+				$sellerrole = Sellerrole::where('user_id', Auth::user()->id)->first();
+				$role_fulestations = json_decode($sellerrole->fuelstation_id);
+				
+				$transactions = Transactions::orderBy('transactions.created_at')
+								->select('transactions.created_at', 'transactions.id','transactions.no', 'transactions.type', 'transactions.reference_id', 'transactions.amount', 'transactions.created_at as regdate')
+								->where('transactions.operator_id', $user_id)
+								->leftJoin('operation', 'operation.id', '=', 'transactions.reference_id')
+								->leftJoin('fuelstation', 'fuelstation.no', '=', 'operation.fuelstation')
+								->where('fuelstation.state', $sellerrole->state)
+								->whereIn('fuelstation.no', $role_fulestations )
+								->leftJoin('oc_zone', 'oc_zone.zone_id', '=', 'fuelstation.state')
+								->whereRaw($sql)
+								->get();
+				 
+				/////////////////////////////////////////////////////
+				////////////////////////////////////////////////////
+			}
+		}
+		 
 		Excel::create('vehicles', function($excel)  use($transactions)  {
 			$excel->sheet('report', function($sheet)  use($transactions)  {
 				// add header
@@ -590,11 +1050,10 @@ class SellerController extends Controller
 						$row[] = $value->details->name;
 					else $row[] = '';
 
-					
 					if($value->type == '4')
 						$row[] = trans('app.pos_revenue');
-					elseif($value->type == '0')
-						$row[] = trans('app.pos_payment');
+					elseif($value->type == '5')
+						$row[] = trans('app.subscription_fees');
 					elseif($value->type == '1')
 						$row[] = trans('app.deposit');
 					elseif($value->type == '2')
@@ -604,7 +1063,6 @@ class SellerController extends Controller
 					else
 						$row[] = "";
 					
-
 					if($value-> details !== null){
 						if($value-> details ->service_type == "1")
 							$row[] = trans('fuel');
@@ -635,22 +1093,35 @@ class SellerController extends Controller
 	public function reportsdetails(Request $request, $id){
 		$user_id = Sellerrole::get_seller_id(Auth::user()->id);
 
-		$operation = Operation::where('operation.no', $id)
-							->where('operation.owner_id', $user_id)
-							->leftJoin('users', 'operation.receiver_id',  '=', 'users.id')
-							->leftJoin('fuelstation', 'fuelstation.no', '=','operation.fuelstation')
-							->select('operation.amount', 'users.name', 'operation.no', 'operation.type', 'fuelstation.name as fuelstationname', 'fuelstation.city', 'fuelstation.no as fuelnumber', 'operation.updated_at as regdate')
-							->first();
+		$transaction = Transactions::where('no', $id)
+						->where('operator_id', Auth::user()->id)
+						->first();
+
+		if(!isset($transaction))
+			return view('errors/404');
+		
+		if($transaction->type == "4"){
+				$operation = Operation::find($transaction->reference_id);
+				if(isset($operation)){
+					$fuelstation = Fuelstation::where('no', $operation->fuelstation)->first();
+					$vehicle = Vehicle::find($operation->vehicle);
+					if(isset($fuelstation)){
+						$transaction->fuelstation =  $fuelstation;
+					}
+					if(isset($vehicle)){
+						$transaction->vehicle =  $vehicle;
+					}
+					$user = User::find($operation->receiver_id);
+					if(isset($user)){
+						$transaction->posuer = $user;
+					}
+				}
 
 
-
-		if(isset($operation))
-			return view('seller/reports/details', compact('operation'));
-		else
-			return view('errors.404');
+		}
+		$title = trans('app.operation_details', ['id' => $transaction->no]);
+		return view('seller/reports/details', compact('title', 'transaction'));
 	}
-	
-	
 	
 	//////////////////////// seller employeeres action ///////////////////////////////////////////////
 	public function employeers(Request $request){
@@ -661,18 +1132,24 @@ class SellerController extends Controller
 		$setting['pagesize'] = $page_size;
 		 
 		if($request->key !== null){
+			 
 			$setting['key'] = $request->key;
-			$employeers =  Selleremployee::select('selleremployee.*', 'users.name', 'users.email' ,'users.no', 'fuelstation.name as fuelstationname')
+		 
+
+			$employeers = Selleremployee::select('selleremployee.*', 'users.name','users.email' ,'users.no', 'fuelstation.name as fuelstationname')
 					->where('fuelstation.user_id', '=', Auth::user()->id)
 					->leftJoin('fuelstation', 'fuelstation.id', '=', 'selleremployee.fuelstation_id')
-					->leftJoin('users', 'users.id', '=', 'selleremployee.id')
+					->leftJoin('users', 'users.id', '=', 'selleremployee.user_id')
 					->where(function ($query) use ($request) {
-								 $query->where('fuelstation.name',  'like',  '%'. $request->key . '%')
-									->orWhere('users.first_name', 'like','%'. $request->key . '%')
-									->orWhere('users.last_name', 'like','%'. $request->key . '%')
-									->orWhere('users.name', 'like','%'. $request->key . '%');
-					})
-					->paginate($page_size);
+						$query->where('fuelstation.name',  'like',  '%'. $request->key . '%')
+						->orWhere('users.first_name', 'like','%'. $request->key . '%')
+						->orWhere('users.no', 'like','%'. $request->key . '%')
+						->orWhere('users.email', 'like','%'. $request->key . '%')
+						->orWhere('users.last_name', 'like','%'. $request->key . '%')
+						->orWhere('users.name', 'like','%'. $request->key . '%');
+					})->paginate($page_size);
+ 
+			 
 		}
 		else{
 			$setting['key'] = "";
@@ -682,7 +1159,8 @@ class SellerController extends Controller
 					->leftJoin('users', 'users.id', '=', 'selleremployee.user_id')
 					->paginate($page_size);
 		}
-		return view('seller/employeer/employeer', compact('setting', 'employeers'));
+		$title = trans('app.pos_employeer');
+		return view('seller/employeer/employeer', compact('setting', 'employeers', 'title'));
 	}
 	private function generatevalue(){
 		    $digits = 10;
@@ -702,18 +1180,20 @@ class SellerController extends Controller
 		$fuelstations = Fuelstation::where('user_id', Auth::user()->id)->get();
 		
 		if($request->isMethod('post')){
-		 
-			$validator = Validator::make($request->all(),
-					[ 
-					  'email'   	   => 'required|email|unique:users',
-					  'first_name'     => 'required|max:255',
-					  'last_name'      => 'required|max:255',
-					  'phone'          => 'required|unique:users',
-					  'password' 	   => 'required|min:6|confirmed',
-					  'fuelstation'    => 'required',
-				//	  'service'        => 'in:1,2,3|required',
-					]
-			  )->validate();
+		  
+			  $validator = Validator::make($request->all(),   [ 
+				'email'   	   => 'required|email|unique:users',
+				'first_name'     => 'required|max:255',
+				'last_name'      => 'required|max:255',
+				'phone'          => 'required|unique:users',
+				'password' 	   => 'required|min:6|confirmed',
+				'fuelstation'    => 'required',
+		  //	  'service'        => 'in:1,2,3|required',
+			  ]);
+
+			  if ($validator->fails()){
+				return redirect()->back()->withInput()->withErrors($validator);
+			  }
 			  
 			  $user = new User;
 			  $user->name   	=  $request->first_name . ' ' . $request->last_name;
@@ -730,15 +1210,14 @@ class SellerController extends Controller
 			$employeer->user_id       	 =  $user->id;
 			$employeer->seller_id        =  Auth::user()->id;
 			$employeer->fuelstation_id   =  $request->fuelstation; 
-			//$employeer->service   	 =  $request->service;
-			$employeer->service   	     =  1;
+			$employeer->service   	 	 =  $request->service;
 			$employeer->save();
 			return redirect('/seller/employeers');
 		}
-		
-		return view('seller/employeer/newemployee', compact('fuelstations'));
-	}
 
+		$title = trans('app.pos_employeer');
+		return view('seller/employeer/newemployee', compact('fuelstations', 'title'));
+	}
  
 	public function employeerdelete(Request $request, $id){
 			$user = User::where('users.no',$id)
@@ -817,36 +1296,41 @@ class SellerController extends Controller
 			$user->save();
 			return redirect('seller/employeers');
 		}
-	 
-		return view('seller/employeer/newemployee', compact('fuelstations', 'selleremployee'));
+	    $title = trans('app.update_pos_user');
+		return view('seller/employeer/newemployee', compact('fuelstations', 'selleremployee', 'title'));
 	}
 
-
 	public function workercreate(Request $request){
-		
-		$countries = Country::get();
-		$states    = Zone::where('country_id',  '184')->get();
- 
+		$countries    = Country::get();
+		$states    	  = Zone::where('country_id',  '184')->get();
+
+		$fuelstations =  Fuelstation::where('user_id', '=', Auth::user()->id)->get();
+	 
 		if($request->isMethod('post')){
-			 $validator = Validator::make($request->all(),
-				   [ 'picture' 		  => 'image|mimes:jpeg,bmp,png',
-					 'email'    	  => 'required|email',
-					 'first_name'     => 'required|max:255',
-					 'last_name'      => 'required|max:255',
-					 'phone'    	  => 'required|max:255|unique:users',
-					 'password' 	  => 'required|min:6|confirmed',
-					 'role'           => 'required'
-				   ]
-			 )->validate();
-			 
-			 $user = new User;
-			 if ($request->hasFile('picture')) {
+			
+			$validator =  Validator::make($request->all(), 
+					[ 'picture' 		 => 'image|mimes:jpeg,bmp,png',
+						'email'    	     => 'required|email',
+						'first_name'     => 'required|max:255',
+						'last_name'      => 'required|max:255',
+						'phone'    	     => 'required|max:255|unique:users',
+						'password' 	     => 'required|min:6|confirmed',
+						'role'           => 'required',
+						'fuelstation'    => 'required',
+						'state'          => 'required|integer'
+					]);
+
+			if ($validator->fails()) {
+				return redirect()->back()->withInput()->withErrors($validator);
+			}
+			$user = new User;
+			if ($request->hasFile('picture')) {
 				   $image=$request->file('picture');
 				   $imageName=$image->getClientOriginalName();
 				   $imageName = time() . $imageName;
 				   $image->move('images/userprofile',$imageName);
 				   $user->picture = $imageName;
-			 }
+			}
 			 $user->name   	=  $request->first_name . ' ' . $request->last_name;
 			 $user->no     	=  $this->generatevalue();
 			 $user->email   	=  $request->email;
@@ -862,22 +1346,97 @@ class SellerController extends Controller
 			 $role->user_id    = $user->id;
 			 $role->state      = $user->state;  
 			 $role->master_id  = Auth::user()->id; 
-			 foreach($request->role as $item){
-				   switch($item){
-					   case 1:  //Manager Users
-						   $role->m_fuelstation = 1;
-						   break;
-					   case 2:   //Manager Paymentmethods
-						   $role->m_report = 1;
-						   break;
-					   case 3:   //Manager Fees
-						   $role->m_coupon = 1;
-						   break;
-				   }
-		   }
-		   $role->save();
-		   Session::flash('success', 'success');
+			
+			foreach($request->role as $item){
+				switch($item){
+					case 1:  //Manager Users
+					    $role->m_fuelstation = 1;
+					    break;
+					case 2:   //Manager Paymentmethods
+					    $role->m_report = 1;
+					    break;
+					case 3:   //Manager Fees
+						$role->m_coupon = 1;
+						break;
+					case 4:
+						$role->m_main = 1;
+				}
+		    }
+			
+			$fuelstation_arr = array();
+			foreach($request->fuelstation as $item){
+				$fuelstation = Fuelstation::where("no", $item)->first();
+				if(!isset($fuelstation)) continue;
+				$fuelstation_arr[] = $item;	
+		    }
+			$role->fuelstation_id 	 = json_encode($fuelstation_arr);
+		    $role->save();
+		    Session::flash('success', 'success');
+			return redirect('/seller/workers');
 		}
-		return view('seller/employeer/newworker', compact('countries', 'states'));
+		$title = trans('app.employeers');
+		return view('seller/employeer/newworker', compact('countries', 'states', 'title', 'fuelstations'));
+	}
+
+	public function workers(Request $request){
+		$page_size = 10;
+		$setting = array();
+		if($request->pagesize !== null)
+			$page_size = $request->pagesize;
+		$setting['pagesize'] = $page_size;
+		 
+		if($request->key !== null){
+			$setting['key'] = $request->key;
+			$employeers = Sellerrole::select('sellerrole.*', 'users.name','users.email' ,'users.no','users.phone')
+					->where('sellerrole.master_id  ', '=', Auth::user()->id)
+					->leftJoin('users', 'users.id', '=', 'sellerrole.user_id')
+					->where(function ($query) use ($request) {
+						$query->where('fuelstation.name',  'like',  '%'. $request->key . '%')
+						->orWhere('users.first_name', 'like','%'. $request->key . '%')
+						->orWhere('users.no', 'like','%'. $request->key . '%')
+						->orWhere('users.email', 'like','%'. $request->key . '%')
+						->orWhere('users.last_name', 'like','%'. $request->key . '%')
+						->orWhere('users.name', 'like','%'. $request->key . '%');
+					})->paginate($page_size);
+		}
+		else{
+			$setting['key'] = "";
+			$employeers =  Sellerrole::select('sellerrole.*', 'users.name','users.email' ,'users.no','users.phone')
+					->where('sellerrole.master_id', '=', Auth::user()->id)
+					->leftJoin('users', 'users.id', '=', 'sellerrole.user_id')
+					->paginate($page_size);
+		}
+
+		
+ 
+		foreach($employeers as $employeer){
+			if($employeer->fuelstation_id != 0){
+				$fuelstation = Fuelstation::find($employeer->fuelstation_id);
+				if(isset($fuelstation)){
+					$employeer->fuelstation = $fuelstation;
+				}
+			}
+		}
+
+		$title = trans('app.employeer');
+ 
+		return view('seller/employeer/worker', compact('setting', 'employeers', 'title'));
+	}
+	
+	public function workerdelete(Request $request, $id){
+			$user = Sellerrole::where('users.no',$id)
+					->select('sellerrole.*')
+					->where('sellerrole.master_id', '=', Auth::user()->id)
+					->leftJoin('users', 'users.id', '=', 'sellerrole.user_id')
+					->first();
+			if(isset($user)){
+				$sellerrole = Sellerrole::find($user->id);
+				$sellerrole->delete();
+				$user_data = User::where('users.no', $id)->first();
+				$user_data->delete();
+				return Redirect::back()->withErrors(['success']);
+			}
+			else
+				return view('errors.404');
 	}
 }

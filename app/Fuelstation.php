@@ -12,7 +12,8 @@ class Fuelstation extends Model
 	public static function rules()
     {
         return [
-            'name'            =>    'required',
+			'name'            =>    'required',
+			'oil'             =>    'required',
             'city'            =>    'required',
            // 'country'         =>    'required|integer',
             'state'           =>    'required|integer',
@@ -36,17 +37,13 @@ class Fuelstation extends Model
 	}
 
 	static function getfinalamount($amount, $fuelstation_id){
-
-	
 		$coupon = Fuelstation::where('id', $fuelstation_id)
 								->where('sale_status', '1')
 								->first();
-					
+		
 		if(!isset($coupon)) return $amount; 
-		//date_default_timezone_set("Asia/Riyadh");   // date("Y-m-d")
-
+		  
 		$now = Carbon::now(new \DateTimeZone('Asia/Riyadh'));
-	   
 		if($coupon->startdate)
 		{
 			$after = new Carbon( $coupon ->startdate);
@@ -55,17 +52,16 @@ class Fuelstation extends Model
 				return $amount;
 			}
 		}
- 
+		
 		if($coupon->enddate)
 		{
 			$after = new Carbon( $coupon ->enddate);
+ 
 			if($now->diffInMinutes($after, false) < 0){
 				return $amount;
 			}
 		}
-
-		 
-
+ 
 		if ($coupon->sale_type == '1'){ // percent
 			$amount = $amount - $amount * $coupon->sale_amount / 100;
 			$amount = round($amount, 2);

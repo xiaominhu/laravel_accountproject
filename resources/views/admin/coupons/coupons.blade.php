@@ -4,6 +4,24 @@
  <div class="content-header row">
  </div>
         <div class="content-body"><!-- stats -->
+
+		<div class="row">
+				<div class="col-xs-12">
+					<div class="card">
+						<div class="card-header">
+							<h4 class="card-title"> {{$title}}  </h4>
+							<a class="heading-elements-toggle"><i class="icon-ellipsis font-medium-3"></i></a>
+							<div class="heading-elements">
+								<ul class="list-inline mb-0">
+									<li><a data-action="collapse"><i class="icon-minus4"></i></a></li>
+									<li><a data-action="expand"><i class="icon-expand2"></i></a></li>
+									<li><a data-action="close"><i class="icon-cross2"></i></a></li>
+								</ul>
+							</div>
+						</div> 
+						<div class="card-body collapse in">
+
+						<div class="card-block">
 			<div class = "row">
 				<div class = "col-xs-4">
 				<a href = "{{URL::to('/admin/coupons/create')}}" class="btn btn-warning">    {{trans('app.add_new_coupon')}}    </a>
@@ -35,55 +53,68 @@
 							</select>
 						</form>
 				</div>
-				
 			</div>
 			
 			
-			<div class="row">
-				<div class="col-xs-12">
-					<div class="card">
-					
 							<div class="table-responsive">
-						
 								<table class="table table-bordered table-striped">
 									<thead>
 										<tr>
-											<th> {{trans('app.no')}}</th>
+											<th> {{trans('app.no')}}</th> 
 											<th> {{trans('app.code')}}</th>
 											<th> {{trans('app.type')}} </th>
 											<th> {{trans('app.amount')}}  </th>
+											<th> {{trans('app.status')}}  </th>
 											<th> {{trans('app.limit_number_users')}}</th>
 											<th> {{trans('app.limit_date')}}  </th>
 											<th> {{trans('app.reg_date')}} </th>
-												<th> {{trans('app.action')}} </th>
+											 <th> {{trans('app.action')}} </th>
 										</tr>
 									</thead>
 									<tbody>
-								@if(count($coupons))	
+
+									<?php
+										if(isset($_REQUEST['page']))
+											$id = $_REQUEST['page'] * 10;
+										else 
+											$id = 0;
+									?>
+
+								@if(count($coupons))
 									@foreach($coupons as $coupon)
 										<tr>
-											<th scope="row">{{$coupon->id}}</th>
+											<th scope="row"> <a href = "{{URL::to('admin/coupon/usage')}}/{{$coupon->code}}"> <?= ++$id; ?> </a> </th>
 											<td> {{$coupon->code}} </td>
 											<td> 
 												<?php
 													switch($coupon->type){
-														case 0:
-															echo 'Percentage';
-															break;
 														case 1:
-															echo 'Fixed';
+															echo trans('app.percentage');
+															break;
+														case 0:
+															echo trans('app.fixed');
 															break;
 													}
 												?>
 											</td>
 											<td> {{$coupon->amount}} </td>
+											
+											<td> 
+													@if($coupon->status)
+														<span class="label label-success">  {{trans('app.available')}} </span> 
+													@else
+														<span class="label label-danger">   {{trans('app.expired')}} </span> 
+													@endif
+											</td>
+
+ 
 											<td> {{$coupon->limit_users}} </td>
 											<td> {{$coupon->limit_date}} </td>
 											<td>{{$coupon->created_at}}</td>
 											<td> 
 												<div class="btn-group" role="group" aria-label="Basic example">
-													<a href = "/admin/coupons/update/{{$coupon->id}}"  type="button" class="btn btn-primary">Edit</a>
-													<a href = "/admin/coupons/delete/{{$coupon->id}}"  type="button" class="btn btn-danger">Delete</a>
+													<a href = "/admin/coupons/update/{{$coupon->id}}"  type="button" class="btn btn-primary"><i class="icon-edit"></i></a>
+													<a href = "/admin/coupons/delete/{{$coupon->id}}"  type="button" class="btn btn-danger"><i class="icon-trash"></i></a>
 												</div>
 											</td>
 										</tr>
@@ -94,15 +125,14 @@
 									</tbody>
 								</table>
 							</div>
-						
+
 							<div class = "col-xs-12" style = "text-align:center;">
 								{{$coupons->links()}}
 							</div>
-						
-						
+						</div>
 					</div>
 				</div>
-				
+				</div>
 				
 			</div>
 			

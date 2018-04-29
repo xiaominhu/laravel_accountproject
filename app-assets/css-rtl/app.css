@@ -1,3 +1,8 @@
+
+
+
+
+
 @media (max-width: 1366px) {
   html {
     font-size : 14px;
@@ -399,13 +404,21 @@ footer.footer-dark {
 }
 .main-menu.menu-dark {
   color : #DCDCDC;
-  background : #1D2B36;
+   background-image: -moz-linear-gradient( 0deg, rgb(107, 107, 107) 0%, rgb(230, 181, 34) 100%);
+
+    background-image: -webkit-linear-gradient( 0deg, rgb(107, 107, 107) 0%, rgb(230, 181, 34) 100%);
+
+    background-image: -ms-linear-gradient( 0deg, rgb(107, 107, 107) 0%, rgb(230, 181, 34) 100%);
 }
 .main-menu.menu-dark .main-menu-header {
   padding : 20px;
 }
 .main-menu.menu-dark .main-menu-header .menu-search {
-  background : #0B1115;
+  background-image: -moz-linear-gradient( 0deg, rgb(107, 107, 107) 0%, rgb(230, 181, 34) 100%);
+
+    background-image: -webkit-linear-gradient( 0deg, rgb(107, 107, 107) 0%, rgb(230, 181, 34) 100%);
+
+    background-image: -ms-linear-gradient( 0deg, rgb(107, 107, 107) 0%, rgb(230, 181, 34) 100%);
   padding : 0.5rem 1rem;
   color : #C3C3C3;
 }
@@ -413,7 +426,11 @@ footer.footer-dark {
   border-color : #020304;
 }
 .main-menu.menu-dark .navigation {
-  background : #1D2B36;
+  background-image: -moz-linear-gradient( 0deg, rgb(107, 107, 107) 0%, rgb(230, 181, 34) 100%);
+
+    background-image: -webkit-linear-gradient( 0deg, rgb(107, 107, 107) 0%, rgb(230, 181, 34) 100%);
+
+    background-image: -ms-linear-gradient( 0deg, rgb(107, 107, 107) 0%, rgb(230, 181, 34) 100%);
 }
 .main-menu.menu-dark .navigation .navigation-header {
   color : #DCDCDC;
@@ -443,27 +460,47 @@ footer.footer-dark {
   top : 3px;
 }
 .main-menu.menu-dark .navigation > li.open > ul {
-  background : #162029;
+  background-image: -moz-linear-gradient( 0deg, rgb(107, 107, 107) 0%, rgb(230, 181, 34) 100%);
+
+    background-image: -webkit-linear-gradient( 0deg, rgb(107, 107, 107) 0%, rgb(230, 181, 34) 100%);
+
+    background-image: -ms-linear-gradient( 0deg, rgb(107, 107, 107) 0%, rgb(230, 181, 34) 100%);  
 }
 .main-menu.menu-dark .navigation > li.open > a {
   color : #C3C3C3;
-  background : #162029;
+   background-image: -moz-linear-gradient( 0deg, rgb(107, 107, 107) 0%, rgb(230, 181, 34) 100%);
+
+    background-image: -webkit-linear-gradient( 0deg, rgb(107, 107, 107) 0%, rgb(230, 181, 34) 100%);
+
+    background-image: -ms-linear-gradient( 0deg, rgb(107, 107, 107) 0%, rgb(230, 181, 34) 100%); 
 }
 .main-menu.menu-dark .navigation > li.open .hover > a {
-  background : #121B22;
+    background-image: -moz-linear-gradient( 0deg, rgb(107, 107, 107) 0%, rgb(230, 181, 34) 100%);
+
+    background-image: -webkit-linear-gradient( 0deg, rgb(107, 107, 107) 0%, rgb(230, 181, 34) 100%);
+
+    background-image: -ms-linear-gradient( 0deg, rgb(107, 107, 107) 0%, rgb(230, 181, 34) 100%); 
 }
 .main-menu.menu-dark .navigation > li:not(.open) > ul {
   display : none;
 }
 .main-menu.menu-dark .navigation > li.hover > a, .main-menu.menu-dark .navigation > li:hover > a, .main-menu.menu-dark .navigation > li.active > a {
   color : #C3C3C3;
-  background-color : #162029;
+   background-image: -moz-linear-gradient( 0deg, rgb(107, 107, 107) 0%, rgb(230, 181, 34) 100%);
+
+    background-image: -webkit-linear-gradient( 0deg, rgb(107, 107, 107) 0%, rgb(230, 181, 34) 100%);
+
+    background-image: -ms-linear-gradient( 0deg, rgb(107, 107, 107) 0%, rgb(230, 181, 34) 100%);
 }
 .main-menu.menu-dark .navigation > li.hover > a.mm-next, .main-menu.menu-dark .navigation > li:hover > a.mm-next, .main-menu.menu-dark .navigation > li.active > a.mm-next {
   background-color : inherit;
 }
 .main-menu.menu-dark .navigation > li.active > a {
-  background-color : #162029;
+    background-image: -moz-linear-gradient( 0deg, rgb(107, 107, 107) 0%, rgb(230, 181, 34) 100%);
+
+    background-image: -webkit-linear-gradient( 0deg, rgb(107, 107, 107) 0%, rgb(230, 181, 34) 100%);
+
+    background-image: -ms-linear-gradient( 0deg, rgb(107, 107, 107) 0%, rgb(230, 181, 34) 100%);
 }
 .main-menu.menu-dark .navigation > li .active {
   background : #121B22;
@@ -473,7 +510,17 @@ footer.footer-dark {
   background : #121B22;
 }
 .main-menu.menu-dark .navigation > li .active .hover > a {
-  background : #162029;
+    background-image: -moz-linear-gradient( 0deg, rgb(107, 107, 107) 0%, rgb(230, 181, 34) 100%);
+
+    background-image: -webkit-linear-gradient( 0deg, rgb(107, 107, 107) 0%, rgb(230, 181, 34) 100%);
+
+    background-image: -ms-linear-gradient( 0deg, rgb(107, 107, 107) 0%, rgb(230, 181, 34) 100%); }
+          .main-menu.menu-dark .navigation > li .active .hover > a {
+            background-image: -moz-linear-gradient( 0deg, rgb(107, 107, 107) 0%, rgb(230, 181, 34) 100%);
+
+    background-image: -webkit-linear-gradient( 0deg, rgb(107, 107, 107) 0%, rgb(230, 181, 34) 100%);
+
+    background-image: -ms-linear-gradient( 0deg, rgb(107, 107, 107) 0%, rgb(230, 181, 34) 100%);
 }
 .main-menu.menu-dark .navigation > li ul {
   padding : 0;

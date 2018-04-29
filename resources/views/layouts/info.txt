@@ -1,0 +1,21 @@
+
+//  Transaction Type
+0:pos payment, 
+1:deposit,
+2:withdraw, 
+3:reward,  
+4: pos revenue, 
+5: subscription fee, 
+6:sendmoney, 
+7: accept money, 
+8:redeemvoucher
+9: admin withdraw
+
+// User type
+0: user
+1: seller
+2: admin
+4: pos user
+5: seller employee
+6: admin employee
+

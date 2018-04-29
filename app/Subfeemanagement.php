@@ -24,6 +24,43 @@ class Subfeemanagement extends Model
 			return $result;
 	}
 	
+	// if 0: success, 1: fail
+	static public function collectingFeeCar($user_id, $vehicleid){
+		$fee = Subfeemanagement::getFeeByuserid($user_id);
+		if($fee  == 0) return 0;
+		$balance = Fees::checkbalance($user_id);
+		if($fee > $balance) return 1;
+		$subfee = Subfeemanagement::where('user_id', $user_id)
+								->where('reference_id', $vehicleid)
+								->first();
+
+		if(!isset($subfee)){
+			$subfee = new Subfeemanagement;
+			$subfee->period = date("m-d");
+			$subfee-> no    = Subfeemanagement::generatevalue();
+			$subfee->user_id = $user_id;
+			$subfee->reference_id = $vehicleid;
+			$subfee->type   = 0;
+			$subfee->amount = $fee;
+			$subfee->save();
+		}
+		else{
+			if($subfee->period != date("m-d")) return 1;	
+		}
+
+		$transaction = new Transactions;
+		$transaction->operator_id = $user_id;
+		$transaction->reference_id = $subfee->id;
+		$transaction->type = 5; //subscriptionfee
+		$transaction->transtype = 1; //subscriptionfee
+		$transaction->amount       =  $fee;
+		$transaction->final_amount =  $fee;
+		$transaction->no = Transactions::generatevalue();
+		$transaction->save();
+		return 0;
+	}
+
+
 	static public function collectingFee($user_id){
 		$fee = Subfeemanagement::getFeeByuserid($user_id);
 		if($fee  == 0) return;	
@@ -35,6 +72,8 @@ class Subfeemanagement extends Model
 			$subfee->period = date("m-d");
 			$subfee-> no    = Subfeemanagement::generatevalue();
 			$subfee->user_id = $user_id;
+			$subfee->reference_id = $user_id;
+			$subfee->type   = 1;
 			/*
 			if($balance > $fee) 
 				$subfee->amount = $fee;
@@ -79,7 +118,7 @@ class Subfeemanagement extends Model
 			}
 			$vehicles = Vehicle::where('user_id', $user_id)->count();
 			
-			if($subscriptionfee->freeamount <= $vehicles) return 0;
+			if($subscriptionfee->freeamount < $vehicles) return 0;
 			else return $subscriptionfee->amount;
 		}
 		
@@ -89,7 +128,7 @@ class Subfeemanagement extends Model
 				$subscriptionfee = Subscriptionfee::where('usertype', '1')
 											   ->where('name', '0')
 											   ->first();
-			} 
+			}
 			return $subscriptionfee->amount;
 		}
 		return 0;

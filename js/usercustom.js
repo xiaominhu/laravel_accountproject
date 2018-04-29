@@ -1,8 +1,10 @@
 
 /*****************  chanage language *************************************************/
 
-$(document).on("click", ".dropdown-item.language", function(){
+$(document).on("click", ".dropdown-item.language", function(event){
 	
+	event.stopPropagation();
+	event.preventDefault();
 	$.ajax({
 		url: "/languages",
 		type: "POST",
@@ -12,12 +14,15 @@ $(document).on("click", ".dropdown-item.language", function(){
 			
 		},
 		success: function (data) {
+			
 		},
 		complete: function () {
 			window.location.reload(true);		
 		}
 	});
+	
 });
+ 
 
 /****************** admin users  details *********************/
 
@@ -83,9 +88,10 @@ $("#createvehicle_coutry").change(function(){
 	}
 	 
 	function validatephonenumber(str) {
-		var isphone = /^(1\s|1|)?((\(\d{3}\))|\d{3})((\(\d{3}\))|\d{3})(\-|\s)?(\d{3})(\-|\s)?(\d{3})$/.test(str);
+		  
+		var isphone = /^[0-9]{8,11}$/.test(str);
 		 return isphone;
-		 //966543632203
+		 //966 543632203
 		// 543 632 203
 		// 18601239864
 	  }
@@ -98,20 +104,20 @@ $("#createvehicle_coutry").change(function(){
 			data: { type : type, content: content, branch: branch, address:address},
 			dataType: "json",
 			beforeSend: function () {
+				 
 			},
 			success: function (data) {
-				
-				toastr["success"]("Success");
+				toastr["success"]("send by sms");
 			},
 			complete: function () {
 			}
 		});
-	} 
+	}   
 
  
 	$(".emailsendto").click(function(){
-		if(validateEmail($("#inviteaddresss").val())){
-			sendInvite('email', $("#inviteaddresss").val(), $(this).data('type'), $(this).data('content'));
+		if(validateEmail($("#inviteaddresss_email").val())){
+			sendInvite('email', $("#inviteaddresss_email").val(), $(this).data('type'), $(this).data('content'));
 		}
 		else{
 			toastr["error"]("Please add the correct address");
@@ -120,38 +126,15 @@ $("#createvehicle_coutry").change(function(){
 
 	
 	$(".smssendto").click(function(){
-	 
-		if(validatephonenumber($("#inviteaddresss").val())){
-			sendInvite('sms', $("#inviteaddresss").val(), $(this).data('type'),  $(this).data('content'));
+		if(validatephonenumber($("#inviteaddresss_sms").val())){
+			sendInvite('sms', $("#inviteaddresss_sms").val(), $(this).data('type'),  $(this).data('content'));
 		}
 		else{
 			toastr["error"]("Please add the correct address");
 		}
 	});
    
-   // qrcode print
-	$(document).on("click", ".qrcodeprint", function(event){
-		event.stopPropagation();
-		event.preventDefault();
-		var width = $(window).width() * 0.9;
-		var height = $(window).height() * 0.9;
-		var content = '<!DOCTYPE html>' + 
-					  '<html>' +
-					  '<head><title></title></head>' +
-					  '<body style = "text-align: center;">' +   // onload="window.focus(); window.print(); window.close();"
-					  '<h1> '+ $(this).data('name')  +' </h1>'+
-					  '<img src="' + $(this).data('src') + '" style="width: 50%;" />' +
-					  '<h3> '+ $(this).data('fuelname')  +' </h3>'+
-					  '</body>' +
-					  '</html>';
-		var options = "toolbar=no,location=no,directories=no,menubar=no,scrollbars=yes,width=" + width + ",height=" + height;
-		var printWindow = window.open('', 'print', options);
-		printWindow.document.open();
-		printWindow.document.write(content);
-		printWindow.document.close();
-		printWindow.focus();
-	
-	});
+  
 	
 	function is_numeric(str) {
 		var result = /^\d{0,2}(?:\.\d{0,2}){0,1}$/.test(str);
@@ -204,7 +187,8 @@ $("#createvehicle_coutry").change(function(){
 
 	$('#service_type').change(function(event){
  
-		if($(this).val() == "0" || $(this).val() == "4"){
+	 
+		if(($(this).val() == "4") || ($(this).val() == "0")){
 			$(".pospay").each(function(){
 				$(this).prop("disabled", false);
 			});
@@ -215,6 +199,20 @@ $("#createvehicle_coutry").change(function(){
 			});
 		}
 	});
+
+			$('#service_type_user').change(function(event){
+			 
+			   if($(this).val() == "0"){
+				   $(".pospay_user").each(function(){
+					   $(this).prop("disabled", false);
+				   });
+			   }
+			   else{
+				   $(".pospay_user").each(function(){
+					   $(this).prop("disabled", true);
+				   });
+			   }
+		   });
 
 	/***********************************************************************************************************
 	* 
@@ -256,11 +254,10 @@ $("#createvehicle_coutry").change(function(){
 						html += '<option value="'+ result[i].no +'">'+  result[i].name  +'</option>';
 					}
 					$("#name_subscription").html(html);
-				 
+					$('#name_subscription').selectpicker('refresh');
 				}
 			},
 			complete: function () {
-			 
 			}
 		});
 	}
@@ -270,12 +267,14 @@ $("#createvehicle_coutry").change(function(){
 			 $(".userform").removeClass("hidden");
 			 addSubscriptionName('user');
 		 }
-
 		 if($(this).val() == "1"){
 			 $(".userform").addClass("hidden");
 			 addSubscriptionName('seller');
 		 }
 	});
+
+ 
+
 
 	$(document).on('click', '.adminmessage', function(){
 		$.ajax({
@@ -306,9 +305,62 @@ $("#createvehicle_coutry").change(function(){
 		});
 	});
 	
+	$(".verifyphonenumber").click(function(){
+
+		if($(this).hasClass("disabled")) return;
+	
+		
+		$.ajax({
+			url: "/verify/sms/request",
+			type: "POST",
+			dataType: "json",
+			beforeSend: function () {
+				$(".verifyphonenumber").addClass('disabled');
+			},
+			success: function (data) {
+				$("#request_id").val(data.request_id);
+				$("#verifyphonenumbermodal").modal('show');
+			},
+			complete: function () {
+				$(".verifyphonenumber").removeClass('disabled');
+			}
+		});
+	
+	});
+
+	$('.sendverificationlink').click(function(){
+		
+		if($("#verifysms").val() != ""){
+			if($("#request_id").val() == "")
+				location.reload(); 
+			else
+				$(".sms-verifymodal").submit();
+		}
+		else{
+			toastr["error"]("Error");
+		}
+	});
 	 
- 
- 
+  
+	$('#createvehicle_password').keydown(function (e) {
+		var key = e.which;
+		if ((e.keyCode >= 48 && e.keyCode <= 57) || (e.keyCode >= 96 && e.keyCode <= 105))
+		{
+			if($('#createvehicle_password').val().length > 3)
+			{
+				e.preventDefault();
+				return false;  
+			}
+
+		}
+		else{
+			if(e.keyCode != 46   && e.keyCode != 8)
+			{
+				e.preventDefault();
+				return false;  
+			}
+		}
+	});  
  
  
  

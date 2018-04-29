@@ -14,7 +14,7 @@
 							<div class="media">
 								<div class="media-body text-xs-left">
 									<h3 class="deep-orange">{{$balance}} </h3>
-									<span> {{trans('app.sar')}} </span>
+									<span>   </span>
 								</div>
 								<div class="media-right media-middle">
 									<i class="icon-diagram deep-orange font-large-2 float-xs-right"></i>
@@ -82,6 +82,7 @@
 							<table class="table table-bordered table-striped">
 								<thead>
 									<tr>
+										<th>  </th>
 										<th>  {{trans('app.no')}}</th>
 										<th>  {{trans('app.name')}}</th>
 										<th>  {{trans('app.monthly_expense')}} </th>
@@ -89,13 +90,17 @@
 									</tr>
 								</thead>
 								<tbody>
+								<?php
 
+									$id = 0;
+								?>
 								@if(count($vehicles))
 									@foreach($vehicles as $vehicle)
 										<tr>
-											<th scope="row"> {{$vehicle->no}} </th>
-											<td> {{$vehicle->name}} </td>
-											<td>{{$vehicle->expense}}</td>
+											<th  scope="row">   {{++$id}} </th>
+											<td> {{$vehicle->no}}        </td>
+											<td> <span style = "direction:ltr;"> {{$vehicle->name}} </span> </td>
+											<td>  {{$vehicle->expense}} </td>
 											<td>  {{$vehicle->created_at}}  </td>
 										</tr>
 									@endforeach	
@@ -111,18 +116,22 @@
 								</tbody>
 							</table>
 						</div>
-					
 					</div>
-					
-						
 				</div>
 			</div>
-			
 		</div>
-		
 	</div>
-  
-
-      
+	 
+      		@if(Session::has('welcome'))
+			 	@push('scripts')	 
+					<script>
+						swal({
+							title: "<?=  trans('app.welcomeback_message', ['name' => Auth::user()->name])?>",
+							button: "<?= trans('app.close') ?>",
+						});
+					</script>
+					 
+				@endpush
+			@endif
 
 @endsection

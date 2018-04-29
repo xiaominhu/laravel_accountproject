@@ -2,7 +2,7 @@
 namespace App\Http\Middleware;
 use Closure;
 use Illuminate\Support\Facades\Auth;
-
+use App\Helpers\Selfuser\Selfuser;
 class SellerMiddleware
 {
     /**
@@ -17,9 +17,11 @@ class SellerMiddleware
 		if(Auth::check()){
             if(Auth::user()->usertype == 1)
                 return $next($request);
-                
             if(Auth::user()->usertype == 5){
-                return $next($request);  
+               if(!Selfuser::hasPermissionByUrl(Auth::user()->id, $request->url())){
+                  return redirect('seller/usersettings');
+               }
+                return $next($request); 
             }
             
         }

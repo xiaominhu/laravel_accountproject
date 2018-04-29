@@ -35,7 +35,7 @@
 				<div class="form-group col-sm-12">
                   <label for="emailtemplate_config_subject" class="col-sm-2 control-label">   {{trans('app.fuel_station_name')}} </label>
                   <div class="col-sm-10">
-                    <input type="text" class="form-control" id="name" name = "name" placeholder="" value = "{{ $setting_val['name']}}" onchange="this.form.submit()">
+                    <input type="text" class="form-control" id="name" name = "name" placeholder="{{trans('app.fuel_station_name')}}" value = "{{ $setting_val['name']}}" onchange="this.form.submit()">
                   </div>
                 </div>
 				
@@ -46,7 +46,8 @@
 							<option value="1">  {{trans('app.green_fuel')}}    </option>	
 							<option value="2"> {{trans('app.red_fuel')}}  		</option>	
 							<option value="3"> {{trans('app.diesel')}} 		    </option>	
-							<option value="4">   {{trans('app.wash')}}          </option>
+							<option value="4">   {{trans('app.oil')}}          </option>
+							<option value="5">   {{trans('app.wash')}}          </option>
 						</select>								 
                   </div>
                 </div>
@@ -80,7 +81,7 @@
                 </div>
 				
 				<div class = "col-xs-4 pull-right">
-					<button type="submit" class="btn btn-primary">
+					<button type="submit" class="btn btn-warning">
 							 {{trans('app.apply')}} 
 					</button>
 				</div>
@@ -103,20 +104,21 @@
 			  zoom: 8,
 			  center: myLatLng
 			});
-
+			
 			var lat_json = '<?= $fuel_json ?>';
-			
 			var lat_array =  JSON.parse(lat_json);
-			
 			for(var i = 0; i < lat_array.length; i++){
 				var marker = new google.maps.Marker({
 					  position: lat_array[i],
+					  icon: "{{URL::asset('images/fuelstationmap.png')}}",
 					  map: map
 				});
 			}
 			
 		}
 		</script>
-        <script async defer src="https://maps.googleapis.com/maps/api/js?key=AIzaSyAyIXfep7919J0jwyVuxDzqzj_qI-A26lI&callback=initMap">
+         
+		<script async defer src="https://maps.googleapis.com/maps/api/js?key=AIzaSyCJgcL_4zdeEI7q4E-crcMP19Jx8YCbWR8&callback=initMap">
 		</script>
+
 @endsection

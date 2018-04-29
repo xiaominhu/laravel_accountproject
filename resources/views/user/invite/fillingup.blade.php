@@ -39,51 +39,76 @@
 								</div>
 								
 								<div class="form-group col-sm-12">
-									<div class = "row">
-										 <div class = "col-sm-10">
-											<input class="form-control border-primary" readonly type="url" placeholder="http://" value = "{{URL::to('login')}}?invite={{$setting['link']}}" id="invitelink">
+									 
+										 <div class = "col-sm-10 mbbt-5">
+											<input class="form-control border-warning" readonly type="url" placeholder="http://" value = "{{URL::to('login')}}?invite={{$setting['link']}}" id="invitelink">
 										</div>
 										<div class = "col-sm-2">
-											<button type="button" class="btn btn-primary" onclick="copyToClipboard('#invitelink')">
+											<button type="button" class="btn btn-warning" onclick="copyToClipboard('#invitelink')">
 												<i class="icon-copy2"></i>  {{trans('app.invitation_link')}} 
 											</button>
 										</div>
-									</div>
-								   
-									
+									 
+								    
 								</div>
 								
 								
-								<div class="form-group col-sm-12">
+								<div class="form-group col-md-12">
 								 
-								  <div class="col-sm-4">
-										<input class="form-control border-primary"  type="text" placeholder="Email or Mobile Number" value = "" id="inviteaddresss">
+								  <div class="col-sm-3 mbbt-5">
+										<input class="form-control border-warning"  type="text" placeholder="exmple@example.com" value = "" id="inviteaddresss_email">
 								  </div>
 								  
-								   <div class="col-sm-4">
-										<button type="button" class="btn btn-primary emailsendto" data-type = "fillingup" data-content = "">
+									<div class="col-sm-3 mbbt-5">
+								  		<button type="button" class="btn btn-warning emailsendto" data-type = "fillingup" data-content = "">
 											<i class="icon-envelope"></i>  {{trans('app.email_send_to')}} 
 										</button>
-										<button type="button" class="btn btn-primary smssendto" data-type = "fillingup" data-content = "">
+									</div>
+
+									 <div class="col-sm-3 mbbt-5">
+										 
+										<div class="intl-tel-input allow-dropdown">
+												<div class="flag-container">
+													<div class="selected-flag" tabindex="0">
+														<div class="iti-flag sa"> </div> 
+														<div class="iti-arrow1">(+966)</div>
+													</div>
+												</div>
+													<input   class="form-control border-warning"  placeholder = "12345678"   id="inviteaddresss_sms"  type="tel" autocomplete="off" >
+											</div>
+								  	</div>
+
+								   <div class="col-sm-3 mbbt-5">
+										<button type="button" class="btn btn-warning smssendto" data-type = "fillingup" data-content = "">
 											<i class="icon-paper-plane-o"></i>   {{trans('app.send_by_sms')}} 
 										</button>
-										
-								  </div>
+									  </div>
 								</div>
-						
-						
-						
-								
 							</div>
 						</div>
 						
 						
 					</div>
 				</div>
-				
-				
-			
 		</form>	
 				
+		@push('scripts')
+				<link href="{{ URL::asset('app-assets/build/css/intlTelInput.css') }}" rel="stylesheet" type="text/css">
+				 <style>
+					.iti-arrow1{
+							position: absolute;
+							margin-top: 1px;
+							right: 6px;
+							width: 0;
+							height: 0;
+							border-top: 4px solid #555;
+						}
+
+				 
+				</style>
+		@endpush
+		
+
+
 		</div>
 @endsection

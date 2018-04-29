@@ -66,6 +66,7 @@ class RegisterController extends Controller
                 'email'    => 'required|email|max:255|unique:users',
                 'phone'    => 'required|max:255|unique:users',
                 'password' => 'required|min:6|confirmed',
+                 'tnc'     => 'required'
     			]);
             }
 		else{
@@ -82,6 +83,7 @@ class RegisterController extends Controller
                 'phone'    => 'required|max:255|unique:users',
                 'license'  => 'required|max:255|unique:users',
                 'password' => 'required|min:6|confirmed',
+                'tnc'      => 'required'
                 ]);
         }
 			
@@ -111,6 +113,8 @@ class RegisterController extends Controller
     protected function create(array $data)
     {
         $data['no'] = $this->generatevalue();
+		$data['phone'] =   $data['phone'];
+		 
 		if($data['usertyper'] == "1"){
 			$data['usertype'] = 1;
             return User::create([
@@ -120,6 +124,7 @@ class RegisterController extends Controller
                 'phone'    => $data['phone'],
                 'license'  => $data['license'],
                 'usertype' => $data['usertype'],
+                'status'   => '0',
                 'password' => bcrypt($data['password']),
             ]);
         }
@@ -132,26 +137,8 @@ class RegisterController extends Controller
                     $reward->receiver_id = $receiver->id;
                     $reward->sender_id   = $data['email'];
                     $reward->no          = Reward::generatevalue();
-                    $reward->save();  
-
-                    $transaction = new Transactions;
-                    $transaction->operator_id =  $receiver->id;
-                    $transaction->reference_id = $reward->id;
-                    $transaction->type = 3;
-
-                    $item = Setting::where('name', 'reward')->first();
-                    if(isset($item)){
-                        $transaction->amount = $item['value'];
-                        $transaction->final_amount =  $item['value'];
-                    }
-                    else{
-                        $transaction->amount = 10;
-                        $transaction->final_amount =  10;
-                    }
-                    $transaction->fee_amount   =  0;
-                    $transaction->transtype = 0; //in 
-                    $transaction->no = Transactions::generatevalue();
-                    $transaction->save();
+                    $reward->save(); 
+                   
                 }
             }
             $data['usertype'] = 0;
@@ -159,6 +146,17 @@ class RegisterController extends Controller
             // send welocme meesage
             User::sendMessage($data['phone'], trans('app.welcome_sms', ['no'=> $data['no']])); 
             Session::flush();
+
+            if(Session::has('vendor'))
+            {
+                Session::forget('vendor');
+            }
+
+            if(Session::has('user'))
+            {
+                Session::forget('user');
+            }
+	        
             return User::create([
                 'name'     => $data['name'],
                 'no'       => $data['no'],

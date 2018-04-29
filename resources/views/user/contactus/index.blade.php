@@ -4,25 +4,31 @@
  <div class="content-header row">
  </div>
         <div class="content-body"><!-- stats -->
-				@if($errors->any())
-				   <div class="alert alert-warning">
-						 <ul>
-							   @foreach ($errors->all() as $error)
-								  <li>{{ $error }}</li>
-							  @endforeach
-						  </ul>
-				   </div>
-				@endif
-				
+			  
 				@if($message != "")
 					 <div class="alert alert-success">
 						{{$message}}
 				   </div>
 				@endif
-				
-				
+		<div class="row">
+			<div class="col-xs-12">
+				<div class="card">
+					<div class="card-header">		
+				<h4 class="card-title" id="basic-layout-form"> Notification</h4>
+						<a class="heading-elements-toggle"><i class="icon-ellipsis font-medium-3"></i></a>
+						
+							<div class="heading-elements">
+								<ul class="list-inline mb-0">
+									<li><a data-action="collapse"><i class="icon-minus4"></i></a></li>
+									<li><a data-action="expand"><i class="icon-expand2"></i></a></li>
+									<li><a data-action="close"><i class="icon-cross2"></i></a></li>
+								</ul>
+							</div>
+					</div>
+					<div class="card-body collapse in">
+					<div class="card-block">
 		
-			<br/>
+		 
 			<br/>
 			<form  action="/user/contactus" method="post">	
 				
@@ -40,9 +46,9 @@
 					
 					<br>
 					<br>
-					<div class="form-group">
-						<label for="userinput8">  {{trans('app.message')}}  </label>
-						<textarea id="content" rows="15" class="form-control border-primary" name="content" placeholder="content" style=" margin-bottom: 0px;"></textarea>
+					<div class="form-group required">
+						<label for="userinput8" class = "control-label">  {{trans('app.message')}}  </label>
+						<textarea id="content" rows="15" class="form-control border-warning" name="content" placeholder="content" style=" margin-bottom: 0px;"></textarea>
 					</div>
 								
 			
@@ -52,7 +58,7 @@
 			
 			<div class = "row">
 				<div class = "col-xs-12">
-						<button type="submit" class="btn btn-primary  float-xs-right" style = "margin-right:50px;">
+						<button type="submit" class="btn btn-warning  float-xs-right" style = "margin-right:50px;">
 						   <i class="icon-paper-plane-o"></i>
 							 {{trans('app.send')}}
 						</button>
@@ -62,7 +68,11 @@
 		</form>	
 				
 				
-			
+			</div>
+					</div>
+				</div>
+			</div>
+	</div>
 		
 		
 		</div>

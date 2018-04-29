@@ -11,15 +11,15 @@ class Touchwith extends Model
 	public static function rules()
     {
         return [
-            'name'    => 'required|min:2|max:255',
-            'email'   => 'required|min:6|email|max:255',
-			'phone'   => 'required|min:6|max:20',
-			'message' => 'required'
+            'name'      => 'required|min:2|max:255',
+            'email'   	=> 'required|min:6|email|max:255',
+			'subject'   => 'required|min:2|max:20',
+			'message'   => 'required'
         ];
     }
 	
 	static public function generatevalue(){
-		$digits = 20;
+		$digits = 10;
 		while(1){
 			$result = '';
 			for($i = 0; $i < $digits; $i++){

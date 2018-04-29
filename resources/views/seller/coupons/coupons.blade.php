@@ -3,13 +3,9 @@
  <div class="content-header row">
  </div>
         <div class="content-body"><!-- stats -->
-		
-			
 			<br>
-			
 			<div class = "row">
-				
-				<div class = "col-xs-4">
+				<div class = "col-md-4 col-xs-8">
 					<form  action="/seller/coupons" method="get">
 						<fieldset class="form-group position-relative">
 							<input type="text" name = "key" value = "{{$setting['key']}}" class="form-control form-control-lg input-lg" id="iconLeft" placeholder=" {{trans('app.search')}} ">
@@ -32,7 +28,6 @@
 							</select>
 						</form>
 				</div>
-				
 			</div>
 			
 			
@@ -45,6 +40,7 @@
 								<table class="table table-bordered table-striped">
 									<thead>
 										<tr>
+											<th>  </th>
 											<th>{{trans('app.no')}}</th>
 											<th>{{trans('app.name')}}</th>
 											<th> {{trans('app.status')}} </th>
@@ -55,11 +51,18 @@
 										</tr>
 									</thead>
 									<tbody>
+									
+									<?php 
+										$id = 0;
+										if(isset($_REQUEST['page']))
+											$id = $_REQUEST['page'] * $setting['pagesize']; 									
+									?>
 								@if(count($coupons))	
 									@foreach($coupons as $coupon)
 										<tr>
-											<th scope="row">{{$coupon->no}} </th>
-											<th scope="row">{{$coupon->name}} </th>
+											<th  scope="row">  {{++$id}}   </th>
+											<td>{{$coupon->no}} </td>
+											<th>{{$coupon->name}} </th>
 											<td> 
 												<select  class = "form-control" name ="sale_status_{{$coupon->no}}">
 														<option value="1" <?php if($coupon->sale_status == "1") echo 'selected';  ?> > {{trans('app.working')}}   </option>	

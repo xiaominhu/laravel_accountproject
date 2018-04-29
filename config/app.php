@@ -181,8 +181,8 @@ return [
 		Maatwebsite\Excel\ExcelServiceProvider::class,
         Tymon\JWTAuth\Providers\JWTAuthServiceProvider::class,
 		Nexmo\Laravel\NexmoServiceProvider::class,
-		
 		App\Providers\SelfuserServiceProvider::class,
+		Elibyy\TCPDF\ServiceProvider::class,
     ],
 
     /*
@@ -238,6 +238,7 @@ return [
 		'JWTFactory' => Tymon\JWTAuth\Facades\JWTFactory::class,
 		'Nexmo' => \Nexmo\Laravel\Facade\Nexmo::class,
 		'Selfuser' => App\Helpers\Selfuser\Selfuser::class,
+        'PDF' => Elibyy\TCPDF\Facades\TCPDF::class
     ],
 
 ];

@@ -6,8 +6,16 @@
 	</div>
 	<div class="content-body"><!-- stats -->
 		<div class="row">
-			
-			
+			@if(Session::has('welcome'))
+			 	@push('scripts')
+					<script>
+							swal({
+								title: "{{trans('app.welcomeback_message', ['name' => Auth::user()->name])}}",
+								button: "{{trans('app.close')}}",
+							});
+					</script>
+				@endpush
+			@endif
 			<div class="col-xl-4 col-lg-6 col-xs-12">
 				<div class="card">
 					<div class="card-body">
@@ -71,6 +79,7 @@
 								<table class="table table-bordered table-striped">
 									<thead>
 										<tr>
+											<th>   </th>
 											<th>{{trans('app.no')}} </th>
 											<th> {{trans('app.name')}} </th>
 											<th> {{trans('app.revenue_amount')}}   </th>
@@ -79,12 +88,13 @@
 										</tr>
 									</thead>
 									<tbody>
-										
-										@foreach($today_revenue as $operation)
+										<?php $i = 0; ?>
+										@foreach($result_fuelstation as $operation)
 										<tr>
-											<th scope="row">{{$operation->no}}</th>
+											<th scope="row"> {{++$i}} </th>
+											<td>{{$operation->no}}</td>
 											<td> {{$operation->name}}    </td>
-											<td>  {{$operation->amount}} </td>
+											<td>  {{$operation->expense}} </td>
 											<td> {{$operation->created_at}}  </td>
 										</tr>
 										@endforeach
@@ -94,7 +104,6 @@
 												<a  href = "{{route('sellerreports')}}"  type="button" class="btn btn-warning btn-block"> {{trans('app.view_all')}} </a>
 											</th>
 										</tr>
-									   
 									</tbody>
 								</table>
 							</div>

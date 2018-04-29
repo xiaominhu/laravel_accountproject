@@ -4,10 +4,18 @@
  <div class="content-header row">
  </div>
         <div class="content-body"><!-- stats -->
+		 
+
+ 
+			<div class="container">
+	<div class="row">
+     
 			<div class="row">
 				<div class="col-xl-4 col-lg-6 col-xs-12">
 					<div class="card">
 						<div class="card-body">
+
+						
 							<div class="card-block">
 								<div class="media">
 									<div class="media-body text-xs-left">
@@ -95,10 +103,12 @@
 							<h4 class="card-title"> {{trans('app.latest_user')}}  </h4>
 						</div>
 						<div class="card-body">
+						<div class="card-block">
 							<div class="table-responsive">
 								<table class="table table-bordered table-striped">
 									<thead>
 										<tr>
+											<th>  </th>
 											<th> {{trans('app.no')}}                 </th>
 											<th> {{trans('app.name')}}               </th>
 											<th> {{trans('app.email')}}              </th>
@@ -113,9 +123,13 @@
 										</tr>
 									</thead>
 									<tbody>
+										<?php
+											$id = 0;
+										?>
 										@foreach($latest_users as $user)
 										<tr>
-											<th scope="row">{{$user->no}}</th>
+											<th  scope="row">   {{++$id}} </th>
+											<td>{{$user->no}}</td>
 											<td>
 												{{$user->name}}
 											</td>
@@ -146,7 +160,7 @@
 												@if($user->status == 1)  
 													 {{trans('app.activated')}} 
 												@else
-													{{trans('app.deactivated')}} <
+													{{trans('app.deactivated')}} 
 												@endif
 											</td>
 											<td> 	
@@ -179,6 +193,7 @@
 								</table>
 							</div>
 						</div>
+						</div>
 					</div>
 				</div>
 					
@@ -188,10 +203,12 @@
 							<h4 class="card-title">  {{trans('app.latest_deposit_operations')}}  </h4>
 						</div>
 						<div class="card-body">
+							<div class="card-block">
 							<div class="table-responsive">
 								<table class="table table-bordered table-striped">
 									<thead>
 										<tr>
+											<th>  </th>
 											<th> {{trans('app.no')}}</th>
 											<th> {{trans('app.name')}}</th>
 											<th> {{trans('app.phone')}}</th>
@@ -203,9 +220,14 @@
 										</tr>
 									</thead>
 									<tbody>
+									<?php
+
+										$id = 0;
+									?>
 										@foreach($latest_deposits as $deposit)
 											<tr>
-												<th scope="row"> {{$deposit->no}}    </th>
+												<th> {{++$id}} </th>
+												<td> {{$deposit->no}}    </td>
 												<td>             {{$deposit->name}}  </td>
 												<td>             {{$deposit->phone}} </td>
 											 
@@ -254,13 +276,9 @@
 								</table>
 							</div>
 						</div>
+						</div>
 					</div>
 				</div>
-	    
-				
 			</div>
-			
 		</div>
-      
-
 @endsection

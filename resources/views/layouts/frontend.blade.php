@@ -48,17 +48,17 @@
 				
 					<a id="dropdown-flag" href="#" data-toggle="dropdown" aria-haspopup="true" aria-expanded="true" class="dropdown-toggle">
 						@if(App::getLocale() == "sa")
-							<i class="flag-icon flag-icon-sa"></i>
+							<!-- i class="flag-icon flag-icon-sa"></i -->
 							<span class="selected-language">العربية</span>
 						@else
-							<i class="flag-icon flag-icon-gb"></i>
+							<!-- i class="flag-icon flag-icon-gb"></i -->
 							<span class="selected-language">English</span>
 						@endif
 						
 					</a>
 					<ul aria-labelledby="dropdown-flag" class="dropdown-menu">
-						<li><a href="#" class="dropdown-item language" data-lang="en"><i class="flag-icon flag-icon-gb"></i> English</a></li>
-						<li><a href="#" class="dropdown-item language" data-lang="sa"><i class="flag-icon flag-icon-sa"></i> العربية </a></li>
+						<li><a href="#" class="dropdown-item language" data-lang="en"><!-- i class="flag-icon flag-icon-gb"></i --> English</a></li>
+						<li><a href="#" class="dropdown-item language" data-lang="sa"><!-- i class="flag-icon flag-icon-sa"></i --> العربية </a></li>
 					</ul>
 				</div> 
 			</div>
